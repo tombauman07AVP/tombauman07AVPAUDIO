@@ -1,0 +1,1942 @@
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name="robots" content="noindex,nofollow"><meta name="description" content="Ballroom audio system notes. Staff sign-in required."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Royal Pines Ballroom Audio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style id="css">
+/* Layout: the full-screen star map IS the page. Drag or pinch to travel between sectors; details open in a glass panel on the right (a bottom sheet on phones); a small dock flies the camera. Single deliberate dark "space" look. */
+:root{
+  color-scheme:dark;
+  --space:#060A14;--ink:#E6ECF7;--muted:#8E9DBA;--line:rgba(142,162,198,.18);--line-strong:rgba(142,162,198,.34);
+  --glass:rgba(11,17,33,.86);--glass-2:rgba(255,255,255,.035);--glass-3:rgba(255,255,255,.08);
+  --accent:#86B6FF;--on-accent:#06101F;--wire:#8FA2C4;--shadow:rgba(0,0,0,.55);
+  --ql:#FF9F5A;--ql-bg:rgba(255,159,90,.12);--rio:#76ABFF;--rio-bg:rgba(118,171,255,.12);--gal:#93E27F;--gal-bg:rgba(147,226,127,.11);
+  --spk:#C99DFF;--spk-bg:rgba(201,157,255,.12);--room:#B3C0D6;--room-bg:rgba(179,192,214,.09);--dante:#6FD8EC;--dante-bg:rgba(111,216,236,.10);
+  --ok:#6EE7A8;--ok-bg:rgba(110,231,168,.14);--warn:#FFC766;--warn-bg:rgba(255,199,102,.14);--strip:rgba(255,255,255,.06);
+  --f-display:"Chakra Petch","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{background:radial-gradient(1100px 760px at 14% 18%,rgba(98,74,205,.20),transparent 62%),radial-gradient(1000px 720px at 86% 82%,rgba(28,150,182,.16),transparent 60%),var(--space);color:var(--ink);font:400 15px/1.5 var(--f-body);overflow:hidden}
+a{color:var(--accent)}
+button{font-family:inherit}
+.k-ql{--k:var(--ql);--kb:var(--ql-bg)}.k-rio{--k:var(--rio);--kb:var(--rio-bg)}.k-gal{--k:var(--gal);--kb:var(--gal-bg)}
+.k-spk{--k:var(--spk);--kb:var(--spk-bg)}.k-room{--k:var(--room);--kb:var(--room-bg)}.k-dante{--k:var(--dante);--kb:var(--dante-bg)}
+.scene{position:fixed;inset:0;overflow:hidden;overflow:clip}
+#stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.viewport{position:absolute;inset:0;cursor:grab;touch-action:none;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.viewport *{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+.viewport.dragging .world{pointer-events:none}
+.viewport.dragging{cursor:grabbing}
+.world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.area{position:absolute}
+.atitle{font:700 13px var(--f-display);letter-spacing:.32em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.atitle b{color:var(--ink);font-weight:700}
+.asub{font-size:14px;color:var(--muted);margin-top:4px}
+/* topology */
+.sys svg{display:block;overflow:visible}
+.node{cursor:pointer;transition:opacity .2s}
+.node rect{fill:var(--kb);stroke:var(--k);stroke-width:1.6;transition:stroke-width .15s,fill .15s}
+.node.planned rect{stroke-dasharray:7 5}
+.node .nt{font:700 15px var(--f-display);fill:var(--k);letter-spacing:.08em}
+.node .ns{font:500 12.5px var(--f-body);fill:var(--ink)}
+.node .nm{font:600 10.5px var(--f-display);fill:var(--muted);letter-spacing:.12em}
+.node:hover rect,.node.on rect{stroke-width:2.6}
+.node:focus{outline:none}
+.node:focus-visible rect{stroke-width:3.5;stroke:var(--ink)}
+.hdr{font:700 11px var(--f-display);fill:var(--muted);letter-spacing:.26em}
+.e{fill:none;stroke:var(--wire);stroke-width:1.6;opacity:.55;transition:opacity .2s}
+.e.dn{stroke:var(--dante)}.e.sp{stroke:var(--spk)}.e.planned{stroke-dasharray:6 5}
+.flow{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-dasharray:2 18;opacity:.8;animation:flow 1.6s linear infinite}
+.flow.dn{stroke:var(--dante);animation-duration:2.6s}.flow.sp{stroke:var(--spk)}
+@keyframes flow{to{stroke-dashoffset:-40}}
+.mk{fill:var(--wire)}.mk-d{fill:var(--dante)}.mk-s{fill:var(--spk)}
+.elab{font:500 10.5px var(--f-body);fill:var(--muted);transition:opacity .2s}
+.dante-t{font:700 14px var(--f-display);fill:var(--dante);letter-spacing:.3em}
+svg.focus .e:not(.on),svg.focus .flow:not(.on){opacity:.08}
+svg.focus .node:not(.on){opacity:.3}
+svg.focus .elab{opacity:.2}
+/* sign-in screen, account and admin */
+.gate{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:rgba(6,10,20,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow:auto}
+.gatecard{box-sizing:border-box;width:min(400px,100%);border-radius:18px;padding:26px 24px 22px;border-color:var(--line-strong);box-shadow:0 24px 70px var(--shadow)}
+.gbrand{display:grid;line-height:1.15}
+.gbrand small{font:700 10.5px var(--f-display);letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.gbrand b{font:700 21px var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.gate h2{font:700 19px var(--f-display);letter-spacing:.06em;margin:20px 0 4px}
+.gate label{display:block;font:600 11px var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.gate input{box-sizing:border-box;width:100%;font:500 16px var(--f-body);padding:11px 12px;border-radius:10px;border:1px solid var(--line-strong);background:rgba(0,0,0,.3);color:var(--ink)}
+.gate input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.gate .btn.primary{width:100%;margin-top:20px;padding:11px;font-size:15px}
+.grow{display:flex;gap:8px;margin-top:18px}.grow .btn,.gate .grow .btn.primary{flex:1;width:auto;margin-top:0;padding:10px}
+.gmsg{min-height:1.4em;margin:12px 0 0;font-size:14px;color:var(--warn)}
+.gnote{font-size:13.5px;color:var(--muted);margin:12px 0 0}
+.ubtn{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:700 12.5px var(--f-display);letter-spacing:.04em;text-decoration:none;flex:none}
+.ubtn:hover{outline:2px solid var(--ink);outline-offset:1px}
+.frow{display:flex;gap:8px;flex-wrap:wrap}.frow .fi{flex:1 1 220px;width:auto;font-size:15px;padding:8px 10px}
+.fgrid{display:grid;gap:8px;max-width:420px}.fgrid .fi{font-size:15px;padding:8px 10px}
+.adminbody{margin-top:14px}
+.afil{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.afil select.fi{width:auto;font-size:14px;padding:6px 8px}
+.alog td.when{white-space:nowrap;font-size:13px}.alog td.when small{display:block;color:var(--muted);font-size:12px}
+.alog td.who{font-weight:600;white-space:nowrap}
+.sumd{margin-top:4px}.sumd summary{cursor:pointer;color:var(--accent);font-size:13px}
+.sumd pre{white-space:pre-wrap;font:500 12.5px/1.5 var(--f-mono);color:var(--ink);background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0 0;max-height:260px;overflow:auto}
+.ainfo{padding:14px 16px;font-size:14px}.ainfo ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
+.people .prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:center}
+.people .prow:last-child{border-bottom:0}
+.pwho{display:grid;min-width:0}.pwho b,.pwho .dim{overflow-wrap:anywhere}
+.prow select.fi{width:auto;font-size:14px;padding:6px 8px}
+.preset{grid-column:1/-1;display:flex;gap:8px}.preset .fi{flex:1;font-size:14px;padding:6px 8px;width:auto;min-width:0}
+.versions .vrow{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.versions .vrow:last-child{border-bottom:0}
+/* route highlight on the map */
+svg.routing .node{opacity:.2}
+svg.routing .node.ron{opacity:1}
+svg.routing .node.ron rect{stroke-width:3}
+svg.routing .e{opacity:.06}
+svg.routing .e.ron{opacity:1;stroke-width:2.6}
+svg.routing .flow{opacity:0}
+svg.routing .flow.ron{opacity:1;stroke-width:3;animation-duration:1.1s}
+svg.routing .flow.ron.rev{animation-direction:reverse}
+svg.routing .elab{opacity:.25}
+.rchip{top:calc(70px + env(safe-area-inset-top,0px));left:14px;border-radius:12px;padding:5px 5px 5px 12px;display:flex;align-items:center;gap:10px;max-width:min(460px,calc(100% - 28px));font-size:14px}
+.rchip .live{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 10px var(--accent)}
+.rchip small{font:700 10px var(--f-display);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.rchip a{color:var(--ink);font-weight:600;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rchip a:hover{text-decoration:underline}
+.rchip .x{width:30px;height:30px;font-size:15px;flex:none}
+/* signal finder */
+.readas{margin:12px 0 0;font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rd{font:600 12.5px var(--f-body);color:var(--ink);background:var(--glass-3);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.rd.warn{color:var(--warn);background:var(--warn-bg);border-color:transparent}
+.readas .ign{font-size:12.5px;margin-left:4px}
+.qchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.best{margin-top:14px;padding:16px 18px 14px;border-top:3px solid var(--accent)}
+.bhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.btitle{font:700 21px/1.15 var(--f-display);letter-spacing:.05em;margin:3px 0 0}
+.bsub{font-size:13.5px;color:var(--muted);margin-top:2px}
+.flowv{list-style:none;margin:14px 0 0;padding:0;position:relative}
+.flowv::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;border-left:2px dashed var(--line-strong)}
+.flowv::after{content:"";position:absolute;left:5px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(134,182,255,.6);animation:drip 2.8s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes drip{0%{top:10px;opacity:0}8%{opacity:1}90%{opacity:1}100%{top:calc(100% - 18px);opacity:0}}
+.fstep{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;padding:7px 0}
+.fdot{width:14px;height:14px;border-radius:50%;border:2px solid var(--k);background:#0B1121;margin-top:2px;position:relative;z-index:1;box-shadow:0 0 0 3px var(--kb)}
+.fnode{font:700 11px var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:var(--k);text-decoration:none}
+a.fnode:hover{text-decoration:underline}
+.fvals{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.lv{display:inline-flex;align-items:baseline;gap:7px;padding:3px 10px;border-radius:7px;background:var(--kb);border:1px solid var(--line);border-color:color-mix(in srgb,var(--k) 35%,transparent);font:600 14px var(--f-body)}
+.lv i{font:700 10px var(--f-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.checks{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.checks summary{cursor:pointer;font:700 13px var(--f-display);letter-spacing:.16em;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:8px}
+.checks summary::-webkit-details-marker{display:none}
+.checks summary::before{content:"\25B8";color:var(--muted);transition:transform .15s}
+.checks[open] summary::before{transform:rotate(90deg)}
+.checks summary small{font:500 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.clist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:2px}
+.clist label{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;padding:7px 8px;border-radius:8px;cursor:pointer}
+.clist label:hover{background:var(--glass-2)}
+.clist input{width:17px;height:17px;margin:2px 0 0;accent-color:var(--ok)}
+.clist b{font-weight:600}
+.clist input:checked + span{color:var(--muted);text-decoration:line-through}
+.tip{font-size:13.5px;color:var(--muted);margin:10px 0 0;padding-left:10px;border-left:2px solid var(--accent)}
+.tip.warn{border-color:var(--warn);color:var(--ink)}
+.near{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:var(--muted)}
+.near>span{margin-right:2px}
+.fstep.ok .fdot{background:var(--ok);border-color:var(--ok);box-shadow:0 0 0 3px var(--ok-bg)}
+.fstep.ok .fdot::after{content:"";position:absolute;left:3px;top:0;width:3px;height:6px;border:solid #06101F;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.clist li.next label{background:rgba(134,182,255,.08);box-shadow:inset 3px 0 0 var(--accent)}
+.tip.done{border-color:var(--ok);color:var(--ink)}
+.bact{display:flex;gap:8px;flex-wrap:wrap}
+a.lv{color:var(--ink);text-decoration:none}
+a.lv::after{content:"›";color:var(--muted);font-weight:700;margin-left:1px}
+a.lv:hover{border-color:var(--k)}
+.rd.mut{color:var(--muted);background:none;border-style:dashed}
+.qlabel{font:700 11px var(--f-display);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:16px 0 -4px}
+tr.hlrow td{background:rgba(134,182,255,.13)}
+tr.hlrow td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.backq{position:sticky;top:-18px;z-index:3;display:block;margin:-18px -20px 14px;padding:11px 20px;font-size:14px;font-weight:600;text-decoration:none;color:var(--accent);background:rgba(11,17,33,.97);border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.backq:hover{text-decoration:underline}
+.hsearch{display:inline-flex;align-items:center;gap:10px;height:42px;border-radius:12px;padding:0 10px 0 14px;color:var(--muted);font:500 14.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.hsearch:hover{color:var(--ink);border-color:var(--accent)}
+.hsearch svg{color:var(--accent);flex:none}
+.hsearch kbd{font:600 11px var(--f-mono);border:1px solid var(--line-strong);border-radius:5px;padding:1px 6px;color:var(--muted);margin-left:auto}
+@media (min-width:721px){.hsearch{position:absolute;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);min-width:290px}}
+@media (max-width:720px){.hsearch{width:46px;height:46px;padding:0;justify-content:center;margin-left:auto}.hsearch span,.hsearch kbd{display:none}.hsearch svg{width:20px;height:20px}.meta:not(:has(button,.pill,.ubtn)){display:none}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:26px;height:0;border-top:2px solid var(--wire)}
+.legend i.d{border-color:var(--dante)}.legend i.s{border-color:var(--spk)}
+/* sectors */
+.sector{cursor:pointer}
+.sector:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:16px}
+.rfsvg .orbit{fill:none;stroke:var(--line-strong);stroke-dasharray:3 7}
+.rfsvg .orb{fill:rgba(111,216,236,.14);stroke:var(--dante);stroke-width:1.5}
+.rfsvg .orb.ok{fill:rgba(110,231,168,.16);stroke:var(--ok)}
+.rfsvg .hub{fill:rgba(111,216,236,.10);stroke:var(--dante);stroke-width:2}
+.rfsvg .loc{font:600 13px var(--f-display);fill:var(--ink);letter-spacing:.06em}
+.rfsvg .ch{font:500 12px var(--f-mono);fill:var(--muted)}
+.rfsvg .big{font:700 30px var(--f-display);fill:var(--dante)}
+.rfsvg .lab{font:700 12px var(--f-display);fill:var(--muted);letter-spacing:.3em}
+.panelw{background:rgba(255,255,255,.035);border:1px solid var(--line-strong);border-radius:18px;padding:24px}
+.sector:hover .panelw,.sector:hover .orbit{border-color:var(--accent);stroke:var(--accent)}
+.mission{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--line-strong)}.ring .fg{stroke:var(--ok);stroke-linecap:round}
+.ring text{font:700 30px var(--f-display);fill:var(--ink)}
+.ring .sm{font:500 12px var(--f-body);fill:var(--muted)}
+.mlist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.mlist li{display:flex;gap:10px;align-items:baseline;font-size:15px}
+.mlist li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none;transform:translateY(-1px)}
+.ships{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.ship{background:var(--spk-bg);border:1px solid rgba(201,157,255,.4);border-radius:14px;padding:16px;display:grid;gap:6px}
+.ship b{font:700 20px var(--f-display);color:var(--spk);letter-spacing:.04em}
+.ship span{font-size:13.5px;color:var(--muted)}
+.netcards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.netc{background:var(--dante-bg);border:1px solid rgba(111,216,236,.38);border-radius:14px;padding:14px 16px;display:grid;gap:4px}
+.netc b{font:700 17px var(--f-display);color:var(--dante);letter-spacing:.04em}
+.netc span{font-size:13.5px;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-size:.95em;color:var(--ink)}
+.beacon{display:flex;gap:18px;align-items:center}
+.pulse{position:relative;width:54px;height:54px;flex:none}
+.pulse i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent)}
+.pulse i:nth-child(2){animation:ping 2.4s ease-out infinite}
+.pulse i:nth-child(3){animation:ping 2.4s ease-out 1.2s infinite}
+.pulse b{position:absolute;inset:17px;border-radius:50%;background:var(--accent)}
+@keyframes ping{from{transform:scale(1);opacity:.8}to{transform:scale(2.4);opacity:0}}
+/* HUD */
+.hud{position:absolute;pointer-events:none;z-index:5}
+.hud>*{pointer-events:auto}
+.hud,.dock,.zoom{-webkit-user-select:none;user-select:none}
+.hud-top{top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{border-radius:12px;padding:7px 14px;text-decoration:none;color:var(--ink);display:grid;line-height:1.15}
+.brand small{font:700 10px var(--f-display);letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.brand b{font:700 17px var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.meta{border-radius:12px;padding:6px 8px 6px 14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.btn{font:600 13.5px var(--f-body);border:1px solid var(--line-strong);background:var(--glass-2);color:var(--ink);padding:6px 13px;border-radius:9px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dock{left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));border-radius:999px;padding:5px;display:flex;gap:2px;max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none}
+.dk{font:600 12.5px var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:8px 14px;border-radius:999px;background:none;border:0;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.dk:hover{color:var(--ink)}
+.dk[aria-current="true"]{color:var(--ink);background:var(--glass-3)}
+.dk i{width:7px;height:7px;border-radius:50%;background:var(--k,var(--accent))}
+.zoom{right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:grid;gap:4px;border-radius:12px;padding:4px}
+.zoom button{width:34px;height:34px;border-radius:8px;border:0;background:none;color:var(--ink);font:600 18px var(--f-body);cursor:pointer}
+.zoom button:hover{background:var(--glass-3)}
+.hint{left:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));font-size:12.5px;color:var(--muted);pointer-events:none}
+.editpill{top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);border-radius:12px;padding:6px 6px 6px 14px;display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);white-space:nowrap}
+.banner{z-index:8;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);border-radius:12px;padding:10px 12px 10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:calc(100% - 28px);border-color:var(--warn)}
+/* drawer */
+.drawer{position:absolute;z-index:6;top:calc(66px + env(safe-area-inset-top,0px));right:14px;bottom:calc(72px + env(safe-area-inset-bottom,0px));width:min(620px,calc(100% - 28px));border-radius:18px;border-color:var(--line-strong);display:flex;flex-direction:column;box-shadow:0 24px 70px var(--shadow);animation:slide .28s ease-out}
+@keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 20px;border-bottom:1px solid var(--line)}
+.dhead span{font:700 11px var(--f-display);letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.x{width:34px;height:34px;border-radius:9px;border:1px solid var(--line-strong);background:none;color:var(--ink);font-size:18px;cursor:pointer}
+.x:hover{border-color:var(--accent)}
+.dbody{overflow:auto;padding:18px 20px 28px;overscroll-behavior:contain}
+@media (max-width:720px){
+  .drawer{left:8px;right:8px;width:auto;top:auto;height:74%;bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  @keyframes slide{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .zoom,.hint{display:none}
+  .editpill{top:auto;bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+  .meta span.upd{display:none}
+}
+/* content inside the drawer */
+h1{font:700 clamp(24px,3.4vw,30px)/1.1 var(--f-display);margin:0;letter-spacing:.03em;text-wrap:balance}
+.lede{color:var(--muted);margin:6px 0 0;max-width:64ch}
+h2.sec{font:700 16px/1.2 var(--f-display);margin:26px 0 10px;letter-spacing:.12em;text-transform:uppercase;text-wrap:balance}
+h2.sec small{font:500 13px var(--f-body);color:var(--muted);margin-left:8px;letter-spacing:0;text-transform:none}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:10px}
+.card{background:var(--glass-2);border:1px solid var(--line);border-radius:var(--r)}
+.devhead{padding:18px;display:grid;gap:12px;border-top:3px solid var(--k)}
+.tag{font:700 11px var(--f-display);letter-spacing:.24em;text-transform:uppercase;color:var(--k)}
+.model{margin:0;font-weight:600}
+.role{margin:0;max-width:70ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px;margin:0}
+.facts div{min-width:0}
+.facts dt{font:600 10.5px var(--f-display);text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
+.facts dd{margin:2px 0 0;overflow-wrap:anywhere}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font:600 12.5px var(--f-body);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.mut{background:var(--room-bg);color:var(--room)}
+.conn{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.conn a{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--ink)}
+.conn a:hover{border-color:var(--k)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--k);flex:none}
+.io{display:grid;gap:14px;margin-top:14px}
+.panel{overflow:hidden;min-width:0}
+.panel>h2{font:700 14px var(--f-display);margin:0;padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;color:var(--k);letter-spacing:.14em;text-transform:uppercase}
+.panel>h2 small{font:500 13px var(--f-body);color:var(--muted);letter-spacing:0;text-transform:none}
+.tblwrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+.t th{font:600 10.5px var(--f-display);text-transform:uppercase;letter-spacing:.16em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.t td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.t tr:last-child td{border-bottom:0}
+.t td.ch{font:600 12.5px var(--f-mono);color:var(--muted);width:1%;white-space:nowrap;font-variant-numeric:tabular-nums}
+.t td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.sig{font:600 13.5px var(--f-display);letter-spacing:.04em;background:var(--strip);border:1px solid var(--line);border-radius:4px;padding:1px 7px;white-space:nowrap}
+.spare{color:var(--muted);font-style:italic;font-size:13px}
+.dim{color:var(--muted);font-size:13.5px}
+.assumed{color:var(--muted);font-style:italic}
+.assumed::after{content:"  assumed";font:600 10px var(--f-display);font-style:normal;text-transform:uppercase;letter-spacing:.14em;color:var(--warn)}
+.note{font-size:13.5px;color:var(--muted);margin:10px 2px 0}
+.filter input,.search input{font:500 15px var(--f-body);padding:9px 12px;border-radius:9px;border:1px solid var(--line-strong);background:rgba(0,0,0,.25);color:var(--ink);flex:1 1 220px;min-width:0;width:100%}
+.filter{margin-top:14px}
+.fi{width:100%;min-width:70px;font:500 14px var(--f-body);padding:5px 7px;border:1px solid var(--line-strong);border-radius:6px;background:rgba(0,0,0,.3);color:var(--ink)}
+textarea.fi{min-height:64px;resize:vertical}
+select.fi{width:auto}
+.fi.n{width:70px}
+.search{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line-strong);background:none;color:var(--ink);border-radius:999px;padding:5px 12px;font:600 13px var(--f-body);cursor:pointer}
+.fchip[aria-pressed="true"]{background:var(--ink);color:var(--space);border-color:var(--ink)}
+.routes{overflow:hidden}
+.route{display:grid;gap:6px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.route:last-child{border-bottom:0}
+.rsig{font:700 15px var(--f-display);letter-spacing:.06em}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;flex-direction:column;padding:4px 10px;border-radius:8px;background:var(--kb);border:1px solid var(--line);border-color:color-mix(in srgb,var(--k) 45%,transparent);text-decoration:none;color:var(--ink);line-height:1.2}
+a.chip:hover{border-color:var(--k)}
+.chip .cd{font:700 10px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--k)}
+.chip .cv{font:600 13px var(--f-body);white-space:nowrap}
+.arrow{color:var(--muted);font-size:14px}
+.empty{padding:18px 14px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:10px}
+.scard{padding:12px 14px;display:grid;gap:3px;align-content:start;min-width:0}
+.scard .pos{font:700 17px var(--f-display);letter-spacing:.04em}
+.scard .mdl{font-weight:600}
+.scard .dim{overflow-wrap:anywhere}
+.rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.rcard{padding:14px;display:grid;gap:4px;text-decoration:none;color:var(--ink);border-top:3px solid var(--k)}
+.rcard:hover{border-color:var(--k)}
+.rcard b{font:700 20px var(--f-display);letter-spacing:.04em}
+.bar{height:6px;background:var(--dante-bg);border-radius:4px;overflow:hidden;min-width:50px}
+.bar i{display:block;height:100%;background:var(--dante)}
+.total{font:700 15px var(--f-display)}
+.prog{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--ok)}
+.todo{list-style:none;margin:0;padding:0;overflow:hidden}
+.todo li{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.todo li:last-child{border-bottom:0}
+.todo .tt{font-weight:600}
+.area-t{font:600 10.5px var(--f-display);text-transform:uppercase;letter-spacing:.16em;color:var(--muted);white-space:nowrap}
+.del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px}
+.del:hover{color:var(--ink);text-decoration:underline}
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
+.spec{padding:16px;display:grid;gap:8px;align-content:start}
+.spec h3{margin:0;font:700 20px var(--f-display);letter-spacing:.04em}
+.spec dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
+.spec dt{color:var(--muted)}
+.spec dd{margin:0}
+.links{margin:0;padding:0;list-style:none}
+.links li{padding:7px 0;border-bottom:1px solid var(--line)}
+.links small{display:block;font:600 10.5px var(--f-display);text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+.dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
+.dir a{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);background:var(--glass-2)}
+.dir a:hover{border-color:var(--k,var(--accent))}
+.dir a .dot{margin-top:7px}
+.dir b{font:700 15px var(--f-display);letter-spacing:.04em;display:block}
+.dir span{font-size:13px;color:var(--muted)}
+.toast{position:absolute;z-index:9;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--space);padding:9px 16px;border-radius:9px;font-size:14px;max-width:calc(100% - 32px)}
+@media (max-width:560px){.todo li{grid-template-columns:1fr auto}.todo li>:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div id="app"></div>
+<script type="application/json" id="state">null</script>
+<script src="config.js"></script>
+<script id="main">
+(function(){
+"use strict";
+var SKELETON = "<!doctype html><html><head><meta charset=utf8><meta name=viewport content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>";
+var TITLE = "Royal Pines Ballroom Audio";
+var FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">';
+var state = JSON.parse(document.getElementById("state").textContent);
+var draft = null, editing = false, dirty = false, readOnly = false, saving = false, api = null, pending = null;
+var sigFilter = {q: ""};
+var CLOUD = true;
+var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var app = document.getElementById("app");
+
+function esc(s){return String(s == null ? "" : s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function cur(){return editing ? draft : state;}
+function get(o,p){return p.split(".").reduce(function(a,k){return a == null ? a : a[k];},o);}
+function setp(o,p,v){var ks=p.split("."),x=o;for(var i=0;i<ks.length-1;i++)x=x[ks[i]];x[ks[ks.length-1]]=v;}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function fid(p){return "f-"+p.replace(/[^a-zA-Z0-9]/g,"-");}
+function $(id){return document.getElementById(id);}
+
+/* ---------- editable field ---------- */
+function F(path, o){
+  o = o || {};
+  var v = get(cur(), path); if (v == null) v = "";
+  if (editing && !o.ro){
+    if (o.options) return '<select class="fi" id="'+fid(path)+'" data-path="'+path+'" aria-label="'+esc(o.label||"")+'">'+o.options.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>';}).join("")+'</select>';
+    if (o.area) return '<textarea class="fi" id="'+fid(path)+'" data-path="'+path+'" aria-label="'+esc(o.label||"")+'">'+esc(v)+'</textarea>';
+    return '<input class="fi'+(o.num?' n':'')+'" id="'+fid(path)+'" data-path="'+path+'"'+(o.num?' data-num="1" inputmode="numeric"':'')+' value="'+esc(v)+'" aria-label="'+esc(o.label||"")+'" placeholder="'+esc(o.ph||"")+'">';
+  }
+  return o.show ? o.show(v) : esc(v);
+}
+
+/* ---------- registry ---------- */
+var NODES = {
+  prince:{label:"Prince",kind:"room",go:"room-prince",desc:"Room 1 · wall patch and speakers"},
+  monarch:{label:"Monarch",kind:"room",go:"room-monarch",desc:"Room 2 · wall patch and speakers"},
+  marquis:{label:"Marquis",kind:"room",go:"room-marquis",desc:"Room 3 · wall patch and speakers"},
+  rio:{label:"AV2 Rio",kind:"rio",go:"dev-rio",desc:"Lecterns and PCs in, Room L/R out"},
+  desks:{label:"Operating desks",kind:"ql",go:"dev-desks",desc:"DM7F, DM3s and DM7 Compact mix the rooms"},
+  dm7f:{label:"DM7F",kind:"ql",go:"dev-dm7f",desc:"Main desk at OPS A (DM7 full size)"},
+  bgm:{label:"BGM",kind:"room",go:"dev-ql5",desc:"Background music into QL5 input 8"},
+  fill:{label:"Front fill",kind:"spk",go:"dev-gal2",desc:"Fed from Galaxy 2 out 7"},
+  ql5:{label:"QL5",kind:"ql",go:"dev-ql5",desc:"Output router in AV2"},
+  dante:{label:"Dante network",kind:"dante",go:"dev-dante",desc:"Links the Rio, QL5, desks and stage racks"},
+  external:{label:"External teams",kind:"room",go:"dev-external",desc:"Into AV2 Rio in 13–16, then QL5 in 1–5. TD mutes on iPad"},
+  stage:{label:"Stage racks",kind:"rio",go:"stage",desc:"Rack 1 and 2 · band I/O for the DM7F"},
+  sr1:{label:"Stage Rack 1",kind:"rio",go:"stage"},sr2:{label:"Stage Rack 2",kind:"rio",go:"stage"},
+  gal1:{label:"Galaxy 1",kind:"gal",go:"dev-gal1",desc:"Mains and foyer processing"},
+  gal2:{label:"Galaxy 2",kind:"gal",go:"dev-gal2",desc:"End-fire subs and front fill"},
+  speakers:{label:"Speakers",kind:"spk",go:"speakers",desc:"UPQs and X20s in each room"},
+  foyer:{label:"Foyer",kind:"spk",go:"foyer",desc:"Fed from Galaxy 1 out 16"},
+  subs:{label:"End-fire subs",kind:"spk",go:"speakers",desc:"Out through each room’s wall patch"},
+  loom:{label:"Loom",kind:"room",go:null}
+};
+
+/* ---------- world layout (world units) ---------- */
+var GEO = {prince:[20,120,170,96],monarch:[20,236,170,96],marquis:[20,352,170,96],rio:[240,140,150,176],desks:[430,140,150,176],
+  ql5:[620,130,160,196],external:[620,410,160,90],stage:[430,410,150,90],gal1:[880,120,140,130],gal2:[880,340,140,130],
+  speakers:[1060,100,130,150],foyer:[1060,264,130,56],subs:[1060,340,130,150],dante:[240,40,540,48]};
+var EDGES = [
+  ["prince","rio","M190 168 L240 212",""],["monarch","rio","M190 284 L240 228",""],["marquis","rio","M190 400 L240 244",""],
+  ["rio","dante","M315 140 L315 88","dn"],["desks","dante","M505 140 L505 88","dn"],["ql5","dante","M700 130 L700 88","dn"],
+  ["stage","desks","M505 410 L505 316","dn"],["external","ql5","M700 410 L700 326",""],["external","rio","M700 500 L700 512 L315 512 L315 316",""],
+  ["ql5","gal1","M780 190 L880 185",""],["ql5","gal2","M780 290 L880 405","g2"],
+  ["gal1","speakers","M1020 175 L1060 175","sp"],["gal1","foyer","M1020 225 L1060 292","sp"],["gal2","subs","M1020 405 L1060 415","sp g2"]];
+var AREA = {
+  system:{x:-30,y:-110,w:1260,h:720},
+  rf:{x:-1400,y:-60,w:1080,h:640},
+  todo:{x:1500,y:10,w:860,h:500},
+  kit:{x:60,y:800,w:1080,h:360},
+  network:{x:1500,y:620,w:860,h:420},
+  signals:{x:350,y:-470,w:500,h:250}
+};
+
+function svgMap(){
+  var s = cur(), g2planned = /plan/i.test(s.devices.gal2.status||"");
+  var T = {
+    prince:["PRINCE",["Room 1 wall patch","lecterns + stage PC"]],monarch:["MONARCH",["Room 2 wall patch","lecterns + stage PC"]],
+    marquis:["MARQUIS",["Room 3 wall patch","lecterns + stage PC"]],rio:["AV2 RIO",["16 in / 8 out","","rooms onto Dante,","Room L/R out"]],
+    desks:["DESKS",["DM7F at OPS A","DM3s · DM7 Compact","","mix the rooms"]],ql5:["QL5",["OUTPUT ROUTER","","every room output","goes through here"]],
+    external:["EXTERNAL",["via Rio in 13–16","TD mutes on iPad"]],stage:["STAGE RACKS",["Rack 1 & 2","band I/O"]],
+    gal1:["GALAXY 1",["mains + foyer","GALAXY 816"]],gal2:["GALAXY 2",["subs + front fill",g2planned?"PLANNED":"GALAXY 816"]],
+    speakers:["SPEAKERS",["UPQ L/R + X20s","in each room"]],foyer:["FOYER",[]],subs:["END-FIRE",["subs via each","room’s wall patch"]]
+  };
+  var o = ['<svg id="map" width="1200" height="520" viewBox="0 0 1200 520" role="group" aria-label="System topology. Select a block to open it.">',
+    '<defs><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
+    '<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>',
+    '<marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-d" d="M0,0 L10,5 L0,10 z"/></marker>',
+    '<marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-s" d="M0,0 L10,5 L0,10 z"/></marker>',
+    '</defs>'];
+  [["ROOMS",105],["AV2",315],["ANY DESK",505],["AV2",700],["AV2",950],["OUT TO THE ROOMS",1125]].forEach(function(h){o.push('<text class="hdr" x="'+h[1]+'" y="22" text-anchor="middle">'+h[0]+'</text>');});
+  EDGES.forEach(function(e){
+    var cls = e[3], m = /dn/.test(cls) ? "ahd" : (/sp/.test(cls) ? "ahs" : "ah");
+    var planned = /g2/.test(cls) && g2planned, c = cls.replace("g2","").trim();
+    o.push('<path class="e '+c+(planned?' planned':'')+'" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+e[2]+'" marker-end="url(#'+m+')"'+(/dn/.test(cls)?' marker-start="url(#'+m+')"':'')+'/>');
+    if (!planned) o.push('<path class="flow '+c+'" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+e[2]+'"/>');
+  });
+  o.push('<g class="node k-dante" data-go="dev-dante" data-id="dante" tabindex="0" role="link" aria-label="Dante network: open details"><rect x="240" y="40" width="540" height="48" rx="24" filter="url(#glow)"/><text class="dante-t" x="510" y="69" text-anchor="middle">DANTE NETWORK</text></g>');
+  Object.keys(GEO).forEach(function(k){
+    if (k==="dante") return;
+    var g = GEO[k], n = NODES[k], t = T[k], x=g[0], y=g[1], w=g[2], h=g[3], cx = x + w/2;
+    var planned = k==="gal2" && g2planned;
+    o.push('<g class="node k-'+n.kind+(planned?' planned':'')+'" data-go="'+n.go+'" data-id="'+k+'" tabindex="0" role="link" aria-label="'+esc(n.label)+': open details">');
+    o.push('<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" filter="url(#glow)"/>');
+    var ty = t[1].length ? y + 27 : y + h/2 + 5;
+    o.push('<text class="nt" x="'+cx+'" y="'+ty+'" text-anchor="middle">'+esc(t[0])+'</text>');
+    t[1].forEach(function(line,i){ if(line) o.push('<text class="'+(line===line.toUpperCase() && /[A-Z]/.test(line)?'nm':'ns')+'" x="'+cx+'" y="'+(y+49+i*17)+'" text-anchor="middle">'+esc(line)+'</text>'); });
+    o.push('</g>');
+  });
+  [["room looms",214,108,"middle"],["lecterns & PCs",322,116,"start"],["room mix",512,116,"start"],["L / R / Sub",707,116,"start"],
+   ["stage I/O",512,366,"start"],["Room L/R + Foyer",830,148,"middle"],["via Rio out",830,161,"middle"],["1–6 and 8",830,174,"middle"],
+   ["Subs + fill",812,392,"middle"],["omni 1–4",812,406,"middle"],["EXT in",322,466,"start"],["Rio 13–16",322,479,"start"]].forEach(function(l){o.push('<text class="elab" x="'+l[1]+'" y="'+l[2]+'" text-anchor="'+l[3]+'">'+l[0]+'</text>');});
+  o.push('</svg>');
+  return o.join("");
+}
+function rfSvg(){
+  var s = cur(), n = s.rf.length, W = 1080, H = 560, cx = W/2, cy = 300, rx = 400, ry = 190;
+  var total = s.rf.reduce(function(a,r){return a+(Number(r.ch)||0);},0);
+  var o = ['<svg class="rfsvg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" aria-hidden="true" style="display:block;overflow:visible">'];
+  o.push('<ellipse class="orbit" cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'"/>');
+  o.push('<circle class="hub" cx="'+cx+'" cy="'+cy+'" r="62" filter="url(#glow)"/><text class="big" x="'+cx+'" y="'+(cy+6)+'" text-anchor="middle">'+total+'</text><text class="lab" x="'+cx+'" y="'+(cy+28)+'" text-anchor="middle">CHANNELS</text>');
+  s.rf.forEach(function(r,i){
+    var a = -Math.PI/2 + i*2*Math.PI/n, x = cx + rx*Math.cos(a), y = cy + ry*Math.sin(a), rad = 9 + (Number(r.ch)||0)*2.1;
+    var ok = /plotted|checked/i.test(r.status||"");
+    o.push('<circle class="orb'+(ok?' ok':'')+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad.toFixed(1)+'" filter="url(#glow)"/>');
+    var ly = y + (Math.sin(a) >= -0.2 ? rad + 18 : -rad - 22);
+    o.push('<text class="loc" x="'+x.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle">'+esc(r.loc)+'</text><text class="ch" x="'+x.toFixed(1)+'" y="'+(ly+15).toFixed(1)+'" text-anchor="middle">'+esc(r.ch)+' ch</text>');
+  });
+  return o.join("") + '</svg>';
+}
+function worldHTML(){
+  var s = cur(), done = s.todo.filter(function(t){return t.status==="Done";}).length, n = s.todo.length;
+  var open = s.todo.filter(function(t){return t.status!=="Done";});
+  var C = 2*Math.PI*52, frac = n ? done/n : 0;
+  var h = '';
+  h += '<div class="area sys" style="left:0;top:-76px"><div class="atitle"><b>System</b> · Royal Benowa Ballroom</div><div class="asub">Room 1 Prince · Room 2 Monarch · Room 3 Marquis. Select any block to open it.</div></div>';
+  h += '<div class="area sys" style="left:0;top:0">'+svgMap()+'</div>';
+  h += '<div class="area" style="left:0;top:540px;width:1200px"><div class="legend"><span><i></i>analogue / loom</span><span><i class="d"></i>Dante (both ways)</span><span><i class="s"></i>to speakers</span></div></div>';
+  h += '<div class="area sector" data-go="signals" tabindex="0" role="link" aria-label="Signal finder" style="left:'+AREA.signals.x+'px;top:'+AREA.signals.y+'px;width:'+AREA.signals.w+'px"><div class="panelw beacon"><div class="pulse"><i></i><i></i><i></i><b></b></div><div><div class="atitle"><b>Signal finder</b></div><div class="asub">Say what’s wrong in plain words and watch the route light up here.</div></div></div></div>';
+  h += '<div class="area sector" data-go="rf" tabindex="0" role="link" aria-label="RF in the venue" style="left:'+AREA.rf.x+'px;top:'+AREA.rf.y+'px;width:'+AREA.rf.w+'px"><div class="atitle"><b>RF</b> · wireless in the venue</div><div class="asub">'+s.rf.length+' locations. Select to open the RF plot.</div>'+rfSvg()+'</div>';
+  h += '<div class="area sector" data-go="todo" tabindex="0" role="link" aria-label="Upgrade to-do" style="left:'+AREA.todo.x+'px;top:'+AREA.todo.y+'px;width:'+AREA.todo.w+'px"><div class="atitle"><b>Upgrade log</b> · to-do</div><div class="panelw mission" style="margin-top:14px">'+
+    '<svg class="ring" width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="52"/><circle class="fg" cx="75" cy="75" r="52" stroke-dasharray="'+(C*frac).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 75 75)"/><text x="75" y="80" text-anchor="middle">'+done+'/'+n+'</text><text class="sm" x="75" y="100" text-anchor="middle">done</text></svg>'+
+    '<div><div style="font:700 18px var(--f-display);letter-spacing:.06em">Still to do</div><ul class="mlist">'+(open.length?open.map(function(t){return '<li>'+esc(t.task)+'</li>';}).join(""):'<li>Nothing left. Nice work.</li>')+'</ul></div></div></div>';
+  var keyNet = (s.network||[]).filter(function(n){ return /QL5|QL1|DM7|DM3/i.test(n.device); }).slice(0,6);
+  h += '<div class="area sector" data-go="network" tabindex="0" role="link" aria-label="Network and IP addresses" style="left:'+AREA.network.x+'px;top:'+AREA.network.y+'px;width:'+AREA.network.w+'px"><div class="atitle"><b>Network</b> · IP addresses</div><div class="asub">'+(s.network||[]).length+' devices. Select to search them all.</div><div class="netcards">'+
+    keyNet.map(function(n){ return '<div class="netc"><b>'+esc(n.device || n.name)+'</b><span class="mono">'+esc(n.ip)+'</span><span>'+esc(n.loc)+'</span></div>'; }).join("")+'</div></div>';
+  h += '<div class="area sector" data-go="kit" tabindex="0" role="link" aria-label="Speaker kit" style="left:'+AREA.kit.x+'px;top:'+AREA.kit.y+'px;width:'+AREA.kit.w+'px"><div class="atitle"><b>Hangar</b> · speaker kit</div><div class="ships">'+
+    s.specs.map(function(sp){return '<div class="ship"><b>'+esc(sp.model)+'</b><span>'+esc(sp.role)+'</span><span>'+esc(sp.coverage)+' · '+esc(sp.weight)+'</span></div>';}).join("")+'</div></div>';
+  return h;
+}
+
+/* ---------- small renderers ---------- */
+function statusPill(v){var c = /done|install|in use|checked/i.test(v) ? "ok" : (/plan|to do|to plot|progress/i.test(v) ? "warn" : "mut"); return '<span class="pill '+c+'">'+esc(v||"—")+'</span>';}
+function sigTag(v){return v ? '<span class="sig">'+esc(v)+'</span>' : '<span class="spare">spare</span>';}
+function crumbs(parts){return '<nav class="crumbs" aria-label="Breadcrumb"><a href="#map">Map</a>'+parts.map(function(p){return ' / '+(p[1]?'<a href="#'+p[1]+'">'+esc(p[0])+'</a>':'<span>'+esc(p[0])+'</span>');}).join("")+'</nav>';}
+function chip(step){
+  var k = step[0], n = NODES[k] || {label:k,kind:"room"};
+  var inner = '<span class="cd">'+esc(n.label)+'</span><span class="cv">'+esc(step[1])+'</span>';
+  var h = linkFor(k, [step[1]]);
+  return h ? '<a class="chip k-'+n.kind+'" href="#'+h+'">'+inner+'</a>' : '<span class="chip k-'+n.kind+'">'+inner+'</span>';
+}
+function routeRow(r){
+  var steps = r.steps.map(function(s,i){return (i?'<li class="arrow" aria-hidden="true">→</li>':'')+'<li>'+chip(s)+'</li>';}).join("");
+  return '<div class="route"><div class="rsig">'+esc(r.sig)+'</div><ol class="steps">'+steps+'</ol>'+(r.alt?'<p class="note" style="margin:2px 0 0">'+esc(r.alt)+'</p>':'')+'</div>';
+}
+function ioTable(base, rows, heads){
+  var h = '<div class="tblwrap"><table class="t"><thead><tr><th>'+heads[0]+'</th><th>Signal</th><th>'+heads[1]+'</th><th>'+heads[2]+'</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var p = base+"."+i, txt = (r.ch+" "+r.sig+" "+r.from+" "+r.to).toLowerCase();
+    h += '<tr data-txt="'+esc(txt)+'" data-tab="'+esc(base.split(".").pop())+'" data-ch="'+esc(r.ch)+'"><td class="ch">'+esc(r.ch)+'</td><td>'+F(p+".sig",{show:sigTag,label:"Signal "+r.ch})+'</td>'+
+      '<td>'+(editing?F(p+".from",{label:heads[1]+" "+r.ch}):(r.from?'<span class="'+(r.a?'assumed':'dim')+'">'+esc(r.from)+'</span>':''))+'</td>'+
+      '<td>'+(editing?F(p+".to",{label:heads[2]+" "+r.ch}):(r.to?'<span class="dim">'+esc(r.to)+'</span>':''))+'</td></tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+function panel(title, count, kind, body){return '<section class="card panel k-'+kind+'"><h2>'+esc(title)+(count!=null?'<small>'+count+'</small>':'')+'</h2>'+body+'</section>';}
+function used(rows){return rows.filter(function(r){return r.sig;}).length+" of "+rows.length+" used";}
+
+/* ---------- drawer views ---------- */
+function devHeader(key, d){
+  var kindName = {ql:"Yamaha desk",rio:"Yamaha I/O",gal:"Meyer processing",dante:"Network",room:"Outside source"}[d.kind] || "";
+  var base = "devices."+key;
+  var h = '<header class="card devhead k-'+d.kind+'"><div class="tag">'+esc(kindName)+' · '+F(base+".where",{label:"Where"})+'</div>';
+  h += '<h1>'+esc(d.name)+'</h1>';
+  h += '<p class="model">'+F(base+".model",{label:"Model"})+(d.modelNote && !editing?' <span class="assumed" style="font-weight:400">'+esc(d.modelNote)+'</span>':'')+'</p>';
+  if (editing) h += '<p class="model">'+F(base+".modelNote",{label:"Model note",ph:"Note about the model"})+'</p>';
+  h += '<p class="role">'+F(base+".role",{area:1,label:"What it does"})+'</p>';
+  h += '<dl class="facts"><div><dt>Status</dt><dd>'+F(base+".status",{show:statusPill,label:"Status"})+'</dd></div>';
+  if (d.ip || editing) h += '<div><dt>IP address</dt><dd>'+F(base+".ip",{label:"IP address",ph:"192.168.0.x",show:function(v){return v ? '<span class="mono">'+esc(v)+'</span>' : '<span class="dim">—</span>';}})+'</dd></div>';
+  if (d.specs || editing) h += '<div style="grid-column:1/-1"><dt>Key specs</dt><dd>'+F(base+".specs",{label:"Key specs"})+'</dd></div>';
+  if (d.link) h += '<div><dt>More</dt><dd><a href="'+esc(d.link)+'" target="_blank" rel="noopener">Datasheet / product page ↗</a></dd></div>';
+  h += '</dl>';
+  if (d.connects && d.connects.length) h += '<div class="conn">Connected to '+d.connects.map(function(c){var m=NODES[c]; return m?'<a class="k-'+m.kind+'" href="#'+m.go+'"><i class="dot"></i>'+esc(m.label)+'</a>':'';}).join("")+'</div>';
+  return h + '</header>';
+}
+function viewDevice(key){
+  var d = cur().devices[key]; if (!d) return viewDirectory();
+  var h = crumbs([[d.name]]) + devHeader(key, d);
+  if (d.ins || d.outs){
+    h += '<div class="filter"><input id="flt" type="search" placeholder="Filter channels, e.g. Room 2 or LEC" aria-label="Filter channels"></div><div class="io">';
+    if (d.ins) h += panel(d.inLabel||"Inputs", used(d.ins), d.kind, ioTable("devices."+key+".ins", d.ins, ["In","From","To"]));
+    if (d.outs) h += panel(d.outLabel||"Outputs", used(d.outs), d.kind, ioTable("devices."+key+".outs", d.outs, ["Out","From","To"]));
+    h += '</div>';
+  }
+  if (d.extra) h += '<p class="note">'+esc(d.extra)+'</p>';
+  var rs = cur().routes.filter(function(r){return r.steps.some(function(s){return s[0]===key;});});
+  if (rs.length && key!=="dante") h += '<h2 class="sec">Signals through here<small>'+rs.length+'</small></h2><div class="card routes">'+rs.map(routeRow).join("")+'</div>';
+  if (key==="desks"){
+    h += '<h2 class="sec">RF at the desks</h2><div class="card panel k-ql"><div class="tblwrap"><table class="t"><thead><tr><th>Location</th><th>Channels</th></tr></thead><tbody>'+
+      cur().rf.filter(function(r){return /^OP|DM7c/i.test(r.loc);}).map(function(r){return '<tr><td>'+esc(r.loc)+'</td><td class="num">'+esc(r.ch)+'</td></tr>';}).join("")+'</tbody></table></div></div>';
+  }
+  return h;
+}
+function viewStage(){
+  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F CURRENT BASE sheet.</p>';
+  ["sr1","sr2"].forEach(function(k){
+    var d = cur().devices[k];
+    h += '<h2 class="sec">'+esc(d.name)+'<small>'+esc(d.model)+'</small></h2><div class="io" style="margin-top:0">'+
+      panel("Inputs", used(d.ins), "rio", ioTable("devices."+k+".ins", d.ins, ["In","From","To"]))+
+      panel("Outputs + AES", used(d.outs), "rio", ioTable("devices."+k+".outs", d.outs, ["Out","From","To"]))+'</div>';
+  });
+  return h + '<p class="note">'+esc(cur().devices.sr1.modelNote)+'</p>';
+}
+function speakerCards(list){
+  return '<div class="cards">'+list.map(function(sp){
+    var i = cur().speakers.indexOf(sp), p = "speakers."+i;
+    return '<div class="card scard k-spk"><span class="pos">'+esc(sp.pos)+'</span><span class="mdl">'+F(p+".model",{label:"Model for "+sp.pos,show:function(v){return /tbc/i.test(v)?'<span class="assumed" style="font-weight:600">'+esc(v)+'</span>':esc(v);}})+'</span>'+
+      '<span class="dim">'+esc(sp.out)+'</span><span class="dim'+(sp.a?' assumed':'')+'">fed by '+esc(sp.fed)+'</span>'+
+      ((sp.note||editing)?'<span class="dim">'+F(p+".note",{label:"Note for "+sp.pos})+'</span>':'')+'</div>';
+  }).join("")+'</div>';
+}
+function viewRoom(key){
+  var s = cur(), r = s.rooms[key], base = "rooms."+key;
+  var h = crumbs([["Rooms","rooms"],[r.name]]) + '<header class="card devhead k-room"><div class="tag">Room '+r.num+' · Royal Benowa Ballroom</div><h1>'+esc(r.name)+'</h1>';
+  h += '<dl class="facts"><div><dt>Size</dt><dd>'+F(base+".size",{label:"Size"})+'</dd></div><div><dt>Ceiling</dt><dd>'+F(base+".ceiling",{label:"Ceiling"})+'</dd></div><div><dt>Area</dt><dd>'+F(base+".area",{label:"Area"})+'</dd></div></dl>';
+  if (r.note || editing) h += '<p class="role">'+F(base+".note",{label:"Room note"})+'</p>';
+  h += '</header><h2 class="sec">Speakers</h2>' + speakerCards(s.speakers.filter(function(sp){return sp.room===key;}));
+  h += '<h2 class="sec">Where the mix goes<small>desk to speakers</small></h2><div class="card routes">'+s.routes.filter(function(x){return x.group===key && x.type==="out";}).map(routeRow).join("")+'</div>';
+  h += '<h2 class="sec">Where the sources go<small>wall patch to desks</small></h2><div class="card routes">'+s.routes.filter(function(x){return x.group===key && x.type==="src";}).map(routeRow).join("")+'</div>';
+  var w = s.wallpatch[key];
+  h += '<h2 class="sec">Wall patch</h2><div class="io" style="margin-top:0">'+
+    panel("Inputs (to AV2)", used(w.ins), "room", ioTable("wallpatch."+key+".ins", w.ins, ["In","From","Goes to"]))+
+    panel("Outputs (to the room)", used(w.outs), "room", ioTable("wallpatch."+key+".outs", w.outs, ["Out","Comes from","Then"]))+'</div>';
+  return h;
+}
+function viewFoyer(){
+  var s = cur(), f = s.foyer;
+  var h = crumbs([["Rooms","rooms"],["Foyer"]]) + '<header class="card devhead k-spk"><div class="tag">Pre-function space</div><h1>'+esc(f.name)+'</h1>'+
+    '<dl class="facts"><div><dt>Area</dt><dd>'+F("foyer.size",{label:"Area"})+'</dd></div><div><dt>Ceiling</dt><dd>'+F("foyer.ceiling",{label:"Ceiling"})+'</dd></div></dl>'+
+    ((f.note||editing)?'<p class="role">'+F("foyer.note",{label:"Foyer note"})+'</p>':'')+'</header>';
+  h += '<h2 class="sec">Speakers</h2>'+speakerCards(s.speakers.filter(function(sp){return sp.room==="foyer";}));
+  return h + '<h2 class="sec">Route</h2><div class="card routes">'+s.routes.filter(function(r){return r.group==="foyer";}).map(routeRow).join("")+'</div>';
+}
+function viewRooms(){
+  var s = cur();
+  var h = '<h1>Rooms</h1><p class="lede">The ballroom splits into three rooms. Each has UPQ mains and X20s, a wall patch, and end-fire subs added per event.</p><div class="rcards" style="margin-top:14px">';
+  ["prince","monarch","marquis"].forEach(function(k){
+    var r = s.rooms[k], n = s.speakers.filter(function(sp){return sp.room===k && !/sub|fill/i.test(sp.pos);}).length;
+    h += '<a class="card rcard k-room" href="#room-'+k+'"><span class="tag">Room '+r.num+'</span><b>'+esc(r.name)+'</b><span class="dim">'+esc(r.size)+' · ceiling '+esc(r.ceiling)+'</span><span>'+n+' installed speakers + end-fire subs per event</span></a>';
+  });
+  return h + '<a class="card rcard k-spk" href="#foyer"><span class="tag">Foyer</span><b>Royal Benowa Foyer</b><span class="dim">'+esc(s.foyer.size)+' · ceiling '+esc(s.foyer.ceiling)+'</span><span>Fed from Galaxy 1 out 16</span></a></div>';
+}
+function viewSpeakers(){
+  var s = cur(), h = '<h1>Speakers</h1><p class="lede">Every speaker, the Galaxy output that drives it and the signal it carries.</p>';
+  ["prince","monarch","marquis","foyer"].forEach(function(k){
+    var name = k==="foyer" ? "Foyer" : s.rooms[k].name + " · Room " + s.rooms[k].num;
+    h += '<h2 class="sec"><a href="#'+(k==="foyer"?"foyer":"room-"+k)+'" style="color:inherit">'+esc(name)+'</a></h2>'+speakerCards(s.speakers.filter(function(sp){return sp.room===k;}));
+  });
+  return h;
+}
+/* ---------- signal finder: plain words, typo tolerant ---------- */
+var ROOMNUM = {prince:1, monarch:2, marquis:3};
+var ROOMNAME = {prince:"Prince", monarch:"Monarch", marquis:"Marquis"};
+var KINDNAME = {sub:"Subs", mains:"Mains", lec:"Lectern", pc:"Stage PC", foyer:"Foyer", ext:"External", spare:"Spare", fill:"Fill", rf:"Wireless mic", bgm:"BGM", opa:"OPS A", opb:"OPS B", opc:"OPS C"};
+var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk"};
+var PORTNAME = {"in":"In", out:"Out", omni:"Omni", dante:"Dante"};
+var VOCAB = {}, VKEYS = [], LCACHE = {};
+function vocab(words, f, v, w){ words.split(" ").forEach(function(x){ if (!VOCAB[x]){ VOCAB[x] = {f:f, v:v, w:w||6}; VKEYS.push(x); } }); }
+vocab("prince princes princess room1","room","prince");
+vocab("monarch monarchs room2","room","monarch");
+vocab("marquis marquee marque markee marquise room3","room","marquis");
+vocab("sub subs subwoofer subwoofers woofer woofers bass lfc lfcs endfire lowend 750","kind","sub");
+vocab("main mains pa tops top upq upqs x20 lr stereo foh","kind","mains");
+vocab("speaker speakers centre center","kind","mains",4);
+vocab("wireless radio handheld handhelds lapel lapels lav lavs lavalier headset headsets beltpack bodypack receiver receivers transmitter rf rx tx","kind","rf");
+vocab("lectern lecterns lec lecs lecturn lecturns podium mic mics microphone mike","kind","lec");
+vocab("presenter presenters speech mc","kind","lec",4);
+vocab("pc pcs computer laptop playback stgpc music macbook","kind","pc");
+vocab("hdmi","kind","pc",4);
+vocab("foyer foyers lobby prefunction","kind","foyer");
+vocab("external ext visiting outside hire","kind","ext");
+vocab("team teams","kind","ext",4);
+vocab("spare spares","kind","spare");
+vocab("fill fills","kind","fill");
+vocab("bgm background","kind","bgm");
+vocab("opa opsa","kind","opa"); vocab("opb opsb","kind","opb"); vocab("opc opsc","kind","opc");
+vocab("left l","side","L"); vocab("right r","side","R");
+vocab("ql5 ql router","dev","ql5"); vocab("rio","dev","rio"); vocab("galaxy galaxies gal","dev","gal");
+vocab("galaxy1 gal1 g1","dev","gal1"); vocab("galaxy2 gal2 g2","dev","gal2");
+vocab("wallpatch patch","dev","wall"); vocab("loom looms","dev","loom"); vocab("dm7f","dev","dm7f");
+vocab("desk desks dm7 dm7c dm3 dm3s console","dev","desks");
+vocab("omni omnis","port","omni"); vocab("dante","port","dante");
+vocab("in input inputs ch chan channel channels","port","in"); vocab("out output outputs","port","out");
+vocab("room rooms rm","roomword","");
+vocab("buzz buzzing buzzy hum humming hummy noise noisy hiss hissing static","trouble","hum");
+vocab("distorted distorting distortion distorts clipping clip","trouble","dist");
+vocab("feedback feeding ringing squeal squealing","trouble","fb");
+vocab("quiet low weak soft","trouble","low");
+vocab("crackle crackling crackly dropping dropout dropouts cutting cuts intermittent","trouble","crackle");
+vocab("not no working work works worked dead silent issue issues problem problems broken fault faulty missing nothing cant cannot down help fix isnt doesnt wont arent gone lost muted mute off bad wrong","trouble","");
+vocab("the a an on at for of to from my i it its we our and with say sound audio signal there any has have get getting coming is are was be can what why where how whats hear heard just all whole everything anything some me please this that only but though still side one wire wires cable cables lead leads xlr","stop","");
+
+function osa(a, b){
+  var m = a.length, n = b.length; if (Math.abs(m-n) > 2) return 9;
+  var d = [], i, j;
+  for (i=0;i<=m;i++) d[i] = [i];
+  for (j=0;j<=n;j++) d[0][j] = j;
+  for (i=1;i<=m;i++) for (j=1;j<=n;j++){
+    var c = a[i-1]===b[j-1] ? 0 : 1;
+    d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+c);
+    if (i>1 && j>1 && a[i-1]===b[j-2] && a[i-2]===b[j-1]) d[i][j] = Math.min(d[i][j], d[i-2][j-2]+1);
+  }
+  return d[m][n];
+}
+function lookup(w){
+  if (w in LCACHE) return LCACHE[w];
+  var e = null, i, k;
+  if (VOCAB[w]) e = VOCAB[w];
+  else if (/^\d+$/.test(w)) e = {f:"num", v:Number(w)};
+  else {
+    if (w.length >= 4){
+      var max = w.length <= 5 ? 1 : 2, bd = 9, bk = null;
+      for (i=0;i<VKEYS.length;i++){ k = VKEYS[i]; if (k.length < 3) continue; var dd = osa(w, k); if (dd < bd){ bd = dd; bk = k; } }
+      if (bk && bd <= max) e = VOCAB[bk];
+    }
+    if (!e && w.length >= 3) for (i=0;i<VKEYS.length;i++){ k = VKEYS[i]; if (k.length > w.length && k.indexOf(w)===0 && VOCAB[k].f!=="stop"){ e = VOCAB[k]; break; } }
+  }
+  LCACHE[w] = e; return e;
+}
+function normQ(q){
+  return (" "+String(q||"").toLowerCase()+" ")
+    .replace(/[’'`]/g,"")
+    .replace(/\bend[\s-]*fire\b/g,"endfire").replace(/\blow[\s-]*end\b/g,"lowend").replace(/\bhand[\s-]*held/g,"handheld")
+    .replace(/\b(radio|wireless|handheld|lapel|headset)[\s-]*(mics?|microphones?)\b/g,"$1")
+    .replace(/\b(stage|stg)[\s-]*pc\b/g,"stgpc").replace(/\bbackground[\s-]*music\b/g,"bgm").replace(/\bfront[\s-]*fills?\b/g,"fill").replace(/\b(op|ops|operator)[\s-]*([abc])\b/g,"op$2")
+    .replace(/\b(room|rm|lectern|lecturn|lec|pc|stgpc|loom|in|out|input|output|omni|dante|ch|channel|galaxy|gal)\s+(one|two|three)\b/g,function(m,a,b){return a+" "+({one:1,two:2,three:3})[b];}).replace(/\bwall[\s-]*patch\b/g,"wallpatch").replace(/\bpre[\s-]*function\b/g,"prefunction")
+    .replace(/\bql[\s-]*5\b/g,"ql5").replace(/\bl\s*\/\s*r\b/g," lr ").replace(/\bx[\s-]*20s?\b/g,"x20").replace(/\bdm[\s-]*7\b/g,"dm7")
+    .replace(/\b(galaxy|gal|g)[\s-]*([12])\b/g,"$1$2").replace(/\b(room|rm|r)[\s-]*([123])\b/g,"room$2");
+}
+function parseQ(q){
+  var nq = normQ(q), okSide = null;
+  nq = nq.replace(/\b(left|right)s?\s+(?:side\s+|speaker\s+|one\s+|channel\s+)?(?:is\s+)?(?:working|works|fine|ok|okay|good|going)\b/g, function(m, sd){ okSide = sd; return " "; });
+  if (okSide && !/\b(left|right)\b/.test(nq)) nq += " " + (okSide==="left" ? "right" : "left");
+  var toks = nq.split(/[^a-z0-9]+/).filter(Boolean);
+  var P = {rooms:{}, kinds:{}, side:null, sides:{}, nums:[], ports:[], devs:[], trouble:!!okSide, sym:{}, read:[], unknown:[], notes:[], core:""};
+  if (okSide) P.notes.push(okSide+" works");
+  function said(t){ if (P.read.indexOf(t) < 0) P.read.push(t); }
+  for (var i=0;i<toks.length;i++){
+    var w = toks[i], e = lookup(w);
+    if (!e){ P.unknown.push(w); continue; }
+    if (e.f==="stop" || e.f==="roomword") continue;
+    if (e.f==="trouble"){ P.trouble = true; if (e.v) P.sym[e.v] = 1; continue; }
+    if (e.f==="room"){ P.rooms[e.v] = 1; said(ROOMNAME[e.v]); continue; }
+    if (e.f==="kind"){ P.kinds[e.v] = Math.max(P.kinds[e.v]||0, e.w); said(KINDNAME[e.v]); continue; }
+    if (e.f==="side"){ P.sides[e.v] = 1; said(e.v==="L"?"Left":"Right"); continue; }
+    if (e.f==="dev" || e.f==="port"){
+      var dev = e.f==="dev" ? e.v : null, port = e.f==="port" ? e.v : null, j = i+1, nx = toks[j] && lookup(toks[j]);
+      if (dev && nx && nx.f==="port"){ port = nx.v; j++; }
+      if (toks[j] && /^\d+$/.test(toks[j])){ P.ports.push({dev:dev, port:port, n:Number(toks[j])}); i = j; }
+      else if (dev) P.devs.push(dev);
+      else if (port==="out") P.trouble = true;
+      continue;
+    }
+    if (e.f==="num" && P.nums.indexOf(e.v) < 0) P.nums.push(e.v);
+  }
+  var sk = Object.keys(P.sides); P.side = sk.length===1 ? sk[0] : null;
+  if (P.kinds.rf) delete P.kinds.lec;
+  P.ports.forEach(function(p){ if (!p.dev && P.devs.length===1){ p.dev = P.devs[0]; P.devs = []; } });
+  P.ports.forEach(function(p){
+    if (!p.port && /^(ql5|rio|gal|gal1|gal2)$/.test(p.dev||"")) p.port = "in";
+    said((p.dev?DEVNAME[p.dev]+" ":"")+(p.port?PORTNAME[p.port]+" ":(p.dev?"":"Ch "))+p.n);
+  });
+  P.devs.forEach(function(d){ said(DEVNAME[d]); });
+  P.nums.forEach(function(n){ if (n>=1 && n<=3) said("Room "+n); else { P.ports.push({dev:null, port:null, n:n, w:5}); said("Ch "+n); } });
+  P.core = String(q||"").toLowerCase().split(/\s+/).filter(function(w){ var e = lookup(w.replace(/[^a-z0-9]/g,"")); return w && !(e && (e.f==="stop"||e.f==="trouble")); }).join(" ");
+  return P;
+}
+var PORTRE = {"in":/\bin\s+([\d\s+()]+)/i, out:/\bout\s+([\d\s+()]+)/i, omni:/\bomni\s+([\d\s+()]+)/i, dante:/\bdante\s+([\d\s+()]+)/i};
+function stepPortMatch(s, p){
+  var k = s[0], t = s[1];
+  if (p.dev){
+    if (p.dev==="gal"){ if (!/^gal/.test(k)) return false; }
+    else if (p.dev==="wall"){ if (!/wall patch/i.test(t)) return false; }
+    else if (p.dev==="loom"){ if (k!=="loom") return false; }
+    else if (k!==p.dev) return false;
+  }
+  var pats = p.dev==="loom" ? [/loom\s+([\d\s+()]+)/i] : (p.port ? [PORTRE[p.port]] : [PORTRE["in"], PORTRE.out, PORTRE.omni, PORTRE.dante]);
+  return pats.some(function(re){ var m = re.exec(t); return !!m && (m[1].match(/\d+/g)||[]).map(Number).indexOf(p.n) >= 0; });
+}
+function devIn(r, d){
+  return r.steps.some(function(s){
+    if (d==="gal") return /^gal/.test(s[0]);
+    if (d==="desks") return s[0]==="desks" || s[0]==="dm7f";
+    if (d==="dm7f") return s[0]==="dm7f";
+    if (d==="wall") return /wall patch/i.test(s[1]);
+    return s[0]===d;
+  });
+}
+function feat(r){
+  var f = {room:null, kinds:[], side:null, ext:false, op:false}, s = r.sig || "";
+  if (ROOMNUM[r.group]) f.room = r.group; else if (r.group==="foyer") f.room = "foyer";
+  var om = /^OP\s*([ABC])\b/i.exec(s);
+  if (om){ f.op = true; f.kinds.push("op" + om[1].toLowerCase()); var m0 = /\b([LR])$/.exec(s); if (m0) f.side = m0[1]; return f; }
+  if (/^BGM/i.test(s)){ f.kinds.push("bgm"); return f; }
+  if (/^EXT/i.test(s)){ f.ext = true; f.kinds.push("ext"); }
+  if (/sub/i.test(s)) f.kinds.push("sub");
+  else if (/fill/i.test(s)) f.kinds.push("fill");
+  else if (/foyer/i.test(s)) f.kinds.push("foyer");
+  else if (/lec/i.test(s)) f.kinds.push("lec");
+  else if (/\bpc\b/i.test(s)) f.kinds.push("pc");
+  else if (/spare/i.test(s)) f.kinds.push("spare");
+  else if (/\b[LR]$/.test(s) && (r.type==="out" || f.ext)) f.kinds.push("mains");
+  var m = /\b([LR])$/.exec(s); if (m) f.side = m[1];
+  return f;
+}
+function scoreRoute(r, P){
+  var f = feat(r), sc = 0;
+  var rooms = Object.keys(P.rooms), ks = Object.keys(P.kinds).filter(function(k){return k!=="ext";}), wantExt = !!P.kinds.ext;
+  if (rooms.length){ if (f.room && P.rooms[f.room]) sc += 5; else if (f.room && f.room!=="foyer") sc -= 4; else sc -= 2; }
+  if (wantExt) sc += f.ext ? P.kinds.ext : -3; else if (f.ext) sc -= 2;
+  if (ks.length){
+    var hit = ks.filter(function(k){return f.kinds.indexOf(k) >= 0;});
+    sc += hit.length ? Math.max.apply(null, hit.map(function(k){return P.kinds[k];})) : -3;
+  }
+  if (f.op && P.kinds.sub && /sub$/i.test(r.sig)) sc += 3;
+  if (P.side){ if (f.side===P.side) sc += 2; else if (f.side) sc -= 1; if (!ks.length && f.kinds.indexOf("mains") >= 0) sc += 1; }
+  P.nums.forEach(function(n){ if (n>=1 && n<=3 && ROOMNUM[f.room]===n) sc += 3; });
+  P.ports.forEach(function(p){ if (r.steps.some(function(s){return stepPortMatch(s,p);})) sc += p.w || 7; });
+  P.devs.forEach(function(d){ if (devIn(r, d)) sc += 4; });
+  if (!ks.length && !wantExt && !P.devs.length && !P.ports.length && r.type==="out") sc += 1;
+  if (P.core.length >= 3){
+    var hay = (r.sig+" | "+r.steps.map(function(s){return (NODES[s[0]]?NODES[s[0]].label:"")+" "+s[1];}).join(" | ")).toLowerCase();
+    if (hay.indexOf(P.core) >= 0) sc += 3;
+  }
+  return sc;
+}
+function nk(k){ return ROOMNUM[k] ? "room" : k; }
+function seqKey(r){ return r.steps.map(function(s){return nk(s[0]);}).join(">"); }
+function findSignals(q){
+  var P = parseQ(q);
+  if (!String(q||"").trim()) return {empty:true, P:P};
+  if (P.kinds.rf) return {rf:true, P:P};
+  var scored = cur().routes.map(function(r){ return {r:r, s:scoreRoute(r, P)}; });
+  var best = Math.max.apply(null, scored.map(function(x){return x.s;}));
+  if (best < 4) return {none:true, P:P};
+  var top = scored.filter(function(x){return x.s===best;}).map(function(x){return x.r;});
+  if (top.length > 4) return {many:top, P:P};
+  var groups = [], idx = {};
+  top.forEach(function(r){ var k = seqKey(r); if (!(k in idx)){ idx[k] = groups.length; groups.push([]); } groups[idx[k]].push(r); });
+  var near = scored.filter(function(x){return x.s < best && x.s >= Math.max(4, best-3);}).sort(function(a,b){return b.s-a.s;}).slice(0,4).map(function(x){return x.r;});
+  return {groups:groups, near:near, P:P, top:top};
+}
+
+/* route diagram + checks */
+function stepVals(rs, key, nth){
+  return rs.map(function(r){ var c = 0; for (var i=0;i<r.steps.length;i++){ if (nk(r.steps[i][0])===key){ if (c===nth) return r.steps[i][1]; c++; } } return ""; });
+}
+function J(arr){
+  var u = arr.filter(function(v,i){return v && arr.indexOf(v)===i;});
+  if (u.length < 2) return u[0] || "";
+  var p = u[0]; u.forEach(function(v){ while (p && v.indexOf(p)!==0) p = p.slice(0,-1); });
+  p = p.slice(0, p.lastIndexOf(" ")+1);
+  if (p && u.every(function(v){return /^\d/.test(v.slice(p.length));})) return p + u.map(function(v){return v.slice(p.length);}).join(" / ");
+  return u.join(" / ");
+}
+function lc(s){ return s ? s.charAt(0).toLowerCase()+s.slice(1) : s; }
+function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+function laneNames(rs){
+  if (rs.length===1) return [""];
+  var fs = rs.map(feat), sameRoom = fs.every(function(f){return f.room===fs[0].room;});
+  if (sameRoom && fs.every(function(f){return f.side;})) return fs.map(function(f){return f.side;});
+  if (!sameRoom) return fs.map(function(f){return ROOMNAME[f.room] || (f.room==="foyer"?"Foyer":"Ext");});
+  return rs.map(function(r){return r.sig;});
+}
+function flowRows(rs){
+  var per = rs.map(function(r){
+    var out = [];
+    r.steps.forEach(function(s){ var last = out[out.length-1]; if (last && last.k===s[0]) last.v.push(s[1]); else out.push({k:s[0], v:[s[1]]}); });
+    return out;
+  });
+  return per[0].map(function(row, i){ return {ks: per.map(function(p){return p[i].k;}), vals: per.map(function(p){return p[i].v.join(" → ");})}; });
+}
+function rowRefs(key, val){
+  var refs = [];
+  if (key === "dm7f"){
+    String(val||"").split("→").forEach(function(part){ var m = /^(MT|Mix|Ch)\s+(\d+)/i.exec(part.trim()); if (m){ var q = m[1].toLowerCase(); refs.push(q==="ch" ? "ins:" + m[2] : "outs:" + (q==="mt" ? "MT " : "Mix ") + m[2]); } });
+    return refs;
+  }
+  String(val||"").split("→").forEach(function(part){
+    var m = /^(?:wall patch\s+)?(in|out|omni|dante)\s+(.+)$/i.exec(part.trim()); if (!m) return;
+    var p = m[1].toLowerCase();
+    (m[2].match(/\d+/g)||[]).forEach(function(n){
+      if (p==="in") refs.push("ins:"+n); else if (p==="out") refs.push("outs:"+n); else if (key==="ql5") refs.push("outs:"+cap(p)+" "+n);
+    });
+  });
+  return refs;
+}
+function linkFor(key, vals){
+  var n = NODES[key]; if (!n || !n.go) return null;
+  var refs = [];
+  if (/^(dev|room)-/.test(n.go)) vals.forEach(function(v){ rowRefs(key, v).forEach(function(r){ if (refs.indexOf(r) < 0) refs.push(r); }); });
+  return n.go + (refs.length ? "?rows=" + encodeURIComponent(refs.join(",")) : "");
+}
+function flowDiagram(rs, type){
+  var lanes = laneNames(rs);
+  return '<ol class="flowv" aria-label="Signal route, top to bottom">' + flowRows(rs).map(function(row){
+    var k = row.ks[0], sameK = row.ks.every(function(x){return x===k;});
+    var n = sameK ? (NODES[k] || {label:k, kind:"room"}) : {label:"Rooms", kind:"room", go:null};
+    var label = n.label, kind = n.kind, v0 = row.vals[0];
+    if (ROOMNUM[k] || !sameK){
+      if (/upq|x20|speaker/i.test(v0)){ label += " speakers"; kind = "spk"; }
+      else if (/^wall patch/i.test(v0)){ label += " wall patch"; row.vals = row.vals.map(function(v){return cap(v.replace(/^wall patch\s*/i,""));}); v0 = row.vals[0]; }
+    }
+    var same = row.vals.every(function(v){return v===v0;});
+    function lv(v, i, lane){ var h = linkFor(row.ks[i], [v]), inner = (lane ? '<i>'+esc(lane)+'</i>' : '')+esc(v); return h && h.indexOf("?")>0 ? '<a class="lv" href="#'+h+'" title="Open the patch row">'+inner+'</a>' : '<span class="lv">'+inner+'</span>'; }
+    var vals = same ? lv(v0, 0, "") : row.vals.map(function(v,i){return lv(v, i, lanes[i]);}).join("");
+    var go = sameK ? linkFor(k, row.vals) : null;
+    return '<li class="fstep k-'+kind+'" data-k="'+nk(k)+'"><span class="fdot" aria-hidden="true"></span><div>'+(go?'<a class="fnode" href="#'+go+'">'+esc(label)+'</a>':'<span class="fnode">'+esc(label)+'</span>')+'<div class="fvals">'+vals+'</div></div></li>';
+  }).join("") + '</ol>';
+}
+var SYMTIP = {
+  hum:"Hum or buzz is usually a ground loop or a bad lead. Try another cable, or a DI with ground lift on a PC.",
+  dist:"Distorted? Look for clipping at each stop: Rio gain, desk channel, then the Galaxy input meters.",
+  fb:"Feedback? Pull the mic gain back and keep the mic out of the speakers’ coverage.",
+  low:"Too quiet? Check the level at each stop. A low Rio gain or a pulled-down Galaxy output is the usual cause.",
+  crackle:"Crackling or dropping out usually means a loose or damaged lead or connector."
+};
+function checksFor(rs){
+  var f = feat(rs[0]), multi = rs.length > 1, V = function(k,n){ return J(stepVals(rs, k, n||0)); };
+  var rooms = J(rs.map(function(r){ return ROOMNAME[feat(r).room] || ""; }));
+  var items = [], tip = "", first = rs[0].steps[0];
+  function part(k, i){ return J(stepVals(rs, k, 0).map(function(v){ return (v.split(" → ")[i] || "").trim(); })); }
+  if (f.kinds.indexOf("mains") >= 0 && !f.ext){
+    items = [
+      {b:"DM7F", k:"dm7f", t:"Matrix " + (part("dm7f",0) || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
+      {b:"QL5", t:V("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"AV2 Rio", t:V("rio",0)+" meters moving."},
+      {b:"Galaxy 1", t:V("gal1",0)+" has signal, "+lc(V("gal1",1))+" not muted."},
+      {b:"Speakers", t:(multi ? "UPQs and X20s" : V("room",0))+" powered, front LED green, cables in."}
+    ];
+    tip = multi ? "One side dead? The fault is in that side’s path. Both dead? Start at the desk and the QL5." : "If the other side works, the fault is in this path, not the desk mix.";
+  } else if (f.kinds.indexOf("sub") >= 0 && !f.ext){
+    items = [
+      {b:"Desk", k:"desks", t:"Sub send up and unmuted. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
+      {b:"QL5", t:V("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."},
+      {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
+      {b:"Wall patch", t:(rooms ? rooms+" " : "")+lc(V("room",0))+" patched to the stage loom."},
+      {b:"Subs", t:"Powered, LED green, cables in."}
+    ];
+    tip = multi ? "Every room out at once? Start at Galaxy 2 and the QL5 Omni outs, they’re shared." : "Check another room’s subs. If they’re out too, start at Galaxy 2, it runs every room’s subs.";
+  } else if (f.kinds.indexOf("foyer") >= 0 && !f.ext){
+    items = [
+      {b:"DM7F", k:"dm7f", t:(part("dm7f",0) || "Foyer mix")+" (Foyer) up and unmuted, sending on "+(part("dm7f",1) || "Dante")+"."},
+      {b:"QL5", t:V("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"AV2 Rio", t:V("rio",0)+" meters moving."},
+      {b:"Galaxy 1", t:V("gal1",0)+" has signal, "+lc(V("gal1",1))+" not muted."},
+      {b:"Foyer speakers", t:"Powered and cabled."}
+    ];
+  } else if (f.kinds.indexOf("fill") >= 0 && !f.ext){
+    items = [
+      {b:"QL5", t:V("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
+      {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
+      {b:"Front fill", k:"fill", t:"Speakers powered and cabled."}
+    ];
+    tip = "Which inputs feed the fill mix isn’t documented yet. If the QL5 fill mix isn’t moving, check what’s routed to it.";
+  } else if (rs[0].type==="src"){
+    var wp = lc(V("room",0)), lec = f.kinds.indexOf("lec") >= 0, pc = f.kinds.indexOf("pc") >= 0;
+    items = [
+      lec ? {b:"Lectern mic", t:"Switched on and plugged into "+rooms+" "+wp+"."} :
+      pc ? {b:"Stage PC", t:"Audio not muted, plugged into "+rooms+" "+wp+"."} : {b:"Source", t:"Plugged into "+rooms+" "+wp+"."},
+      {b:"Loom", t:V("loom",0)+" connected."},
+      {b:"AV2 Rio", t:V("rio",0)+" metering. Check the gain"+(lec ? ", and +48V if the mic needs it." : ".")},
+      {b:"DM7F", k:"dm7f", t:(V("dm7f",0) || "The channel")+" (from Rio "+V("rio",0)+" over Dante) unmuted, fader up. If another desk is running the room, check its channel instead."}
+    ];
+    tip = lec ? "Swap the mic lead into another wall patch input. If the fault moves with it, it’s the lead or the mic." : (pc ? "Try another cable or device at the wall patch to rule out the PC." : "");
+  } else if (f.ext){
+    var viaRio = V("rio",0);
+    items = [
+      {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRio+"." : "Sending to QL5 "+V("ql5",0)+" (how it gets there isn’t documented yet)."},
+      viaRio ? {b:"AV2 Rio", t:viaRio+" metering. It reaches QL5 "+V("ql5",0)+" over Dante."} : null,
+      {b:"iPad", t:"TD hasn’t muted it."},
+      {b:"QL5", t:V("ql5",0)+" has signal and is routed to the right outputs."}
+    ].filter(Boolean);
+  } else if (rs[0].type==="feed"){
+    items = [
+      {b:first[1], k:nk(first[0]), t:"Sending, and that output isn’t muted."},
+      {b:"QL5", t:V("ql5",0)+" has signal and isn’t muted."}
+    ];
+    tip = "If the QL5 shows signal but nobody hears it, check the input is routed to the right outputs on the QL5.";
+  } else {
+    items = flowRows(rs).slice(0,5).map(function(row){ var n = NODES[row.ks[0]] || {label:row.ks[0]}; return {b:n.label, t:J(row.vals), k:nk(row.ks[0])}; });
+  }
+  return {items:items, tip:tip};
+}
+var CHECKED = {};
+function kOf(b){
+  if (/^external desk$/i.test(b)) return "external";
+  if (/desk$/i.test(b)) return "desks";
+  return ({"QL5":"ql5","AV2 Rio":"rio","Galaxy 1":"gal1","Galaxy 2":"gal2","Speakers":"room","Wall patch":"room","Lectern mic":"room","Stage PC":"room","Source":"room","Subs":"subs","Loom":"loom","Foyer speakers":"foyer","iPad":"ql5","DM7F":"dm7f","Front fill":"fill"})[b] || "";
+}
+function checksBlock(c, gk, open, P, first){
+  var sym = first ? Object.keys(P.sym).filter(function(k){return SYMTIP[k];})[0] : null;
+  var h = '<details class="checks"'+(open?' open':'')+'><summary>Quick checks <small>'+c.items.length+', in signal order</small></summary>';
+  if (sym) h += '<p class="tip warn">'+esc(SYMTIP[sym])+'</p>';
+  h += '<ol class="clist">'+c.items.map(function(it,i){
+    var id = gk+"#"+i;
+    return '<li data-k="'+esc(it.k || kOf(it.b))+'"><label><input type="checkbox" data-ck="'+esc(id)+'"'+(CHECKED[id]?' checked':'')+'><span><b>'+esc(it.b)+'</b> · '+esc(it.t)+'</span></label></li>';
+  }).join("")+'</ol>';
+  if (c.tip) h += '<p class="tip">'+esc(c.tip)+'</p>';
+  h += '<p class="tip done alldone" hidden>All checked and still not working? Swap the lead at the last stop, then flag it with the TD.</p>';
+  return h + '</details>';
+}
+function checksHTML(rs, open, P, first){ return checksBlock(checksFor(rs), rs.map(function(r){return r.sig;}).join("|"), open, P, first); }
+function syncChecks(card){
+  if (!card) return;
+  var items = [].slice.call(card.querySelectorAll(".clist li")), found = false, all = {};
+  items.forEach(function(li){
+    var k = li.getAttribute("data-k"), c = li.querySelector("input").checked;
+    li.classList.toggle("next", !c && !found); if (!c) found = true;
+    if (k) all[k] = (k in all) ? (all[k] && c) : c;
+  });
+  card.querySelectorAll(".fstep[data-k]").forEach(function(row){ row.classList.toggle("ok", all[row.getAttribute("data-k")] === true); });
+  var fin = card.querySelector(".alldone"); if (fin) fin.hidden = found || !items.length;
+}
+function syncAllChecks(){ document.querySelectorAll("#sigres .best").forEach(syncChecks); }
+function rfCard(P){
+  var room = Object.keys(P.rooms).map(function(r){return ROOMNAME[r];}).join(" / "), r1 = room.split(" / ")[0];
+  var rows = [["tx","Mic or beltpack","Battery, power, mute","room"],["rx","Receiver","RF and audio meters","dante"],["desks","Desk","Receiver’s channel","ql"],["room",(r1 ? r1+" speakers" : "Room speakers"),"Main mix","spk"]];
+  var h = '<section class="card best"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">Wireless mic</span><h2 class="btitle">Wireless mic checks</h2><div class="bsub">'+esc(room ? room+" · " : "")+'mic to receiver to desk</div></div><div class="bact"><a class="btn" href="#rf" style="text-decoration:none">RF locations</a></div></div>';
+  h += '<ol class="flowv" aria-label="Wireless mic path, top to bottom">'+rows.map(function(r){return '<li class="fstep k-'+r[3]+'" data-k="'+r[0]+'"><span class="fdot" aria-hidden="true"></span><div><span class="fnode">'+esc(r[1])+'</span><div class="fvals"><span class="lv">'+esc(r[2])+'</span></div></div></li>';}).join("")+'</ol>';
+  var c = {items:[
+    {k:"tx", b:"Mic or pack", t:"Battery charged, switched on, mute switch off."},
+    {k:"rx", b:"Receiver", t:"RF meter shows signal, on the same frequency as the mic. Re-sync if unsure."},
+    {k:"rx", b:"Receiver", t:"Audio meter moves when you talk, and the output isn’t turned down."},
+    {k:"desks", b:"Desk", t:"The receiver’s channel is patched, unmuted, fader up."},
+    {k:"room", b:"Room", t:"Other sources play in the room. If not, check the room’s mains instead."}
+  ], tip:"Swap in a spare mic on the same frequency. If that works, it’s the mic or pack. Dropouts usually mean the pack is out of sight of the antennas, or an antenna lead is loose."};
+  h += checksBlock(c, "rf|"+room, P.trouble, P, true) + '</section>';
+  if (r1) h += '<div class="near"><span>Room silent too?</span>'+qChip(r1+" mains", r1.toLowerCase()+" mains not working")+'</div>';
+  return h;
+}
+function groupTitle(rs){ return rs.length <= 2 ? rs.map(function(r){return r.sig;}).join(" + ") : rs.map(function(r){return r.sig;}).join(", "); }
+function groupSub(rs){
+  var f = feat(rs[0]), rooms = J(rs.map(function(r){return ROOMNAME[feat(r).room] || "";}));
+  var what = rs[0].type==="src" ? "wall patch to desks" : (rs[0].type==="ext" ? "external team into the QL5" : (rs[0].type==="feed" ? "into the QL5" : "desk to speakers"));
+  return (rooms ? rooms+" · " : "") + what;
+}
+function readLine(P){
+  var bits = P.read.map(function(b){return '<span class="rd">'+esc(b)+'</span>';});
+  if (P.trouble) bits.push('<span class="rd warn">not working</span>');
+  (P.notes||[]).forEach(function(n){ bits.push('<span class="rd mut">'+esc(n)+'</span>'); });
+  if (!bits.length && !P.unknown.length) return "";
+  return '<p class="readas">'+(bits.length ? 'Reading that as '+bits.join("") : '')+(P.unknown.length ? '<span class="ign">skipped: '+esc(P.unknown.join(", "))+'</span>' : '')+'</p>';
+}
+function qChip(label, q){ return '<button class="fchip" data-q="'+esc(q)+'">'+esc(label)+'</button>'; }
+var EXAMPLES = [["Subs not working in Prince","subs not working prince"],["Monarch mains","monarch mains"],["Lectern 3","lectern 3"],["Stage PC 1","stage pc 1"],["Foyer","foyer"],["Radio mic dropping out","radio mic dropping out"],["External feed","external"]];
+function refineChips(rs, P, q){
+  var out = [], seen = {};
+  if (!Object.keys(P.rooms).length && !P.nums.some(function(n){return n<=3;})) rs.forEach(function(r){ var f = feat(r); if (ROOMNUM[f.room] && !seen[f.room]){ seen[f.room] = 1; out.push(qChip(ROOMNAME[f.room], q+" "+ROOMNAME[f.room].toLowerCase())); } });
+  if (out.length < 2) out = [];
+  if (!Object.keys(P.kinds).length){
+    var ks = {}; rs.forEach(function(r){ feat(r).kinds.forEach(function(k){ if (k!=="ext") ks[k] = 1; }); });
+    var kl = Object.keys(ks); if (kl.length > 1) kl.slice(0,4).forEach(function(k){ out.push(qChip(KINDNAME[k], q+" "+KINDNAME[k].toLowerCase())); });
+  }
+  return out.length ? '<div class="near"><span>Narrow it down:</span>'+out.join("")+'</div>' : "";
+}
+var lastFind = null;
+function viewSignals(){
+  var h = '<h1>Signal finder</h1><p class="lede">Say what’s wrong in plain words, like “subs not working in Prince”. Spelling doesn’t need to be perfect.</p>';
+  h += '<div class="search"><input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="e.g. subs not working in Prince" aria-label="Describe the signal or problem" value="'+esc(sigFilter.q)+'"></div>';
+  return h + '<div id="sigres" aria-live="polite">'+signalResults()+'</div>';
+}
+function signalResults(){
+  var q = sigFilter.q, res = findSignals(q), h = "";
+  lastFind = res;
+  if (res.empty){
+    var rec = getRecent();
+    if (rec.length) h += '<p class="qlabel">Recent</p><div class="qchips">'+rec.map(function(x){return qChip(x, x);}).join("")+'</div>';
+    h += (rec.length ? '<p class="qlabel">Try</p>' : '')+'<div class="qchips">'+EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join("")+'</div>';
+    [["out","Room outputs","desk to speakers"],["src","Room sources","wall patch to desks"],["ext","External teams","into the QL5"],["feed","Other feeds","into the QL5"]].forEach(function(sc){
+      var l = cur().routes.filter(function(r){return r.type===sc[0];});
+      if (l.length) h += '<h2 class="sec">'+sc[1]+'<small>'+sc[2]+' · '+l.length+'</small></h2><div class="card routes">'+l.map(routeRow).join("")+'</div>';
+    });
+    return h;
+  }
+  h += readLine(res.P);
+  if (res.rf) return h + rfCard(res.P);
+  if (res.none){
+    return h + '<div class="card empty" style="margin-top:14px">Not sure which signal that is. Try naming the room and what’s affected, like <b>Monarch subs</b> or <b>lectern 2</b>.</div>'+
+      '<div class="qchips">'+(res.P.trouble ? ["Prince","Monarch","Marquis","Foyer"].map(function(r){return qChip(r, q+" "+r.toLowerCase());}).join("") : EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join(""))+'</div>';
+  }
+  if (res.many){
+    var dgo = res.P.devs.length===1 ? {ql5:"dev-ql5", rio:"dev-rio", gal1:"dev-gal1", gal2:"dev-gal2", gal:"dev-gal1", desks:"dev-desks", dm7f:"dev-dm7f"}[res.P.devs[0]] : null;
+    if (dgo) h += '<p style="margin:12px 0 0"><a class="btn" href="#'+dgo+'" style="text-decoration:none">Open the '+esc(DEVNAME[res.P.devs[0]])+' page</a></p>';
+    return h + '<div class="card empty" style="margin-top:14px">'+res.many.length+' signals fit that. Add a room or say what’s affected to narrow it down.</div>'+refineChips(res.many, res.P, q)+
+      '<div class="card routes" style="margin-top:12px">'+res.many.slice(0,12).map(routeRow).join("")+'</div>'+(res.many.length>12?'<p class="note">And '+(res.many.length-12)+' more.</p>':'');
+  }
+  res.groups.forEach(function(rs, gi){
+    h += '<section class="card best"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">'+(gi===0?(res.top.length>1?"Best matches":"Best match"):"Also matches")+'</span><h2 class="btitle">'+esc(groupTitle(rs))+'</h2><div class="bsub">'+esc(groupSub(rs))+'</div></div>'+
+      (gi===0?'<div class="bact">'+(canShare()?'<button class="btn" id="share">Share</button>':'')+'<button class="btn" id="showmap">Show on map</button></div>':'')+'</div>';
+    h += flowDiagram(rs, rs[0].type);
+    if (rs[0].alt) h += '<p class="note">'+esc(rs[0].alt)+'</p>';
+    h += checksHTML(rs, res.P.trouble, res.P, gi===0) + '</section>';
+  });
+  h += refineChips(res.top, res.P, q);
+  if (res.near.length) h += '<div class="near"><span>Not it? Try</span>'+res.near.map(function(r){return qChip(r.sig, r.sig);}).join("")+'</div>';
+  return h;
+}
+
+/* route highlight on the main map */
+var hl = null, hlKey = "", hlFlyT = null;
+var DSET = {rio:1, desks:1, ql5:1, stage:1};
+function mapKey(r, i){
+  var k = r.steps[i][0];
+  if (k==="dm7f") return "desks";
+  if (k==="loom") return null;
+  if (ROOMNUM[k]){
+    if (r.type==="src") return k;
+    var prev = r.steps[i-1] && r.steps[i-1][0];
+    return prev==="gal1" ? "speakers" : null;
+  }
+  return (GEO[k] || k==="dante") ? k : null;
+}
+function edgeFor(a, b){
+  for (var i=0;i<EDGES.length;i++){ var e = EDGES[i]; if (e[0]===a && e[1]===b) return {a:a, b:b, rev:false}; if (e[0]===b && e[1]===a) return {a:b, b:a, rev:true}; }
+  return null;
+}
+function routeGraph(rs){
+  var nodes = {}, edges = {};
+  rs.forEach(function(r){
+    var seq = [];
+    r.steps.forEach(function(s, i){ var k = mapKey(r, i); if (k && seq[seq.length-1]!==k) seq.push(k); });
+    seq.forEach(function(k){ nodes[k] = 1; });
+    for (var i=1;i<seq.length;i++){
+      var a = seq[i-1], b = seq[i], e = edgeFor(a, b), list = [];
+      if (e) list.push(e);
+      else if (a==="rio" && b==="gal1") list.push(edgeFor("ql5","gal1"));
+      else if (DSET[a] && DSET[b]){ list.push(edgeFor(a,"dante"), edgeFor("dante",b)); nodes.dante = 1; }
+      list.forEach(function(x){ if (x) edges[x.a+">"+x.b] = x; });
+    }
+  });
+  return {nodes:Object.keys(nodes), edges:Object.keys(edges).map(function(k){return edges[k];})};
+}
+function applyHL(){
+  var svg = $("map");
+  if (svg){
+    svg.classList.remove("routing");
+    svg.querySelectorAll(".ron").forEach(function(x){ x.classList.remove("ron","rev"); });
+    if (hl){
+      var rs = cur().routes.filter(function(r){return hl.sigs.indexOf(r.sig) >= 0;}), G = routeGraph(rs);
+      if (G.nodes.length){
+        svg.classList.add("routing");
+        G.nodes.forEach(function(k){ svg.querySelectorAll('.node[data-id="'+k+'"]').forEach(function(x){x.classList.add("ron");}); });
+        G.edges.forEach(function(e){ svg.querySelectorAll('path[data-a="'+e.a+'"][data-b="'+e.b+'"]').forEach(function(p){ p.classList.add("ron"); if (e.rev) p.classList.add("rev"); }); });
+      }
+    }
+  }
+  var c = $("rchip");
+  if (c){ c.hidden = !(hl && baseRoute()!=="signals"); if (hl){ $("rlabel").textContent = hl.label; $("rlabel").setAttribute("href", "#signals" + (sigFilter.q.trim() ? "?q=" + encodeURIComponent(sigFilter.q.trim()) : "")); } }
+}
+function ensureSystemVisible(){
+  if (!hl || window.innerWidth <= 720 || baseRoute()!=="signals") return;
+  var a = viewArea(), S = AREA.system, sx = cam.x + S.x*cam.k, sy = cam.y + S.y*cam.k, sw = S.w*cam.k, sh = S.h*cam.k;
+  var ix = Math.max(0, Math.min(a.x+a.w, sx+sw) - Math.max(a.x, sx)), iy = Math.max(0, Math.min(a.y+a.h, sy+sh) - Math.max(a.y, sy));
+  if (cam.k < 0.3 || (ix*iy) / (Math.min(sw,a.w)*Math.min(sh,a.h)) < 0.7) flyTo(S, 1.3);
+}
+function setHLFromFind(){
+  var sigs = [];
+  if (lastFind && lastFind.groups) lastFind.groups.forEach(function(g){ g.forEach(function(r){ sigs.push(r.sig); }); });
+  var key = sigs.join("|");
+  hl = sigs.length ? {sigs:sigs, label: lastFind.groups.map(groupTitle).join(" · ")} : null;
+  applyHL();
+  if (key && key!==hlKey){ clearTimeout(hlFlyT); hlFlyT = setTimeout(ensureSystemVisible, 450); }
+  hlKey = key;
+}
+var qsT = null, recentT = null, RECENT_KEY = "ballroomAudioRecent";
+function afterResults(){ setHLFromFind(); syncAllChecks(); clearTimeout(qsT); qsT = setTimeout(syncQueryToHash, 300); clearTimeout(recentT); recentT = setTimeout(function(){ recordRecent(); logSearch(); }, 2500); }
+function afterDrawer(){ if (baseRoute()==="signals") afterResults(); else applyHL(); }
+function syncQueryToHash(){
+  if (baseRoute()!=="signals") return;
+  var q = sigFilter.q.trim(), h = "signals" + (q ? "?q=" + encodeURIComponent(q) : "");
+  if (route() === h) return;
+  try{ history.replaceState(history.state, "", "#" + h); lastRoute = route(); }catch(e){}
+}
+function getRecent(){ try{ var a = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); return Array.isArray(a) ? a.filter(function(x){return typeof x==="string";}).slice(0,5) : []; }catch(e){ return []; } }
+function recordRecent(){
+  var q = sigFilter.q.trim(); if (!q || !lastFind || !(lastFind.groups || lastFind.rf)) return;
+  var a = getRecent().filter(function(x){return x.toLowerCase()!==q.toLowerCase();}); a.unshift(q);
+  try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,5))); }catch(e){}
+}
+function canShare(){ return !(window.claude && typeof window.claude.use === "function"); }
+function shareRoute(){
+  recordRecent();
+  var url = location.href.split("#")[0] + "#signals?q=" + encodeURIComponent(sigFilter.q.trim());
+  if (navigator.share && window.matchMedia && window.matchMedia("(pointer:coarse)").matches){ navigator.share({title:"Ballroom Audio: " + sigFilter.q.trim(), url:url}).catch(function(){}); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ toast("Link copied. Paste it to share this route."); }, function(){ toast("Couldn’t copy. The link is in your address bar."); }); return; }
+  toast("The link is in your address bar.");
+}
+function openFinder(){
+  if (!started) return;
+  if (baseRoute()!=="signals"){ location.hash = "signals" + (sigFilter.q.trim() ? "?q=" + encodeURIComponent(sigFilter.q.trim()) : ""); onRoute(); }
+  var qi = $("q"); if (qi){ try{ qi.focus({preventScroll:true}); qi.select(); }catch(x){} }
+}
+function applyRowHL(){
+  var rp = routeParts(), db = $("dbody"); if (!db || !rp.q.rows || $("drawer").hidden) return;
+  var first = null;
+  rp.q.rows.split(",").forEach(function(ref){
+    var i = ref.indexOf(":"); if (i < 0) return;
+    var tab = ref.slice(0,i), ch = ref.slice(i+1).toLowerCase(); if (!/^(ins|outs)$/.test(tab)) return;
+    db.querySelectorAll('tr[data-tab="'+tab+'"]').forEach(function(tr){ if ((tr.getAttribute("data-ch")||"").toLowerCase()===ch){ tr.classList.add("hlrow"); if (!first) first = tr; } });
+  });
+  if (sigFilter.q.trim() && !db.querySelector(".backq")) db.insertAdjacentHTML("afterbegin", '<a class="backq" href="#signals?q='+encodeURIComponent(sigFilter.q.trim())+'">← Back to “'+esc(sigFilter.q.trim())+'”</a>');
+  if (first){ var r = first.getBoundingClientRect(), dr = db.getBoundingClientRect(); db.scrollTop += (r.top - dr.top) - Math.min(140, dr.height/4); }
+}
+function clearHL(){ hl = null; hlKey = ""; sigFilter.q = ""; lastFind = null; applyHL(); }
+function viewRF(){
+  var s = cur(), max = Math.max.apply(null, s.rf.map(function(r){return Number(r.ch)||0;}).concat([1]));
+  var total = s.rf.reduce(function(a,r){return a+(Number(r.ch)||0);},0);
+  var h = '<h1>RF in the venue</h1><p class="lede">Wireless channels needed at each location, ready for the RF plot. Location names are as written in the notes.</p>';
+  h += '<div class="card panel k-dante" style="margin-top:14px"><div class="tblwrap"><table class="t"><thead><tr><th>Location</th><th>Ch</th><th></th><th>Band / range</th><th>Receiver</th><th>Status</th><th>Notes</th></tr></thead><tbody>';
+  s.rf.forEach(function(r,i){
+    var p = "rf."+i;
+    h += '<tr><td><b>'+F(p+".loc",{label:"Location"})+'</b></td><td class="num">'+F(p+".ch",{num:1,label:"Channels"})+'</td>'+
+      '<td style="width:18%"><div class="bar" aria-hidden="true"><i style="width:'+Math.round((Number(r.ch)||0)/max*100)+'%"></i></div></td>'+
+      '<td>'+F(p+".band",{label:"Band",ph:"e.g. 520–558 MHz",show:function(v){return v?esc(v):'<span class="dim">—</span>';}})+'</td>'+
+      '<td>'+F(p+".rx",{label:"Receiver",ph:"model",show:function(v){return v?esc(v):'<span class="dim">—</span>';}})+'</td>'+
+      '<td>'+F(p+".status",{options:["To plot","Plotted","Checked on site"],show:statusPill,label:"Plot status"})+'</td>'+
+      '<td>'+F(p+".note",{label:"Notes",show:function(v){return '<span class="dim">'+esc(v)+'</span>';}})+'</td></tr>';
+  });
+  h += '<tr><td class="total">Total</td><td class="num total" id="rftotal">'+total+'</td><td colspan="5"></td></tr></tbody></table></div></div>';
+  return h + '<p class="note">Related to-dos: do the RF plot, and check whether the RX gain structure can change without changing the receivers’ output.</p>';
+}
+function ipKey(ip){ return String(ip||"").split(".").map(function(x){ return ("00" + (parseInt(x,10)||0)).slice(-3); }).join("."); }
+function viewNetwork(){
+  var s = cur(), list = (s.network||[]).map(function(n,i){ return {n:n, i:i}; });
+  if (!editing) list.sort(function(a,b){ return ipKey(a.n.ip) < ipKey(b.n.ip) ? -1 : 1; });
+  var h = '<h1>Network</h1><p class="lede">Every device on the AV network and its IP address, from the RPR Network Console Master workbook. Passwords aren’t kept here. Keep them in a password manager.</p>';
+  h += '<div class="filter"><input id="flt" type="search" placeholder="Filter, e.g. DM3, Stage Rack, camera, .76" aria-label="Filter devices"></div>';
+  h += '<div class="card panel k-dante" style="margin-top:14px"><div class="tblwrap"><table class="t"><thead><tr><th>IP</th><th>Device</th><th>Name</th><th>Location</th><th>Up-link</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>';
+  list.forEach(function(o){
+    var n = o.n, p = "network." + o.i, txt = (n.ip+" "+n.device+" "+n.name+" "+n.loc+" "+n.uplink).toLowerCase();
+    h += '<tr data-txt="'+esc(txt)+'"><td class="ch">'+F(p+".ip",{label:"IP"})+'</td><td>'+F(p+".device",{label:"Device"})+'</td><td>'+F(p+".name",{label:"Name",show:function(v){return '<span class="dim">'+esc(v)+'</span>';}})+'</td><td>'+F(p+".loc",{label:"Location"})+'</td><td>'+F(p+".uplink",{label:"Up-link",show:function(v){return '<span class="dim">'+esc(v)+'</span>';}})+'</td>'+(editing?'<td><button class="del" data-delnet="'+o.i+'">Remove</button></td>':'')+'</tr>';
+  });
+  h += '</tbody></table></div></div>';
+  if (editing) h += '<p><button class="btn" id="addnet">Add a device</button></p>';
+  return h;
+}
+function viewTodo(){
+  var s = cur(), done = s.todo.filter(function(t){return t.status==="Done";}).length, n = s.todo.length;
+  var h = '<h1>Upgrade to-do</h1><p class="lede">'+done+' of '+n+' done.</p><div class="prog" aria-hidden="true"><i style="width:'+(n?Math.round(done/n*100):0)+'%"></i></div><ul class="card todo" style="margin-top:14px">';
+  s.todo.forEach(function(t,i){
+    var p = "todo."+i;
+    h += '<li><div>'+F(p+".status",{options:["To do","In progress","Done","On hold"],show:statusPill,label:"Status"})+'</div>'+
+      '<div><div class="tt">'+F(p+".task",{label:"Task"})+'</div>'+((t.note||editing)?'<div class="dim">'+F(p+".note",{label:"Detail",ph:"Detail"})+'</div>':'')+'</div>'+
+      '<div>'+(editing?F(p+".area",{label:"Area",ph:"Area"})+' <button class="del" data-del="'+i+'">Remove</button>':'<span class="area-t">'+esc(t.area)+'</span>')+'</div></li>';
+  });
+  h += '</ul>';
+  if (editing) h += '<p><button class="btn" id="addtask">Add a task</button></p>';
+  return h;
+}
+function viewKit(){
+  var s = cur(), h = '<h1>Speaker kit</h1><p class="lede">Key specs for the Meyer boxes in this system, from the datasheets, plus manuals and software.</p><div class="specs" style="margin-top:14px">';
+  s.specs.forEach(function(sp){
+    h += '<article class="card spec k-spk"><span class="tag">'+esc(sp.role)+'</span><h3>'+esc(sp.model)+'</h3><dl>'+
+      '<dt>Coverage</dt><dd>'+esc(sp.coverage)+'</dd><dt>Range</dt><dd>'+esc(sp.freq)+'</dd><dt>Peak SPL</dt><dd>'+esc(sp.spl)+'</dd>'+
+      '<dt>Drivers</dt><dd>'+esc(sp.drivers)+'</dd><dt>Weight</dt><dd>'+esc(sp.weight)+'</dd><dt>Power</dt><dd>'+esc(sp.amps)+'</dd></dl>'+
+      '<p class="note" style="margin:0">'+esc(sp.note)+'</p><a href="'+esc(sp.link)+'" target="_blank" rel="noopener">Datasheet ↗</a></article>';
+  });
+  h += '</div><h2 class="sec">Manuals and software</h2><ul class="links">';
+  s.links.forEach(function(l){h += '<li><small>'+esc(l[0])+'</small><a href="'+esc(l[2])+'" target="_blank" rel="noopener">'+esc(l[1])+' ↗</a></li>';});
+  return h + '</ul>';
+}
+function viewDirectory(){
+  var h = '<h1>Everything</h1><p class="lede">Every block on the map and every sector, in one list.</p><h2 class="sec">System</h2><div class="dir">';
+  ["prince","monarch","marquis","rio","dante","desks","dm7f","stage","ql5","external","gal1","gal2","speakers","foyer"].forEach(function(k){
+    var n = NODES[k]; h += '<a class="k-'+n.kind+'" href="#'+n.go+'"><i class="dot"></i><div><b>'+esc(n.label)+'</b><span>'+esc(n.desc)+'</span></div></a>';
+  });
+  h += '</div><h2 class="sec">Sectors</h2><div class="dir">';
+  [["signals","Signal finder","Follow any signal end to end"],["rooms","Rooms","Prince, Monarch, Marquis and the Foyer"],["rf","RF","Wireless channels per location"],["todo","Upgrade log","What's done and what's left"],["kit","Speaker kit","Specs, manuals and software"],["network","Network","IP addresses for every device"]].forEach(function(x){
+    h += '<a href="#'+x[0]+'"><i class="dot" style="background:var(--accent)"></i><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></a>';
+  });
+  return h + '</div>';
+}
+
+/* ---------- routing ---------- */
+function route(){return (location.hash||"").replace(/^#/,"") || "map";}
+function routeParts(){
+  var h = route(), i = h.indexOf("?"), o = {};
+  (i < 0 ? "" : h.slice(i+1)).split("&").forEach(function(kv){ if (!kv) return; var j = kv.indexOf("="); try{ o[decodeURIComponent(j<0?kv:kv.slice(0,j))] = decodeURIComponent((j<0?"":kv.slice(j+1)).replace(/\+/g," ")); }catch(e){} });
+  return {base: i < 0 ? h : h.slice(0,i), q: o};
+}
+function baseRoute(){ return routeParts().base; }
+function pad(r, minW, minH){var w = Math.max(r[2], minW), h = Math.max(r[3], minH); return {x:r[0]+r[2]/2-w/2, y:r[1]+r[3]/2-h/2, w:w, h:h};}
+function resolve(v){
+  v = String(v).split("?")[0];
+  if (v==="map") return {view:null, rect:AREA.system, dock:"map"};
+  if (v==="signals") return {view:viewSignals, rect:AREA.system, dock:"signals", label:"Signal finder"};
+  if (v==="rf") return {view:viewRF, rect:AREA.rf, dock:"rf", label:"RF"};
+  if (v==="todo") return {view:viewTodo, rect:AREA.todo, dock:"todo", label:"Upgrade log"};
+  if (v==="kit") return {view:viewKit, rect:AREA.kit, dock:"kit", label:"Speaker kit"};
+  if (v==="network") return {view:viewNetwork, rect:AREA.network, dock:"network", label:"Network"};
+  if (v==="all") return {view:viewDirectory, rect:null, dock:"all", label:"Everything"};
+  if (v==="admin" && CLOUD) return {view:viewAdmin, rect:null, dock:"admin", label:"Admin"};
+  if (v==="account" && CLOUD) return {view:viewAccount, rect:null, dock:"", label:"Your account"};
+  if (v==="rooms") return {view:viewRooms, rect:pad([20,120,170,328],520,420), dock:"map", label:"Rooms"};
+  if (v==="speakers") return {view:viewSpeakers, rect:pad([1060,100,130,390],560,460), dock:"map", label:"Speakers"};
+  if (v==="foyer") return {view:viewFoyer, rect:pad(GEO.foyer,560,420), dock:"map", label:"Foyer"};
+  if (v==="stage") return {view:viewStage, rect:pad(GEO.stage,560,420), dock:"map", label:"Stage racks"};
+  var m = /^room-(\w+)$/.exec(v); if (m && cur().rooms[m[1]]) return {view:function(){return viewRoom(m[1]);}, rect:pad(GEO[m[1]],560,420), dock:"map", label:"Room"};
+  m = /^dev-(\w+)$/.exec(v);
+  if (m && cur().devices[m[1]]) { var g = GEO[m[1]] || (m[1]==="sr1"||m[1]==="sr2" ? GEO.stage : (m[1]==="dm7f" ? GEO.desks : GEO.ql5)); return {view:function(){return viewDevice(m[1]);}, rect:pad(g,560,420), dock:"map", label:cur().devices[m[1]].name}; }
+  return {view:null, rect:AREA.system, dock:"map"};
+}
+
+/* ---------- camera ---------- */
+var cam = {x:0,y:0,k:1}, anim = null;
+var camQueued = false;
+function applyCamNow(){ var w = $("world"); if (w) w.style.transform = "translate3d("+cam.x.toFixed(2)+"px,"+cam.y.toFixed(2)+"px,0) scale("+cam.k.toFixed(4)+")"; drawStars(); }
+function applyCam(){ if (camQueued) return; camQueued = true; requestAnimationFrame(function(){ camQueued = false; applyCamNow(); }); }
+function viewArea(){
+  var W = window.innerWidth, H = window.innerHeight, top = 70, bottom = 76, d = $("drawer");
+  if (d && !d.hidden){
+    if (W > 720) { var dw = d.offsetWidth + 28; return {x:16, y:top, w:Math.max(200, W - dw - 32), h:H - top - bottom}; }
+    return {x:10, y:top, w:W - 20, h:Math.max(90, H - d.offsetHeight - top - bottom + 10)};
+  }
+  return {x:16, y:top, w:W - 32, h:H - top - bottom};
+}
+function flyTo(rect, kmax){
+  if (!rect) return;
+  var a = viewArea(), k = Math.min(a.w/rect.w, a.h/rect.h, kmax || 1.35); k = Math.max(k, 0.18);
+  var to = {x:a.x + a.w/2 - (rect.x + rect.w/2)*k, y:a.y + a.h/2 - (rect.y + rect.h/2)*k, k:k};
+  if (anim) cancelAnimationFrame(anim.id);
+  if (REDUCE){ cam = to; applyCamNow(); return; }
+  var from = {x:cam.x, y:cam.y, k:cam.k}, t0 = performance.now(), dur = 720;
+  anim = {};
+  (function step(now){
+    var t = Math.min(1, (now - t0)/dur), e = t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    var lk = Math.log(from.k) + (Math.log(to.k) - Math.log(from.k))*e, k2 = Math.exp(lk);
+    var fx = (a.x + a.w/2), fy = (a.y + a.h/2);
+    var wx = (fx - from.x)/from.k + (((fx - to.x)/to.k) - ((fx - from.x)/from.k))*e;
+    var wy = (fy - from.y)/from.k + (((fy - to.y)/to.k) - ((fy - from.y)/from.k))*e;
+    cam = {x: fx - wx*k2, y: fy - wy*k2, k: k2}; applyCamNow();
+    if (t < 1) anim.id = requestAnimationFrame(step); else anim = null;
+  })(t0);
+}
+function zoomAt(sx, sy, f){
+  var k2 = Math.min(3, Math.max(0.15, cam.k*f)), r = k2/cam.k;
+  cam = {x: sx - (sx - cam.x)*r, y: sy - (sy - cam.y)*r, k: k2}; applyCam();
+}
+
+/* ---------- stars ---------- */
+var STARS = [], starQueued = false;
+(function(){ var seed = 7; function rnd(){ seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }
+  for (var i=0;i<460;i++){ var big = rnd() > .9; STARS.push({x:rnd(), y:rnd(), r: big ? 1.1 + rnd()*1.1 : .35 + rnd()*.75, a: .25 + rnd()*.7, d:[.06,.14,.28][i%3], c: rnd() < .14 ? "190,212,255" : (rnd() < .08 ? "255,220,185" : "255,255,255")}); } })();
+function scheduleStars(){ if (starQueued) return; starQueued = true; requestAnimationFrame(function(){ starQueued = false; drawStars(); }); }
+function drawStars(){
+  var c = $("stars"); if (!c) return;
+  var dpr = Math.min(2, window.devicePixelRatio || 1), W = window.innerWidth, H = window.innerHeight;
+  if (c.width !== Math.round(W*dpr) || c.height !== Math.round(H*dpr)){ c.width = Math.round(W*dpr); c.height = Math.round(H*dpr); }
+  var ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  var T = 1500;
+  for (var i=0;i<STARS.length;i++){
+    var s = STARS[i], px = ((s.x*T + cam.x*s.d) % T + T) % T, py = ((s.y*T + cam.y*s.d) % T + T) % T;
+    ctx.fillStyle = "rgba("+s.c+","+s.a+")";
+    for (var ox = px; ox < W; ox += T) for (var oy = py; oy < H; oy += T){ ctx.beginPath(); ctx.arc(ox, oy, s.r, 0, 6.2832); ctx.fill(); }
+  }
+}
+
+/* ---------- shell ---------- */
+var DOCK = [["map","System","var(--accent)"],["signals","Signals","var(--accent)"],["rf","RF","var(--dante)"],["todo","To-do","var(--ok)"],["kit","Kit","var(--spk)"],["network","Network","var(--dante)"],["all","All","var(--muted)"]];
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"});}catch(e){return "";}}
+function buildShell(){
+  app.innerHTML = '<div class="scene"><canvas id="stars" aria-hidden="true"></canvas>'+
+    '<div id="viewport" class="viewport" tabindex="0" aria-label="System map. Drag to move around, scroll or pinch to zoom, arrow keys to pan."><div id="world" class="world"></div></div>'+
+    '<div class="hud hud-top"><a class="brand glass" href="#map"><small>RACV Royal Pines</small><b>Ballroom Audio</b></a><button id="hsearch" class="hsearch glass" aria-label="Search, or describe what’s not working (shortcut: /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg><span>What’s not working?</span><kbd>/</kbd></button><div id="meta" class="meta glass"></div></div>'+
+    '<div id="editpill" class="hud editpill glass" hidden></div><div id="banner" class="hud banner glass" hidden></div>'+
+    '<nav id="dock" class="hud dock glass" aria-label="Sectors"></nav>'+
+    '<div class="hud zoom glass"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zfit" aria-label="Show the whole system" style="font-size:15px">⌖</button></div>'+
+    '<div class="hud hint">Drag to move · scroll to zoom</div>'+
+    '<div id="rchip" class="hud rchip glass" hidden><i class="live" aria-hidden="true"></i><small>Route on map</small><a id="rlabel" href="#signals" title="Back to the signal finder"></a><button class="x" id="clearroute" aria-label="Clear the route from the map">✕</button></div>'+
+    '<div id="gate" class="gate" hidden></div>'+
+    '<aside id="drawer" class="drawer glass" hidden aria-label="Details"><div class="dhead"><span id="dlabel"></span><button class="x" id="dclose" aria-label="Close panel">✕</button></div><div id="dbody" class="dbody"></div></aside>'+
+    '</div>';
+}
+function renderWorld(){ $("world").innerHTML = worldHTML(); applyHL(); }
+function renderHud(){
+  var ini = me ? String(me.name || me.email || "?").trim().split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(function(w){return w.charAt(0).toUpperCase();}).join("") : "";
+  $("meta").innerHTML = '<span class="upd">Updated '+esc(fmtDate(state.savedAt))+(CLOUD && state.updatedBy ? ' by '+esc(state.updatedBy) : '')+'</span>'+(canEdit() && !editing ? '<button class="btn" id="edit">Edit</button>' : '')+(readOnly?'<span class="pill mut">View only</span>':'')+
+    (CLOUD && me ? '<a class="ubtn" href="#account" title="Your account ('+esc(me.email)+')" aria-label="Your account">'+esc(ini || "?")+'</a>' : '');
+  var hs = $("hsearch"); if (hs) hs.hidden = editing || baseRoute()==="signals";
+  var ep = $("editpill"); ep.hidden = !editing;
+  if (editing) ep.innerHTML = '<span id="emsg">'+(saving?"Saving…":(dirty?"Unsaved changes":"Editing"))+'</span><button class="btn" id="discard"'+(saving?' disabled':'')+'>Discard</button><button class="btn primary" id="save"'+(saving||!dirty?' disabled':'')+'>Save</button>';
+  var b = $("banner"); b.hidden = !(pending && !editing);
+  if (pending && !editing) b.innerHTML = '<span>Your last changes weren’t saved because someone else saved first.</span><button class="btn primary" id="reapply">Put them back</button><button class="btn" id="dropdraft">Throw away</button>';
+  var r = resolve(route());
+  $("dock").innerHTML = DOCK.concat(isAdmin() ? [["admin","Admin","var(--warn)"]] : []).map(function(d){return '<button class="dk" data-go="'+d[0]+'" aria-current="'+(r.dock===d[0])+'" style="--k:'+d[2]+'"><i></i>'+d[1]+'</button>';}).join("");
+}
+function renderDrawer(r){
+  var d = $("drawer");
+  if (!r.view){ d.hidden = true; return; }
+  var wasHidden = d.hidden;
+  d.hidden = false; $("dlabel").textContent = r.label || "";
+  var y = wasHidden ? 0 : $("dbody").scrollTop;
+  $("dbody").innerHTML = r.view();
+  $("dbody").scrollTop = y;
+}
+var lastRoute = null, skipFly = false;
+function onRoute(){
+  if (!started) return;
+  var v = route(), rp = routeParts(), r = resolve(v), changed = v !== lastRoute, baseChanged = rp.base !== String(lastRoute==null ? "\u0000" : lastRoute).split("?")[0];
+  if (rp.base==="signals" && rp.q.q != null && rp.q.q !== sigFilter.q) sigFilter.q = rp.q.q;
+  renderHud(); renderDrawer(r); afterDrawer();
+  if (changed) { if (baseChanged && !skipFly && !(r.view && window.innerWidth <= 720)) flyTo(r.rect, r.view ? 1.3 : 1.15); if (r.view && lastRoute !== null) $("dbody").scrollTop = 0; }
+  applyRowHL();
+  if (baseChanged) logView();
+  if (baseChanged && rp.base==="signals" && window.innerWidth > 720 && lastRoute !== null){ var qi = $("q"); if (qi) try{ qi.focus({preventScroll:true}); }catch(x){} }
+  skipFly = false; lastRoute = route();
+}
+function refreshAll(keepFly){ if (!started) return; renderWorld(); renderHud(); var r = resolve(route()); renderDrawer(r); afterDrawer(); applyRowHL(); }
+function toast(msg){ var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status"); t.textContent = msg; document.querySelector(".scene").appendChild(t); setTimeout(function(){t.remove();}, 3200); }
+function updatePill(){ var m = $("emsg"), sv = $("save"), dc = $("discard"); if (m) m.textContent = saving ? "Saving…" : (dirty ? "Unsaved changes" : "Editing"); if (sv) sv.disabled = saving || !dirty; if (dc) dc.disabled = saving; }
+
+/* ---------- saving ---------- */
+function buildDoc(s){
+  var css = $("css").textContent, main = $("main").textContent, json = JSON.stringify(s).replace(/</g,"\\u003c");
+  return SKELETON + "\n<title>" + TITLE + "</title>\n" + FONTS + '\n<style id="css">' + css + '</style>\n<div id="app"></div>\n<script type="application/json" id="state">' + json + '<\/script>\n<script id="main">' + main + '<\/script></body></html>';
+}
+function save(){
+  if (saving || !dirty) return;
+  if (CLOUD) return saveCloud();
+  if (!api) return;
+  if (!SKELETON){ toast("Saving isn’t set up on this copy of the page."); return; }
+  saving = true; updatePill();
+  var next = clone(draft); next.savedAt = new Date().toISOString(); next.version = (state.version||1) + 1;
+  try{sessionStorage.setItem("pendingDraft", JSON.stringify(next));}catch(e){}
+  api.publish(buildDoc(next)).then(function(){ try{sessionStorage.removeItem("pendingDraft");}catch(e){} toast("Saved. Reloading…"); })
+  .catch(function(err){
+    var c = err && err.code;
+    if (c==="conflict") toast("Someone else saved first. Loading their version…");
+    else if (/not_writer|not_granted|consent_required|capability_disabled|capability_removed|not_declared/.test(c||"")){
+      try{sessionStorage.removeItem("pendingDraft");}catch(e){}
+      readOnly = true; editing = false; draft = null; dirty = false; refreshAll(); toast("This view is read-only, so changes can’t be saved here.");
+    }
+    else if (c==="rate_limited") toast("Saving too often. Wait a minute, then save again.");
+    else if (c==="too_large") toast("The page is too big to save. Remove some notes and try again.");
+    else toast("Couldn’t save just now. Try again in a moment.");
+  }).then(function(){ saving = false; updatePill(); });
+}
+
+/* ---------- events ---------- */
+buildShell();
+var vp = $("viewport"), ptrs = {}, pcount = 0, panStart = null, pinch = null, moved = false;
+function stopAnim(){ if (anim && anim.id) cancelAnimationFrame(anim.id); anim = null; }
+vp.addEventListener("dragstart", function(e){ e.preventDefault(); });
+vp.addEventListener("selectstart", function(e){ e.preventDefault(); });
+vp.addEventListener("pointerdown", function(e){
+  if (e.pointerType==="mouse" && e.button!==0) return;
+  try{ var sel = window.getSelection(); if (sel && sel.rangeCount) sel.removeAllRanges(); }catch(x){}
+  ptrs[e.pointerId] = {x:e.clientX, y:e.clientY}; pcount = Object.keys(ptrs).length; stopAnim();
+  if (pcount===1){ moved = false; panStart = {x:e.clientX, y:e.clientY, cx:cam.x, cy:cam.y, id:e.pointerId}; }
+  else if (pcount===2){ var p = Object.keys(ptrs).map(function(k){return ptrs[k];}); pinch = {d:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y), mx:(p[0].x+p[1].x)/2, my:(p[0].y+p[1].y)/2, cam:{x:cam.x,y:cam.y,k:cam.k}}; moved = true; }
+});
+vp.addEventListener("pointermove", function(e){
+  if (!ptrs[e.pointerId]) return;
+  ptrs[e.pointerId] = {x:e.clientX, y:e.clientY};
+  if (pinch && pcount>=2){
+    var p = Object.keys(ptrs).map(function(k){return ptrs[k];}), d = Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y), mx = (p[0].x+p[1].x)/2, my = (p[0].y+p[1].y)/2;
+    var k2 = Math.min(3, Math.max(0.15, pinch.cam.k * d/pinch.d)), r = k2/pinch.cam.k;
+    cam = {x: mx - (pinch.mx - pinch.cam.x)*r, y: my - (pinch.my - pinch.cam.y)*r, k:k2}; applyCam(); return;
+  }
+  if (panStart && e.pointerId===panStart.id){
+    var dx = e.clientX - panStart.x, dy = e.clientY - panStart.y;
+    if (!moved && Math.hypot(dx,dy) > 5){ moved = true; try{vp.setPointerCapture(e.pointerId);}catch(x){} vp.classList.add("dragging"); }
+    if (moved){ cam.x = panStart.cx + dx; cam.y = panStart.cy + dy; applyCam(); }
+  }
+});
+function endPtr(e){
+  delete ptrs[e.pointerId]; pcount = Object.keys(ptrs).length;
+  if (pcount < 2) pinch = null;
+  if (pcount===1){ var id = Object.keys(ptrs)[0]; panStart = {x:ptrs[id].x, y:ptrs[id].y, cx:cam.x, cy:cam.y, id:Number(id)}; }
+  if (pcount===0){ panStart = null; vp.classList.remove("dragging"); }
+}
+vp.addEventListener("pointerup", endPtr); vp.addEventListener("pointercancel", endPtr);
+vp.addEventListener("wheel", function(e){
+  e.preventDefault(); stopAnim();
+  if (e.ctrlKey || (Math.abs(e.deltaX) < 1 && Math.abs(e.deltaY) >= 40)) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY*(e.ctrlKey?0.01:0.0016)));
+  else { cam.x -= e.deltaX; cam.y -= e.deltaY; applyCam(); }
+}, {passive:false});
+vp.addEventListener("keydown", function(e){
+  var step = 90, used = true;
+  if (e.key==="ArrowLeft") cam.x += step; else if (e.key==="ArrowRight") cam.x -= step; else if (e.key==="ArrowUp") cam.y += step; else if (e.key==="ArrowDown") cam.y -= step;
+  else if (e.key==="+"||e.key==="=") zoomAt(innerWidth/2, innerHeight/2, 1.2); else if (e.key==="-") zoomAt(innerWidth/2, innerHeight/2, 1/1.2); else used = false;
+  if (used && !e.target.matches("[data-go]")){ e.preventDefault(); applyCam(); }
+});
+app.addEventListener("click", function(e){
+  var t = e.target.closest("[data-go],button"); if (!t) return;
+  if (t.closest("#viewport") && moved){ moved = false; return; }
+  if (t.matches("[data-go]")) { var g = t.getAttribute("data-go"); if (baseRoute()===g) { lastRoute = null; onRoute(); } else location.hash = g; return; }
+  if (t.id==="hsearch"){ openFinder(); return; }
+  if (CLOUD){
+    if (t.id==="g-retry"){ if (!sb.session) { gate("signin"); return; } gate("loading"); loadAll().then(enterApp).catch(bootErr); return; }
+    if (t.id==="g-out"){ doSignOut(); return; }
+    if (adminClick(t) || accountClick(t)) return;
+  }
+  if (t.id==="share"){ shareRoute(); return; }
+  if (t.id==="dclose"){ skipFly = true; location.hash = "map"; return; }
+  if (t.id==="zin"){ zoomAt(innerWidth/2, innerHeight/2, 1.25); return; }
+  if (t.id==="zout"){ zoomAt(innerWidth/2, innerHeight/2, 1/1.25); return; }
+  if (t.id==="zfit"){ flyTo(AREA.system, 1.15); return; }
+  if (t.id==="edit"){ editing = true; draft = clone(state); editBase = clone(state); dirty = false; refreshAll(); logEvent("edit_started"); return; }
+  if (t.id==="discard"){ editing = false; draft = null; dirty = false; refreshAll(); logEvent("edit_discarded"); return; }
+  if (t.id==="save"){ save(); return; }
+  if (t.id==="addnet"){ draft.network = draft.network || []; draft.network.push({ip:"192.168.0.",loc:"",name:"",device:"",uplink:""}); dirty = true; refreshAll(); return; }
+  if (t.hasAttribute("data-delnet")){ draft.network.splice(Number(t.getAttribute("data-delnet")),1); dirty = true; refreshAll(); return; }
+  if (t.id==="addtask"){ draft.todo.push({task:"New task",area:"",status:"To do",note:""}); dirty = true; refreshAll(); return; }
+  if (t.hasAttribute("data-del")){ draft.todo.splice(Number(t.getAttribute("data-del")),1); dirty = true; refreshAll(); return; }
+  if (t.id==="reapply"){ var p = pending; pending = null; editing = true; editBase = clone(state); draft = (p && p.__merge) ? Object.assign(merge3(p.base, p.mine, bare(state)), {savedAt: state.savedAt, version: state.version, updatedBy: state.updatedBy}) : Object.assign(clone(state), p, {savedAt: state.savedAt, version: state.version}); dirty = true; try{sessionStorage.removeItem("pendingDraft");}catch(x){} refreshAll(); return; }
+  if (t.id==="dropdraft"){ pending = null; try{sessionStorage.removeItem("pendingDraft");}catch(x){} renderHud(); return; }
+  if (t.hasAttribute("data-q")){ sigFilter.q = t.getAttribute("data-q"); var qi = $("q"); if (qi) qi.value = sigFilter.q; if ($("sigres")){ $("sigres").innerHTML = signalResults(); afterResults(); } else location.hash = "signals"; return; }
+  if (t.id==="showmap"){ location.hash = "map"; return; }
+  if (t.id==="clearroute"){ clearHL(); return; }
+});
+app.addEventListener("keydown", function(e){
+  var t = e.target;
+  if ((e.key==="Enter"||e.key===" ") && t.matches && t.matches("[data-go]") && t.tagName!=="BUTTON") { e.preventDefault(); location.hash = t.getAttribute("data-go"); }
+  if (e.key==="Escape" && !$("drawer").hidden){ skipFly = true; location.hash = "map"; }
+  if (e.key==="Enter" && t.id==="q"){ e.preventDefault(); recordRecent(); logSearch(); if (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) t.blur(); }
+});
+app.addEventListener("input", function(e){
+  var t = e.target;
+  if (t.id==="q"){ sigFilter.q = t.value; $("sigres").innerHTML = signalResults(); afterResults(); return; }
+  if (t.id==="flt"){ var q = t.value.trim().toLowerCase(); document.querySelectorAll("#dbody tr[data-txt]").forEach(function(tr){tr.hidden = !!q && tr.getAttribute("data-txt").indexOf(q)<0;}); return; }
+  var p = t.getAttribute && t.getAttribute("data-path");
+  if (p && editing){
+    var v = t.value; if (t.getAttribute("data-num")) v = Number(v.replace(/[^0-9.]/g,"")) || 0;
+    setp(draft, p, v); if (!dirty){ dirty = true; updatePill(); }
+    if (/^rf\./.test(p)){ var tot = $("rftotal"); if (tot) tot.textContent = draft.rf.reduce(function(a,r){return a+(Number(r.ch)||0);},0); }
+  }
+});
+app.addEventListener("submit", function(e){ if (e.target && e.target.id==="signinform"){ e.preventDefault(); doSignIn(); } });
+app.addEventListener("change", function(e){
+  if (CLOUD && started && adminChange(e.target)) return;
+  var ck = e.target.getAttribute && e.target.getAttribute("data-ck"); if (ck){ CHECKED[ck] = e.target.checked; syncChecks(e.target.closest(".best")); return; }
+  if (e.target.tagName==="SELECT" && editing) refreshAll();
+});
+function hover(on, id){
+  var svg = $("map"); if (!svg) return;
+  if (!on){ svg.classList.remove("focus"); svg.querySelectorAll(".on").forEach(function(x){x.classList.remove("on");}); return; }
+  svg.classList.add("focus");
+  svg.querySelectorAll('.node[data-id="'+id+'"]').forEach(function(x){x.classList.add("on");});
+  svg.querySelectorAll(".e,.flow").forEach(function(p){
+    var a = p.getAttribute("data-a"), b = p.getAttribute("data-b");
+    if (a===id || b===id){ p.classList.add("on"); svg.querySelectorAll('.node[data-id="'+(a===id?b:a)+'"]').forEach(function(x){x.classList.add("on");}); }
+  });
+}
+app.addEventListener("mouseover", function(e){ var n = e.target.closest && e.target.closest(".node"); if (n && !panStart) hover(true, n.getAttribute("data-id")); });
+app.addEventListener("mouseout", function(e){ var n = e.target.closest && e.target.closest(".node"); if (n && !(e.relatedTarget && n.contains(e.relatedTarget))) hover(false); });
+app.addEventListener("focusin", function(e){ if (e.target.classList && e.target.classList.contains("node")) hover(true, e.target.getAttribute("data-id")); });
+app.addEventListener("focusout", function(e){ if (e.target.classList && e.target.classList.contains("node")) hover(false); });
+window.addEventListener("hashchange", function(){ if (route() !== lastRoute) onRoute(); });
+document.addEventListener("keydown", function(e){
+  if (e.key!=="/" || e.metaKey || e.ctrlKey || e.altKey) return;
+  var t = e.target, tag = t && t.tagName; if (tag==="INPUT" || tag==="TEXTAREA" || tag==="SELECT" || (t && t.isContentEditable)) return;
+  e.preventDefault(); openFinder();
+});
+var rz = null; window.addEventListener("resize", function(){ drawStars(); clearTimeout(rz); rz = setTimeout(function(){ if (!started) return; var r = resolve(route()); flyTo(r.rect, r.view ? 1.3 : 1.15); }, 180); });
+
+/* ---------- accounts, database and activity log (GitHub version) ---------- */
+var CFG = window.BALLROOM_CONFIG || null, me = null, started = false, SESSION_KEY = "ballroomAudioSession";
+function canEdit(){ return CLOUD ? !!(me && (me.role==="editor" || me.role==="admin")) : !!(api && !readOnly); }
+function isAdmin(){ return !!(CLOUD && me && me.role==="admin"); }
+function cfgOk(){ return !!(CFG && /^https:\/\/[^\s"]+$/.test(CFG.url||"") && CFG.key && !/PASTE|YOUR-/i.test(String(CFG.url)+String(CFG.key))); }
+var sb = {
+  session: null, refreshing: null,
+  load: function(){ try{ var s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); if (s && s.access_token && s.refresh_token && s.user && s.user.id) sb.session = s; }catch(e){} },
+  store: function(s){ sb.session = s; try{ if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }catch(e){} },
+  clear: function(){ sb.store(null); },
+  base: function(){ return String(CFG.url).replace(/\/+$/,""); },
+  headers: function(auth){
+    var h = {"apikey": CFG.key, "Content-Type": "application/json"};
+    if (auth && sb.session) h.Authorization = "Bearer " + sb.session.access_token;
+    else if (/^eyJ/.test(CFG.key)) h.Authorization = "Bearer " + CFG.key;
+    return h;
+  },
+  req: function(method, path, body, auth){
+    return fetch(sb.base() + path, {method: method, headers: sb.headers(auth), body: body == null ? undefined : JSON.stringify(body)}).then(function(r){
+      return r.text().then(function(t){
+        var j = null; try{ j = t ? JSON.parse(t) : null; }catch(x){}
+        if (!r.ok){
+          var e = new Error((j && (j.message || j.msg || j.error_description || j.error)) || ("HTTP " + r.status));
+          e.status = r.status; e.code = j && (j.code || j.error_code || j.error); throw e;
+        }
+        return j;
+      });
+    }, function(){ var e = new Error("network"); e.status = 0; throw e; });
+  },
+  fromToken: function(j){
+    var exp = j.expires_at ? j.expires_at*1000 : Date.now() + (j.expires_in || 3600)*1000;
+    sb.store({access_token: j.access_token, refresh_token: j.refresh_token, expires_at: exp, user: {id: j.user && j.user.id, email: j.user && j.user.email}});
+    return sb.session;
+  },
+  signIn: function(email, pw){ return sb.req("POST", "/auth/v1/token?grant_type=password", {email: email, password: pw}, false).then(sb.fromToken); },
+  ensure: function(){
+    if (!sb.session){ var e = new Error("signed out"); e.status = 401; return Promise.reject(e); }
+    if (sb.session.expires_at - 60000 > Date.now()) return Promise.resolve(sb.session);
+    if (!sb.refreshing){
+      sb.refreshing = sb.req("POST", "/auth/v1/token?grant_type=refresh_token", {refresh_token: sb.session.refresh_token}, false)
+        .then(function(j){ sb.refreshing = null; return sb.fromToken(j); }, function(e){ sb.refreshing = null; if (e.status >= 400 && e.status < 500) e.status = 401; throw e; });
+    }
+    return sb.refreshing;
+  },
+  rest: function(path, method, body){
+    return sb.ensure().then(function(){ return sb.req(method || "GET", "/rest/v1/" + path, body, true); })
+      .catch(function(e){ if (e.status === 401){ sb.clear(); sessionLost(); } throw e; });
+  },
+  rpc: function(fn, args){ return sb.rest("rpc/" + fn, "POST", args || {}); },
+  setPassword: function(pw){ return sb.ensure().then(function(){ return sb.req("PUT", "/auth/v1/user", {password: pw}, true); }); },
+  signOut: function(){
+    var s = sb.session; sb.clear();
+    if (s) fetch(sb.base() + "/auth/v1/logout", {method: "POST", headers: {"apikey": CFG.key, "Authorization": "Bearer " + s.access_token}}).catch(function(){});
+  }
+};
+function logEvent(action, target, detail){
+  if (!CLOUD || !sb.session) return;
+  sb.rpc("log_event", {p_action: action, p_target: target == null ? null : String(target).slice(0,300), p_detail: detail || null}).catch(function(){});
+}
+function routeLabel(base){
+  if (base==="map" || !base) return "System map";
+  var m = /^room-(\w+)$/.exec(base); if (m && state && state.rooms[m[1]]) return state.rooms[m[1]].name;
+  m = /^dev-(\w+)$/.exec(base); if (m && state && state.devices[m[1]]) return state.devices[m[1]].name;
+  var r = resolve(base); return r.label || base;
+}
+var viewT = null, lastViewLogged = "";
+function logView(){
+  if (!CLOUD || !started) return;
+  clearTimeout(viewT);
+  viewT = setTimeout(function(){ var b = baseRoute(); if (b === lastViewLogged) return; lastViewLogged = b; logEvent("view", routeLabel(b), {route: b}); }, 900);
+}
+var lastSearchLogged = "";
+function logSearch(){
+  var q = sigFilter.q.trim(); if (!CLOUD || !q || q === lastSearchLogged) return;
+  lastSearchLogged = q;
+  var match = lastFind ? (lastFind.groups ? lastFind.groups.map(groupTitle).join(" · ") : (lastFind.rf ? "Wireless mic checks" : (lastFind.many ? lastFind.many.length + " possible matches" : "No match"))) : "";
+  logEvent("search", q, {match: match});
+}
+function applyRow(row){
+  state = row.state; state.version = row.version; state.savedAt = row.updated_at; state.updatedBy = row.updated_by_name;
+}
+function loadAll(){
+  var uid = sb.session.user.id;
+  return Promise.all([
+    sb.rest("profiles?id=eq." + encodeURIComponent(uid) + "&select=id,email,name,role"),
+    sb.rest("site_data?id=eq.1&select=state,version,updated_at,updated_by_name")
+  ]).then(function(r){ return {profile: (r[0]||[])[0] || null, row: (r[1]||[])[0] || null}; });
+}
+function enterApp(res){
+  me = res.profile;
+  if (!me || me.role === "none") return gate("noaccess");
+  if (!res.row) return gate("error", "Signed in, but the site’s content couldn’t be loaded. Ask an admin to check the database setup.");
+  if (!editing) applyRow(res.row);
+  gate(null);
+  if (!started) startApp(); else { refreshAll(); lastViewLogged = ""; logView(); }
+}
+function bootErr(e){
+  if (e && e.status === 401){ sb.clear(); return gate("signin", "Please sign in again."); }
+  gate("error", e && e.status === 0
+    ? "Can’t reach the database. Check your connection. If nobody has used the site for a week, an admin may need to wake the project up in Supabase."
+    : "Something went wrong loading the site (" + esc(e && e.message || "unknown") + ").");
+}
+function sessionLost(){ if (CLOUD) gate("signin", "Your session ended. Please sign in again."); }
+function gate(kind, msg){
+  var g = $("gate"); if (!g) return;
+  if (!kind){ g.hidden = true; g.innerHTML = ""; return; }
+  var h = '<div class="gatecard glass" role="dialog" aria-modal="true" aria-labelledby="gtitle"><div class="gbrand"><small>RACV Royal Pines</small><b>Ballroom Audio</b></div>';
+  if (kind === "signin"){
+    h += '<h2 id="gtitle">Sign in</h2><form id="signinform" novalidate>'+
+      '<label for="g-email">Email</label><input id="g-email" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" required>'+
+      '<label for="g-pw">Password</label><input id="g-pw" type="password" autocomplete="current-password" required>'+
+      '<button class="btn primary" id="g-go" type="submit">Sign in</button></form>'+
+      '<p class="gmsg" id="gmsg" role="alert">'+(msg ? esc(msg) : '')+'</p>'+
+      '<p class="gnote">Accounts are set up by an admin. Forgot your password? Ask an admin to reset it.</p>';
+  } else if (kind === "loading"){
+    h += '<h2 id="gtitle">Loading…</h2><p class="gnote">Fetching the latest system notes.</p>';
+  } else if (kind === "noaccess"){
+    h += '<h2 id="gtitle">Waiting for access</h2><p class="gnote" style="color:var(--ink)">You’re signed in as <b>'+esc(sb.session && sb.session.user.email || "")+'</b>, but an admin hasn’t given you access yet.</p>'+
+      '<div class="grow"><button class="btn primary" id="g-retry" type="button">Check again</button><button class="btn" id="g-out" type="button">Sign out</button></div>';
+  } else if (kind === "setup"){
+    h += '<h2 id="gtitle">Not connected yet</h2><p class="gnote" style="color:var(--ink)">This copy of the site isn’t linked to its database. Add your Supabase project URL and publishable key to <b>config.js</b>, then reload.</p>';
+  } else {
+    h += '<h2 id="gtitle">Couldn’t load</h2><p class="gnote" style="color:var(--ink)">'+(msg || "Something went wrong.")+'</p>'+
+      '<div class="grow"><button class="btn primary" id="g-retry" type="button">Try again</button>'+(sb.session ? '<button class="btn" id="g-out" type="button">Sign out</button>' : '')+'</div>';
+  }
+  g.innerHTML = h + '</div>'; g.hidden = false;
+  var f = $("g-email"); if (f) try{ f.focus(); }catch(x){}
+}
+function doSignIn(){
+  var em = ($("g-email").value || "").trim(), pw = $("g-pw").value || "", m = $("gmsg"), b = $("g-go");
+  if (!em || !pw){ m.textContent = "Enter your email and password."; return; }
+  b.disabled = true; m.textContent = "";
+  sb.signIn(em, pw).then(function(){
+    logEvent("sign_in");
+    return loadAll().then(enterApp);
+  }).catch(function(e){
+    b.disabled = false;
+    if (e.status === 400 || e.status === 401) m.textContent = "That email and password don’t match.";
+    else if (e.status === 429) m.textContent = "Too many tries. Wait a minute and try again.";
+    else if (e.status === 0) m.textContent = "Can’t reach the server. Check your connection.";
+    else m.textContent = "Couldn’t sign in (" + e.message + ").";
+  });
+}
+function doSignOut(){
+  logEvent("sign_out");
+  setTimeout(function(){ sb.signOut(); me = null; editing = false; draft = null; dirty = false; gate("signin", "You’re signed out."); }, 150);
+}
+function cloudBoot(){
+  if (!cfgOk()) return gate("setup");
+  sb.load();
+  if (!sb.session) return gate("signin");
+  gate("loading");
+  loadAll().then(enterApp).catch(bootErr);
+}
+function refetchSite(){ return sb.rest("site_data?id=eq.1&select=state,version,updated_at,updated_by_name").then(function(r){ if (r && r[0]) applyRow(r[0]); }); }
+var editBase = null;
+function setPath(o, path, v){
+  if (!path.length) return;
+  var x = o;
+  for (var i=0;i<path.length-1;i++){ if (x[path[i]] == null || typeof x[path[i]] !== "object") x[path[i]] = typeof path[i+1] === "number" ? [] : {}; x = x[path[i]]; }
+  var last = path[path.length-1];
+  if (v === undefined){ if (Array.isArray(x)) x.splice(last, 1); else delete x[last]; } else x[last] = v;
+}
+/* Re-apply only what I changed (base -> mine) on top of the newest version (theirs). */
+function merge3(base, mine, theirs){
+  var out = clone(theirs);
+  (function walk(b, m, path){
+    if (JSON.stringify(b) === JSON.stringify(m)) return;
+    var ob = b && typeof b === "object", om = m && typeof m === "object";
+    if (Array.isArray(b) && Array.isArray(m) && b.length === m.length){ for (var i=0;i<m.length;i++) walk(b[i], m[i], path.concat(i)); return; }
+    if (ob && om && !Array.isArray(b) && !Array.isArray(m)){ var ks = {}; Object.keys(b).forEach(function(k){ks[k]=1;}); Object.keys(m).forEach(function(k){ks[k]=1;}); Object.keys(ks).forEach(function(k){ walk(b[k], m[k], path.concat(k)); }); return; }
+    setPath(out, path, m === undefined ? undefined : clone(m));
+  })(base, mine, []);
+  return out;
+}
+function bare(s){ var c = clone(s); delete c.savedAt; delete c.version; delete c.updatedBy; return c; }
+function showVal(v){
+  if (v == null || v === "") return "(blank)";
+  if (typeof v === "object") return "(item)";
+  var t = String(v); return "“" + (t.length > 60 ? t.slice(0,57) + "…" : t) + "”";
+}
+function pathLabel(p, s, o){
+  var F = {sig:"signal", from:"from", to:"to", note:"note", model:"model", modelNote:"model note", role:"role", status:"status", where:"location", specs:"specs", size:"size", ceiling:"ceiling", area:"area", task:"task", ch:"channels", loc:"location", band:"band", rx:"receiver", pos:"position", out:"output", fed:"fed by", name:"name", ip:"IP", device:"device", uplink:"up-link"};
+  function f(k){ return k == null ? null : (F[k] || String(k)); }
+  function pick(a, b){ return a != null ? a : b; }
+  try{
+    if (p[0]==="devices"){
+      var d = pick(s.devices[p[1]], o.devices[p[1]]), parts = [d.name];
+      if (p[2]==="ins" || p[2]==="outs"){ var row = pick(d[p[2]][p[3]], (o.devices[p[1]]||{})[p[2]] && o.devices[p[1]][p[2]][p[3]]); parts.push((p[2]==="ins"?"In ":"Out ") + (row ? row.ch : Number(p[3])+1)); if (p[4]) parts.push(f(p[4])); }
+      else if (p[2]) parts.push(f(p[2]));
+      return parts.join(" · ");
+    }
+    if (p[0]==="wallpatch"){ var r2 = s.wallpatch[p[1]][p[2]][p[3]]; return [s.rooms[p[1]].name + " wall patch", (p[2]==="ins"?"In ":"Out ") + (r2 ? r2.ch : Number(p[3])+1), f(p[4])].filter(Boolean).join(" · "); }
+    if (p[0]==="rooms") return [s.rooms[p[1]].name, f(p[2])].filter(Boolean).join(" · ");
+    if (p[0]==="foyer") return ["Foyer", f(p[1])].filter(Boolean).join(" · ");
+    if (p[0]==="rf"){ var rf = pick(s.rf[p[1]], o.rf[p[1]]); return ["RF", rf ? rf.loc : "row " + (Number(p[1])+1), f(p[2])].filter(Boolean).join(" · "); }
+    if (p[0]==="todo"){ var t = pick(s.todo[p[1]], o.todo[p[1]]); return ["To-do", t ? "“" + t.task + "”" : "item " + (Number(p[1])+1), f(p[2])].filter(Boolean).join(" · "); }
+    if (p[0]==="network"){ var nn = pick(s.network[p[1]], o.network && o.network[p[1]]); return ["Network", nn ? (nn.device || nn.name || nn.ip) : "row " + (Number(p[1])+1), f(p[2])].filter(Boolean).join(" · "); }
+    if (p[0]==="speakers"){ var sp = pick(s.speakers[p[1]], o.speakers[p[1]]); return ["Speaker", sp ? sp.pos : "", f(p[2])].filter(Boolean).join(" · "); }
+  }catch(x){}
+  return p.join(".");
+}
+function diffSummary(a, b){
+  var out = [], extra = 0;
+  function add(line){ if (out.length < 25) out.push(line); else extra++; }
+  (function walk(x, y, p){
+    if (x === y) return;
+    var ax = Array.isArray(x), ay = Array.isArray(y);
+    if (ax && ay){
+      for (var i=0;i<Math.max(x.length,y.length);i++){
+        if (i >= x.length) add(pathLabel(p.concat(i), b, a) + ": added");
+        else if (i >= y.length) add(pathLabel(p.concat(i), b, a) + ": removed");
+        else walk(x[i], y[i], p.concat(i));
+      }
+      return;
+    }
+    if (x && y && typeof x === "object" && typeof y === "object" && !ax && !ay){
+      var keys = {}; Object.keys(x).forEach(function(k){keys[k]=1;}); Object.keys(y).forEach(function(k){keys[k]=1;});
+      Object.keys(keys).forEach(function(k){ walk(x[k], y[k], p.concat(k)); });
+      return;
+    }
+    if ((x == null || x === "") && (y == null || y === "")) return;
+    add(pathLabel(p, b, a) + ": " + showVal(x) + " → " + showVal(y));
+  })(a, b, []);
+  return out.length ? out.join("\n") + (extra ? "\n…and " + extra + " more" : "") : "No visible changes";
+}
+function saveCloud(){
+  saving = true; updatePill();
+  var next = bare(draft), summary = diffSummary(bare(state), next), mine = {__merge: true, base: bare(editBase || state), mine: next};
+  sb.rpc("save_site", {p_state: next, p_expected: state.version, p_summary: summary}).then(function(res){
+    state = next; state.version = res.version; state.savedAt = res.updated_at; state.updatedBy = res.updated_by_name;
+    editing = false; draft = null; dirty = false; saving = false; refreshAll(); toast("Saved. Version " + res.version + ".");
+  }).catch(function(e){
+    saving = false;
+    if (e.status === 409 || /conflict/i.test(e.message)){
+      refetchSite().then(function(){ pending = mine; editing = false; draft = null; dirty = false; refreshAll(); toast("Someone else saved first. Their version is showing now."); });
+      return;
+    }
+    if (e.status === 403) toast("You don’t have permission to edit.");
+    else if (e.status !== 401) toast("Couldn’t save just now. Try again in a moment.");
+    updatePill();
+  });
+}
+
+/* account page */
+function viewAccount(){
+  if (!CLOUD || !me) return viewDirectory();
+  return '<h1>Your account</h1><p class="lede">Signed in as <b>'+esc(me.email)+'</b> '+rolePill(me.role)+'</p>'+
+    '<h2 class="sec">Display name</h2><div class="frow"><input class="fi" id="acc-name" value="'+esc(me.name||"")+'" maxlength="60" aria-label="Display name"><button class="btn" id="acc-savename">Save name</button></div>'+
+    '<h2 class="sec">Change password</h2><div class="fgrid"><input class="fi" type="password" id="acc-pw1" autocomplete="new-password" placeholder="New password, 8+ characters" aria-label="New password"><input class="fi" type="password" id="acc-pw2" autocomplete="new-password" placeholder="Type it again" aria-label="Confirm new password"><button class="btn primary" id="acc-savepw">Change password</button></div>'+
+    '<p class="note" id="acc-msg" role="status"></p>'+
+    '<h2 class="sec">Sign out</h2><button class="btn" id="signout">Sign out of this device</button>'+
+    '<p class="note" style="margin-top:22px">Sign-ins, pages opened, searches and edits in this site are recorded with your name so admins can see who changed what.</p>';
+}
+function rolePill(r){ var t = {viewer:"Viewer", editor:"Editor", admin:"Admin", none:"No access"}[r] || r; return '<span class="pill '+(r==="admin"?"warn":(r==="none"?"mut":"ok"))+'">'+esc(t)+'</span>'; }
+
+/* admin page */
+var adminTab = "activity", adminCache = {}, adminOffset = 0, adminFilter = {who:"", what:""}, restoreArm = null;
+var ACTS = {sign_in:"signed in", sign_out:"signed out", view:"opened", search:"searched", saved:"saved", restored:"restored", role_changed:"changed access for", password_reset:"reset the password for", password_changed:"changed their password", account_created:"account created", edit_started:"started editing", edit_discarded:"discarded their edits", name_changed:"changed the name for"};
+var ACT_GROUPS = [["","Everything"],["sign","Sign-ins"],["view","Pages opened"],["search","Searches"],["edit","Edits and restores"],["people","People and passwords"]];
+function actGroup(a){ return /^sign_/.test(a) ? "sign" : a==="view" ? "view" : a==="search" ? "search" : /saved|restored|edit_/.test(a) ? "edit" : "people"; }
+function viewAdmin(){
+  if (!isAdmin()) return '<h1>Admin</h1><p class="lede">Only admins can see this page.</p>';
+  setTimeout(function(){ loadAdmin(false); }, 0);
+  return '<h1>Admin</h1><p class="lede">Who did what, who can get in, and every saved version.</p>'+
+    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["people","People"],["versions","Versions"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
+    '<div id="adminbody" class="adminbody"><p class="dim">Loading…</p></div>';
+}
+function fmtWhen(iso){
+  try{ var d = new Date(iso), now = Date.now(), s = (now - d.getTime())/1000;
+    var rel = s < 60 ? "just now" : s < 3600 ? Math.floor(s/60) + " min ago" : s < 86400 ? Math.floor(s/3600) + " h ago" : Math.floor(s/86400) + " d ago";
+    return {abs: d.toLocaleString("en-AU",{weekday:"short", day:"numeric", month:"short", hour:"numeric", minute:"2-digit"}), rel: rel};
+  }catch(e){ return {abs: iso, rel: ""}; }
+}
+function loadAdmin(force){
+  var box = $("adminbody"); if (!box) return;
+  var tab = adminTab, c = adminCache[tab];
+  if (c && !force && Date.now() - c.t < 20000) return renderAdmin();
+  var q = tab==="activity" ? sb.rest("activity_log?select=id,at,user_name,action,target,detail&order=at.desc&limit=200")
+        : tab==="people" ? sb.rest("profiles?select=id,email,name,role,created_at&order=created_at.asc")
+        : sb.rest("site_history?select=version,saved_at,saved_by_name,summary&order=version.desc&limit=60");
+  q.then(function(rows){ adminCache[tab] = {t: Date.now(), rows: rows || [], more: tab==="activity" && rows && rows.length===200}; adminOffset = rows ? rows.length : 0; if (adminTab===tab) renderAdmin(); })
+   .catch(function(e){ var b = $("adminbody"); if (b && e.status !== 401) b.innerHTML = '<p class="dim">Couldn’t load this ('+esc(e.message)+'). <button class="btn" data-areload="1">Try again</button></p>'; });
+}
+function loadMoreActivity(){
+  var c = adminCache.activity; if (!c) return;
+  sb.rest("activity_log?select=id,at,user_name,action,target,detail&order=at.desc&limit=200&offset=" + c.rows.length).then(function(rows){
+    c.rows = c.rows.concat(rows || []); c.more = rows && rows.length===200; renderAdmin();
+  }).catch(function(){ toast("Couldn’t load more."); });
+}
+function actDetail(r){
+  var d = r.detail || {}, a = r.action;
+  if (a==="search") return '“'+esc(r.target)+'”'+(d.match ? ' <span class="dim">→ '+esc(d.match)+'</span>' : '');
+  if (a==="saved" || a==="restored"){
+    var s = d.summary ? String(d.summary) : "";
+    return esc(r.target||"") + (s ? '<details class="sumd"><summary>'+esc(s.split("\n").length)+' change'+(s.split("\n").length===1?"":"s")+'</summary><pre>'+esc(s)+'</pre></details>' : '');
+  }
+  if (a==="role_changed") return esc(r.target)+' <span class="dim">'+esc(d.from)+' → '+esc(d.to)+'</span>';
+  if (a==="name_changed") return esc(r.target)+' <span class="dim">→ '+esc(d.name)+'</span>';
+  return esc(r.target || "");
+}
+function renderAdmin(){
+  var box = $("adminbody"), c = adminCache[adminTab]; if (!box || !c) return;
+  var h = "";
+  if (adminTab === "activity"){
+    var people = {}; c.rows.forEach(function(r){ if (r.user_name) people[r.user_name] = 1; });
+    var rows = c.rows.filter(function(r){ return (!adminFilter.who || r.user_name===adminFilter.who) && (!adminFilter.what || actGroup(r.action)===adminFilter.what); });
+    h += '<div class="afil"><select class="fi" id="af-who" aria-label="Filter by person"><option value="">Everyone</option>'+Object.keys(people).sort().map(function(p){return '<option'+(p===adminFilter.who?' selected':'')+'>'+esc(p)+'</option>';}).join("")+'</select>'+
+      '<select class="fi" id="af-what" aria-label="Filter by type">'+ACT_GROUPS.map(function(g){return '<option value="'+g[0]+'"'+(g[0]===adminFilter.what?' selected':'')+'>'+g[1]+'</option>';}).join("")+'</select>'+
+      '<button class="btn" data-areload="1">Refresh</button><button class="btn" id="af-csv">Download CSV</button></div>';
+    h += '<div class="card panel k-dante" style="margin-top:12px"><div class="tblwrap"><table class="t alog"><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead><tbody>'+
+      (rows.length ? rows.map(function(r){ var w = fmtWhen(r.at); return '<tr><td class="when" title="'+esc(r.at)+'">'+esc(w.abs)+'<small>'+esc(w.rel)+'</small></td><td class="who">'+esc(r.user_name||"")+'</td><td>'+esc(ACTS[r.action]||r.action)+'</td><td>'+actDetail(r)+'</td></tr>'; }).join("") : '<tr><td colspan="4" class="dim">Nothing yet.</td></tr>')+
+      '</tbody></table></div></div>'+(c.more ? '<p><button class="btn" id="af-more">Load older activity</button></p>' : '');
+  } else if (adminTab === "people"){
+    h += '<div class="card ainfo"><b>Adding someone</b><ol><li>In Supabase, open <b>Authentication → Users → Add user → Create new user</b>.</li><li>Enter their email and a starting password, and tick <b>Auto Confirm User</b>.</li><li>They’ll appear below with no access. Pick a role for them, then tell them their password in person. They can change it under their account.</li></ol></div>';
+    h += '<div class="card people" style="margin-top:12px">'+c.rows.map(function(p){
+      var self = me && p.id === me.id;
+      return '<div class="prow"><div class="pwho"><b>'+esc(p.name || p.email)+(self?' <span class="dim">(you)</span>':'')+'</b><span class="dim">'+esc(p.email||"")+'</span></div>'+
+        '<select class="fi" data-role-for="'+esc(p.id)+'" aria-label="Access for '+esc(p.email)+'">'+[["none","No access"],["viewer","Viewer"],["editor","Editor"],["admin","Admin"]].map(function(o){return '<option value="'+o[0]+'"'+(p.role===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join("")+'</select>'+
+        '<div class="preset"><input class="fi" type="password" autocomplete="new-password" placeholder="New password" data-pw-for="'+esc(p.id)+'" aria-label="New password for '+esc(p.email)+'"><button class="btn" data-setpw="'+esc(p.id)+'">Set password</button></div></div>';
+    }).join("")+'</div><p class="note">Viewers can look. Editors can also change things. Admins can also see this page and undo changes.</p>';
+  } else {
+    var curV = state.version;
+    h += '<p class="note" style="margin-top:12px">Every save is kept. Restoring puts an old version back as the newest one, so nothing is lost.</p><div class="card versions">'+c.rows.map(function(v){
+      var w = fmtWhen(v.saved_at), s = v.summary ? String(v.summary) : "";
+      var btn = v.version === curV ? '<span class="pill ok">Current</span>' : '<button class="btn'+(restoreArm===v.version?' primary':'')+'" data-restore="'+v.version+'">'+(restoreArm===v.version?'Click again to restore':'Restore')+'</button>';
+      return '<div class="vrow"><div><b>Version '+v.version+'</b> <span class="dim">· '+esc(w.abs)+' · '+esc(v.saved_by_name||"")+'</span>'+(s ? '<details class="sumd"><summary>'+esc(s.split("\n")[0].slice(0,90))+(s.indexOf("\n")>0?' …':'')+'</summary><pre>'+esc(s)+'</pre></details>' : '')+'</div>'+btn+'</div>';
+    }).join("")+'</div>';
+  }
+  box.innerHTML = h;
+}
+function activityCSV(){
+  var c = adminCache.activity; if (!c) return;
+  var lines = [["When","Who","What","Target","Details"]].concat(c.rows.map(function(r){ return [r.at, r.user_name||"", ACTS[r.action]||r.action, r.target||"", r.detail ? JSON.stringify(r.detail) : ""]; }));
+  var csv = lines.map(function(l){ return l.map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(","); }).join("\r\n");
+  try{
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = "ballroom-audio-activity.csv";
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }catch(e){ toast("Couldn’t create the download here."); }
+}
+function adminClick(t){
+  if (t.hasAttribute("data-atab")){ adminTab = t.getAttribute("data-atab"); restoreArm = null; document.querySelectorAll("[data-atab]").forEach(function(b){ b.setAttribute("aria-pressed", String(b===t)); }); $("adminbody").innerHTML = '<p class="dim">Loading…</p>'; loadAdmin(false); return true; }
+  if (t.hasAttribute("data-areload")){ loadAdmin(true); return true; }
+  if (t.id === "af-more"){ loadMoreActivity(); return true; }
+  if (t.id === "af-csv"){ activityCSV(); return true; }
+  if (t.hasAttribute("data-setpw")){
+    var id = t.getAttribute("data-setpw"), inp = document.querySelector('[data-pw-for="'+id+'"]'), pw = inp ? inp.value : "";
+    if (pw.length < 8){ toast("Use at least 8 characters."); return true; }
+    t.disabled = true;
+    sb.rpc("admin_set_password", {p_user: id, p_password: pw}).then(function(){ inp.value = ""; toast("Password set. Tell them in person."); delete adminCache.activity; })
+      .catch(function(e){ toast(e.message || "Couldn’t set the password."); }).then(function(){ t.disabled = false; });
+    return true;
+  }
+  if (t.hasAttribute("data-restore")){
+    var v = Number(t.getAttribute("data-restore"));
+    if (restoreArm !== v){ restoreArm = v; renderAdmin(); setTimeout(function(){ if (restoreArm === v){ restoreArm = null; renderAdmin(); } }, 5000); return true; }
+    restoreArm = null; t.disabled = true;
+    sb.rpc("restore_version", {p_version: v}).then(function(){ return refetchSite(); }).then(function(){ adminCache = {}; refreshAll(); toast("Version " + v + " is back."); })
+      .catch(function(e){ toast(e.message || "Couldn’t restore."); });
+    return true;
+  }
+  return false;
+}
+function adminChange(t){
+  var id = t.getAttribute("data-role-for");
+  if (id){
+    var role = t.value;
+    sb.rpc("set_role", {p_user: id, p_role: role}).then(function(){ toast("Access updated."); delete adminCache.activity; if (me && id===me.id){ me.role = role; renderHud(); } loadAdmin(true); })
+      .catch(function(e){ toast(e.message || "Couldn’t change that."); loadAdmin(true); });
+    return true;
+  }
+  if (t.id === "af-who"){ adminFilter.who = t.value; renderAdmin(); return true; }
+  if (t.id === "af-what"){ adminFilter.what = t.value; renderAdmin(); return true; }
+  return false;
+}
+function accountClick(t){
+  if (t.id === "signout"){ doSignOut(); return true; }
+  if (t.id === "acc-savename"){
+    var n = ($("acc-name").value || "").trim(); if (!n){ toast("Enter a name."); return true; }
+    sb.rpc("set_name", {p_user: me.id, p_name: n}).then(function(){ me.name = n; toast("Name saved."); renderHud(); }).catch(function(e){ toast(e.message || "Couldn’t save."); });
+    return true;
+  }
+  if (t.id === "acc-savepw"){
+    var a = $("acc-pw1").value, b = $("acc-pw2").value, m = $("acc-msg");
+    if (a.length < 8){ m.textContent = "Use at least 8 characters."; return true; }
+    if (a !== b){ m.textContent = "The two passwords don’t match."; return true; }
+    t.disabled = true; m.textContent = "Saving…";
+    sb.setPassword(a).then(function(){ $("acc-pw1").value = ""; $("acc-pw2").value = ""; m.textContent = "Password changed."; logEvent("password_changed"); })
+      .catch(function(e){ m.textContent = e.status === 422 ? "Pick a different password (it may be too weak or the same as before)." : "Couldn’t change it (" + e.message + ")."; })
+      .then(function(){ t.disabled = false; });
+    return true;
+  }
+  return false;
+}
+
+/* ---------- boot ---------- */
+function startApp(){
+  started = true;
+  renderWorld();
+  var rp0 = routeParts(); if (rp0.base==="signals" && rp0.q.q != null) sigFilter.q = rp0.q.q;
+  var r = resolve(route()); renderHud(); renderDrawer(r); afterDrawer(); applyRowHL();
+  var keep = REDUCE; REDUCE = true; flyTo(r.rect || AREA.system, r.view ? 1.3 : 1.15); REDUCE = keep; lastRoute = route();
+  logView();
+}
+document.title = TITLE;
+if (CLOUD){ drawStars(); cloudBoot(); }
+else {
+  try{ var pd = sessionStorage.getItem("pendingDraft"); if (pd){ pd = JSON.parse(pd); if (pd.savedAt === state.savedAt) sessionStorage.removeItem("pendingDraft"); else pending = pd; } }catch(e){}
+  startApp();
+  if (window.claude && typeof window.claude.use === "function"){
+    window.claude.use("artifact").then(function(a){ if (a){ api = a; renderHud(); } }).catch(function(){});
+  }
+}
+})();
+</script>
+</body></html>
