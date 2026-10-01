@@ -4,6 +4,6 @@
 // who have signed in AND been given access by an admin.
 // Never put the secret key or the database password in this file.
 window.BALLROOM_CONFIG = {
-  url: "PASTE-PROJECT-URL-HERE",
-  key: "PASTE-PUBLISHABLE-KEY-HERE"
+  url: "https://zqumdthurmdjvxugefpy.supabase.co",
+  key: "sb_publishable_WqetVyXWBjOKZPtU0wwyOA_xfdVNziR"
 };
