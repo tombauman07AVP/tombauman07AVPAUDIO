@@ -29,6 +29,7 @@ The first account ever created becomes the admin automatically.
 - **Remove someone.** Set their role to **No access**, or delete them in Supabase under Authentication → Users.
 - **See who did what.** Go to **Admin → Activity**. It records sign-ins, sign-outs, pages opened, searches, edits (with a list of exactly what changed), restores, and role and password changes. You can filter it, or download it as a CSV.
 - **Undo a change.** Go to **Admin → Versions**, then click **Restore** twice. The old version comes back as the newest one, so nothing is lost.
+- **Back up, or make a big update.** Go to **Admin → Backup**. **Download data** saves everything as one file. **Import a file** shows exactly what will change before you confirm, then saves it as a new version that you can undo from Versions.
 
 ## Updating the site
 

@@ -89,6 +89,8 @@ svg.focus .elab{opacity:.2}
 .preset{grid-column:1/-1;display:flex;gap:8px}.preset .fi{flex:1;font-size:14px;padding:6px 8px;width:auto;min-width:0}
 .versions .vrow{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
 .versions .vrow:last-child{border-bottom:0}
+#imp-file{font:500 14px var(--f-body);color:var(--muted);max-width:100%}
+#imp-file::file-selector-button{font:600 13.5px var(--f-body);border:1px solid var(--line-strong);background:var(--glass-2);color:var(--ink);padding:6px 13px;border-radius:9px;cursor:pointer;margin-right:10px}
 /* route highlight on the map */
 svg.routing .node{opacity:.2}
 svg.routing .node.ron{opacity:1}
@@ -1726,9 +1728,9 @@ function pathLabel(p, s, o){
   }catch(x){}
   return p.join(".");
 }
-function diffSummary(a, b){
-  var out = [], extra = 0;
-  function add(line){ if (out.length < 25) out.push(line); else extra++; }
+function diffSummary(a, b, max){
+  var out = [], extra = 0; max = max || 25;
+  function add(line){ if (out.length < max) out.push(line); else extra++; }
   (function walk(x, y, p){
     if (x === y) return;
     var ax = Array.isArray(x), ay = Array.isArray(y);
@@ -1789,7 +1791,7 @@ function viewAdmin(){
   if (!isAdmin()) return '<h1>Admin</h1><p class="lede">Only admins can see this page.</p>';
   setTimeout(function(){ loadAdmin(false); }, 0);
   return '<h1>Admin</h1><p class="lede">Who did what, who can get in, and every saved version.</p>'+
-    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["people","People"],["versions","Versions"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
+    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["people","People"],["versions","Versions"],["data","Backup"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
     '<div id="adminbody" class="adminbody"><p class="dim">Loading…</p></div>';
 }
 function fmtWhen(iso){
@@ -1801,6 +1803,7 @@ function fmtWhen(iso){
 function loadAdmin(force){
   var box = $("adminbody"); if (!box) return;
   var tab = adminTab, c = adminCache[tab];
+  if (tab === "data"){ adminCache.data = {t: Date.now(), rows: []}; return renderAdmin(); }
   if (c && !force && Date.now() - c.t < 20000) return renderAdmin();
   var q = tab==="activity" ? sb.rest("activity_log?select=id,at,user_name,action,target,detail&order=at.desc&limit=200")
         : tab==="people" ? sb.rest("profiles?select=id,email,name,role,created_at&order=created_at.asc")
@@ -1845,6 +1848,11 @@ function renderAdmin(){
         '<select class="fi" data-role-for="'+esc(p.id)+'" aria-label="Access for '+esc(p.email)+'">'+[["none","No access"],["viewer","Viewer"],["editor","Editor"],["admin","Admin"]].map(function(o){return '<option value="'+o[0]+'"'+(p.role===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join("")+'</select>'+
         '<div class="preset"><input class="fi" type="password" autocomplete="new-password" placeholder="New password" data-pw-for="'+esc(p.id)+'" aria-label="New password for '+esc(p.email)+'"><button class="btn" data-setpw="'+esc(p.id)+'">Set password</button></div></div>';
     }).join("")+'</div><p class="note">Viewers can look. Editors can also change things. Admins can also see this page and undo changes.</p>';
+  } else if (adminTab === "data"){
+    h += '<div class="card ainfo"><b>Download a copy</b><p class="dim" style="margin:4px 0 12px">Everything in the site (patches, routes, notes, speakers, RF, to-dos and network) as one file. Keep it as a backup, or send it to Claude for a big update.</p>'+
+      '<button class="btn primary" id="dl-data">Download data · version '+esc(state.version)+'</button></div>';
+    h += '<div class="card ainfo" style="margin-top:12px"><b>Import a file</b><p class="dim" style="margin:4px 0 12px">Pick a data file. You’ll see exactly what will change before anything is saved. Importing saves it as a new version, so you can undo it from the Versions tab.</p>'+
+      '<input type="file" id="imp-file" accept=".json,application/json" aria-label="Choose a data file to import"><div id="imp-preview" aria-live="polite"></div></div>';
   } else {
     var curV = state.version;
     h += '<p class="note" style="margin-top:12px">Every save is kept. Restoring puts an old version back as the newest one, so nothing is lost.</p><div class="card versions">'+c.rows.map(function(v){
@@ -1854,6 +1862,67 @@ function renderAdmin(){
     }).join("")+'</div>';
   }
   box.innerHTML = h;
+}
+var importPending = null, importArm = false;
+function downloadFile(name, text, type){
+  try{
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], {type: type})); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  }catch(e){ toast("Couldn’t create the download here."); }
+}
+function downloadData(){
+  var d = new Date(), stamp = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2);
+  var file = {app: "ballroom-audio", kind: "site-data", exported_at: d.toISOString(), exported_by: me ? (me.name || me.email) : "", version: state.version, updated_at: state.savedAt, updated_by: state.updatedBy || "", state: bare(state)};
+  downloadFile("ballroom-audio-v" + state.version + "-" + stamp + ".json", JSON.stringify(file, null, 1), "application/json");
+  toast("Downloaded version " + state.version + ".");
+}
+function checkData(o){
+  if (!o || typeof o !== "object" || Array.isArray(o)) return "That file isn’t site data.";
+  var need = ["rooms", "devices", "routes", "wallpatch", "speakers", "todo"];
+  for (var i=0;i<need.length;i++) if (!(need[i] in o)) return "That file is missing “" + need[i] + "”, so it isn’t a full copy of the site data.";
+  if (!Array.isArray(o.routes) || !Array.isArray(o.todo) || !Array.isArray(o.speakers) || typeof o.devices !== "object") return "Parts of that file are the wrong shape, so it can’t be imported.";
+  for (var k in o.devices){ var d = o.devices[k]; if (!d || typeof d !== "object" || !d.name) return "Device “" + k + "” in that file has no name, so it can’t be imported."; }
+  return null;
+}
+function renderImport(msg){
+  var box = $("imp-preview"); if (!box) return;
+  if (msg){ box.innerHTML = '<p class="gmsg" style="color:var(--warn)">' + esc(msg) + '</p>'; return; }
+  if (!importPending){ box.innerHTML = ""; return; }
+  var ip = importPending, changes = diffSummary(bare(state), ip.state, 80), n = changes === "No visible changes" ? 0 : changes.split("\n").length;
+  box.innerHTML = '<div class="imp"><p style="margin:14px 0 6px"><b>' + esc(ip.name) + '</b><br><span class="dim">' + (ip.meta.version ? 'Exported from version ' + esc(ip.meta.version) + (ip.meta.exported_at ? ' on ' + esc(fmtWhen(ip.meta.exported_at).abs) : '') + (ip.meta.exported_by ? ' by ' + esc(ip.meta.exported_by) : '') + '. ' : '') + 'The site is on version ' + esc(state.version) + ' now.</span></p>' +
+    (ip.meta.version && Number(ip.meta.version) < Number(state.version) ? '<p class="tip warn">This file is older than what’s on the site. Importing it will undo any changes made since version ' + esc(ip.meta.version) + '.</p>' : '') +
+    (n ? '<details class="sumd" open><summary>' + (changes.indexOf("…and ") > -1 ? "More than " + n : n) + ' change' + (n === 1 ? '' : 's') + ' will be made</summary><pre>' + esc(changes) + '</pre></details>' : '<p class="dim">This file is the same as what’s on the site. Nothing to import.</p>') +
+    '<div class="grow" style="max-width:420px">' + (n ? '<button class="btn' + (importArm ? ' primary' : '') + '" id="imp-go">' + (importArm ? 'Click again to import' : 'Import as version ' + (Number(state.version) + 1)) + '</button>' : '') + '<button class="btn" id="imp-cancel">Cancel</button></div></div>';
+}
+function readImport(input){
+  var f = input.files && input.files[0]; importPending = null; importArm = false;
+  if (!f) return renderImport();
+  if (f.size > 3 * 1024 * 1024) return renderImport("That file is too big to be site data.");
+  var r = new FileReader();
+  r.onload = function(){
+    var j; try{ j = JSON.parse(String(r.result)); }catch(e){ return renderImport("That file isn’t valid site data (it couldn’t be read as JSON)."); }
+    var st = (j && j.app === "ballroom-audio" && j.state) ? j.state : j, err = checkData(st);
+    if (err) return renderImport(err);
+    st = bare(st);
+    importPending = {name: f.name, state: st, meta: (j && j.app === "ballroom-audio") ? j : {}};
+    renderImport();
+  };
+  r.onerror = function(){ renderImport("Couldn’t read that file."); };
+  r.readAsText(f);
+}
+function doImport(btn){
+  if (!importPending) return;
+  if (editing){ toast("Save or discard your edits first."); return; }
+  if (!importArm){ importArm = true; renderImport(); setTimeout(function(){ if (importArm){ importArm = false; renderImport(); } }, 5000); return; }
+  importArm = false; btn.disabled = true;
+  var ip = importPending, summary = "Imported from " + ip.name + "\n" + diffSummary(bare(state), ip.state);
+  sb.rpc("save_site", {p_state: ip.state, p_expected: state.version, p_summary: summary}).then(function(res){
+    state = clone(ip.state); state.version = res.version; state.savedAt = res.updated_at; state.updatedBy = res.updated_by_name;
+    importPending = null; adminCache = {}; refreshAll(); toast("Imported. The site is now on version " + res.version + ".");
+  }).catch(function(e){
+    if (e.status === 409 || /conflict/i.test(e.message)){ refetchSite().then(function(){ refreshAll(); toast("Someone saved just now. Check the changes again, then import."); }); return; }
+    btn.disabled = false; toast(e.status === 403 ? "You don’t have permission to import." : "Couldn’t import just now. Try again in a moment.");
+  });
 }
 function activityCSV(){
   var c = adminCache.activity; if (!c) return;
@@ -1869,6 +1938,9 @@ function adminClick(t){
   if (t.hasAttribute("data-areload")){ loadAdmin(true); return true; }
   if (t.id === "af-more"){ loadMoreActivity(); return true; }
   if (t.id === "af-csv"){ activityCSV(); return true; }
+  if (t.id === "dl-data"){ downloadData(); return true; }
+  if (t.id === "imp-go"){ doImport(t); return true; }
+  if (t.id === "imp-cancel"){ importPending = null; importArm = false; var fi = $("imp-file"); if (fi) fi.value = ""; renderImport(); return true; }
   if (t.hasAttribute("data-setpw")){
     var id = t.getAttribute("data-setpw"), inp = document.querySelector('[data-pw-for="'+id+'"]'), pw = inp ? inp.value : "";
     if (pw.length < 8){ toast("Use at least 8 characters."); return true; }
@@ -1895,6 +1967,7 @@ function adminChange(t){
       .catch(function(e){ toast(e.message || "Couldn’t change that."); loadAdmin(true); });
     return true;
   }
+  if (t.id === "imp-file"){ readImport(t); return true; }
   if (t.id === "af-who"){ adminFilter.who = t.value; renderAdmin(); return true; }
   if (t.id === "af-what"){ adminFilter.what = t.value; renderAdmin(); return true; }
   return false;
