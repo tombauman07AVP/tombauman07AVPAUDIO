@@ -975,7 +975,7 @@ function checksFor(rs){
   function part(k, i){ return J(stepVals(rs, k, 0).map(function(v){ return (v.split(" → ")[i] || "").trim(); })); }
   if (f.kinds.indexOf("mains") >= 0 && !f.ext){
     items = [
-      {b:"DM7F", k:"dm7f", t:"Matrix " + (part("dm7f",0) || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
+      {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
       {b:"QL5", t:V("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
       {b:"AV2 Rio", t:V("rio",0)+" meters moving."},
       {b:"Galaxy 1", t:V("gal1",0)+" has signal, "+lc(V("gal1",1))+" not muted."},
@@ -984,7 +984,8 @@ function checksFor(rs){
     tip = multi ? "One side dead? The fault is in that side’s path. Both dead? Start at the desk and the QL5." : "If the other side works, the fault is in this path, not the desk mix.";
   } else if (f.kinds.indexOf("sub") >= 0 && !f.ext){
     items = [
-      {b:"Desk", k:"desks", t:"Sub send up and unmuted. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk’s sub send instead."}
+                  : {b:"Desk", k:"desks", t:"Sub send up and unmuted. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
       {b:"QL5", t:V("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."},
       {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
       {b:"Wall patch", t:(rooms ? rooms+" " : "")+lc(V("room",0))+" patched to the stage loom."},
@@ -1000,12 +1001,15 @@ function checksFor(rs){
       {b:"Foyer speakers", t:"Powered and cabled."}
     ];
   } else if (f.kinds.indexOf("fill") >= 0 && !f.ext){
+    var fillDesk = V("dm7f",0);
     items = [
-      {b:"QL5", t:V("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
+      fillDesk ? {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " (Fill) up and unmuted, sending on " + (part("dm7f",1) || "Dante") + "."} : null,
+      V("ql5",2) ? {b:"QL5", t:V("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."}
+                 : {b:"QL5", t:V("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
       {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
       {b:"Front fill", k:"fill", t:"Speakers powered and cabled."}
-    ];
-    tip = "Which inputs feed the fill mix isn’t documented yet. If the QL5 fill mix isn’t moving, check what’s routed to it.";
+    ].filter(Boolean);
+    tip = fillDesk ? "" : "Which inputs feed the fill mix isn’t documented yet. If the QL5 fill mix isn’t moving, check what’s routed to it.";
   } else if (rs[0].type==="src"){
     var wp = lc(V("room",0)), lec = f.kinds.indexOf("lec") >= 0, pc = f.kinds.indexOf("pc") >= 0;
     items = [
@@ -1013,7 +1017,9 @@ function checksFor(rs){
       pc ? {b:"Stage PC", t:"Audio not muted, plugged into "+rooms+" "+wp+"."} : {b:"Source", t:"Plugged into "+rooms+" "+wp+"."},
       {b:"Loom", t:V("loom",0)+" connected."},
       {b:"AV2 Rio", t:V("rio",0)+" metering. Check the gain"+(lec ? ", and +48V if the mic needs it." : ".")},
-      {b:"DM7F", k:"dm7f", t:(V("dm7f",0) || "The channel")+" (from Rio "+V("rio",0)+" over Dante) unmuted, fader up. If another desk is running the room, check its channel instead."}
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:V("dm7f",0)+" (from Rio "+V("rio",0)+" over Dante) unmuted, fader up. If another desk is running the room, check its channel instead."}
+      : V("ql5",0) ? {b:"QL5", t:V("ql5",0)+" (from Rio "+V("rio",0)+" over Dante) has signal and isn’t muted. If an OPS desk is mixing the room, check its channel too."}
+      : {b:"Desk", k:"desks", t:"Spare inputs aren’t patched by default. Patch Rio "+V("rio",0)+" over Dante on the desk you’re using."}
     ];
     tip = lec ? "Swap the mic lead into another wall patch input. If the fault moves with it, it’s the lead or the mic." : (pc ? "Try another cable or device at the wall patch to rule out the PC." : "");
   } else if (f.ext){
@@ -1826,8 +1832,14 @@ function pathLabel(p, s, o){
     if (p[0]==="todo"){ var t = pick(s.todo[p[1]], o.todo[p[1]]); return ["To-do", t ? "“" + t.task + "”" : "item " + (Number(p[1])+1), f(p[2])].filter(Boolean).join(" · "); }
     if (p[0]==="network"){ var nn = pick(s.network[p[1]], o.network && o.network[p[1]]); return ["Network", nn ? (nn.device || nn.name || nn.ip) : "row " + (Number(p[1])+1), f(p[2])].filter(Boolean).join(" · "); }
     if (p[0]==="speakers"){ var sp = pick(s.speakers[p[1]], o.speakers[p[1]]); return ["Speaker", sp ? sp.pos : "", f(p[2])].filter(Boolean).join(" · "); }
+    if (p[0]==="routes"){ var rt = pick(s.routes[p[1]], o.routes[p[1]]); return ["Route", rt ? "“" + rt.sig + "”" : "item " + (Number(p[1])+1), p[2]==="steps" ? (p[3] != null ? "step " + (Number(p[3])+1) : "steps") : (p[2]==="alt" ? "note" : f(p[2]))].filter(Boolean).join(" · "); }
   }catch(x){}
   return p.join(".");
+}
+function stepText(st){
+  var k = st[0], d = (state && state.devices && state.devices[k]) || null;
+  var n = d ? d.name : (ROOMNAME[k] ? ROOMNAME[k] + " wall patch" : (NODES[k] ? NODES[k].label : k));
+  return "“" + n + (st[1] ? ": " + st[1] : "") + "”";
 }
 function diffSummary(a, b, max){
   var out = [], extra = 0; max = max || 25;
@@ -1835,6 +1847,10 @@ function diffSummary(a, b, max){
   (function walk(x, y, p){
     if (x === y) return;
     var ax = Array.isArray(x), ay = Array.isArray(y);
+    if (ax && ay && p.length === 4 && p[0]==="routes" && p[2]==="steps"){   // one line per changed route step
+      if (JSON.stringify(x) !== JSON.stringify(y)) add(pathLabel(p, b, a) + ": " + stepText(x) + " → " + stepText(y));
+      return;
+    }
     if (ax && ay){
       for (var i=0;i<Math.max(x.length,y.length);i++){
         if (i >= x.length) add(pathLabel(p.concat(i), b, a) + ": added");
