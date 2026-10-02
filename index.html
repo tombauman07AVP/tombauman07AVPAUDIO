@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset=utf8><meta name="robots" content="noindex,nofollow"><meta name="description" content="Ballroom audio system notes. Staff sign-in required."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name="robots" content="noindex,nofollow"><meta name="description" content="Ballroom audio system notes. Staff sign-in required."><meta name="theme-color" content="#060A14"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Ballroom Audio"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Royal Pines Ballroom Audio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style id="css">
@@ -39,6 +39,9 @@ button{font-family:inherit}
 .node{cursor:pointer;transition:opacity .2s}
 .node rect{fill:var(--kb);stroke:var(--k);stroke-width:1.6;transition:stroke-width .15s,fill .15s}
 .node.planned rect{stroke-dasharray:7 5}
+.node.main rect{stroke-width:2.6}
+.node.main .nt{font-size:17px}
+svg.routing .node.main.ron rect{stroke-width:3.4}
 .node .nt{font:700 15px var(--f-display);fill:var(--k);letter-spacing:.08em}
 .node .ns{font:500 12.5px var(--f-body);fill:var(--ink)}
 .node .nm{font:600 10.5px var(--f-display);fill:var(--muted);letter-spacing:.12em}
@@ -154,6 +157,17 @@ a.fnode:hover{text-decoration:underline}
 .fvals{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .lv{display:inline-flex;align-items:baseline;gap:7px;padding:3px 10px;border-radius:7px;background:var(--kb);border:1px solid var(--line);border-color:color-mix(in srgb,var(--k) 35%,transparent);font:600 14px var(--f-body)}
 .lv i{font:700 10px var(--f-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.lv{flex-wrap:wrap;row-gap:3px}
+.chres{margin-top:14px;padding:12px 14px 8px;border-top:3px solid var(--ql)}
+.chh{font:700 13px var(--f-display);letter-spacing:.16em;text-transform:uppercase;margin:0 0 6px;display:flex;justify-content:space-between;gap:10px}
+.chh small{font:500 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.chrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:9px 6px;border-top:1px solid var(--line);text-decoration:none;color:var(--ink);border-radius:6px}
+.chrow:hover{background:var(--glass-2)}
+.chdev{font:700 10.5px var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:var(--k)}
+.chch{font:600 14px var(--f-body)}
+.chrow .cnm{margin-left:0}
+.chft{flex-basis:100%;font-size:13px;color:var(--muted)}
+.cnm{display:inline-block;font:600 11.5px/1.5 var(--f-display);letter-spacing:.05em;color:var(--ink);background:rgba(255,255,255,.09);border:1px solid var(--line-strong);border-radius:4px;padding:0 6px;margin:0 2px 0 6px;white-space:nowrap;vertical-align:1px}
 .checks{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
 .checks summary{cursor:pointer;font:700 13px var(--f-display);letter-spacing:.16em;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:8px}
 .checks summary::-webkit-details-marker{display:none}
@@ -266,10 +280,8 @@ tr.hlrow td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 .x:hover{border-color:var(--accent)}
 .dbody{overflow:auto;padding:18px 20px 28px;overscroll-behavior:contain}
 @media (max-width:720px){
-  .drawer{left:8px;right:8px;width:auto;top:auto;height:74%;bottom:calc(66px + env(safe-area-inset-bottom,0px))}
-  @keyframes slide{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .drawer{height:74%}
   .zoom,.hint{display:none}
-  .editpill{top:auto;bottom:calc(70px + env(safe-area-inset-bottom,0px))}
   .meta span.upd{display:none}
 }
 /* content inside the drawer */
@@ -369,6 +381,90 @@ a.chip:hover{border-color:var(--k)}
 .dir span{font-size:13px;color:var(--muted)}
 .toast{position:absolute;z-index:9;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--space);padding:9px 16px;border-radius:9px;font-size:14px;max-width:calc(100% - 32px)}
 @media (max-width:560px){.todo li{grid-template-columns:1fr auto}.todo li>:first-child{grid-column:1/-1}}
+/* ---------- phones, tablets and touch ---------- */
+.fi{box-sizing:border-box}
+.dock{pointer-events:auto;touch-action:pan-x;-webkit-overflow-scrolling:touch}
+.drawer,.gate,.hud-top,.editpill,.banner,.rchip,.dmore{touch-action:pan-x pan-y}
+@media (min-width:721px){.dock{max-width:calc(100% - 150px)}}
+.dk.more{display:none}
+.dock.compact .dk{padding:9px 11px;letter-spacing:.06em}
+.dock.compact .dk i{display:none}
+.dock.compact .dk.x{display:none}
+.dock.compact .dk.more{display:inline-flex}
+.dock.compact.nomore .dk.more{display:none}
+.dk.more b{font-size:15px;line-height:0;letter-spacing:0;font-weight:700}
+.dmore{left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom,0px));border-radius:16px;padding:8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;width:min(320px,calc(100% - 24px));box-sizing:border-box;box-shadow:0 18px 50px var(--shadow);z-index:7}
+.dmore .dk{justify-content:flex-start;padding:13px 14px;border-radius:12px;font-size:13px}
+.dmore .dk[aria-current="true"]{background:var(--glass-3);color:var(--ink)}
+.grab{display:none}
+.dhead{position:relative}
+@media (pointer:coarse){
+  input,select,textarea,.fi,.filter input,.search input{font-size:16px!important}
+  .btn{min-height:40px;padding:8px 14px}
+  .fchip{min-height:38px;padding:7px 14px}
+  .x{width:40px;height:40px}
+  .rchip .x{width:36px;height:36px}
+  .zoom button{width:42px;height:42px}
+  .clist label{padding:10px 8px}
+  .clist input{width:22px;height:22px;margin-top:0}
+  .del{padding:10px 8px}
+  .fi{min-height:40px;padding:8px 10px}
+  textarea.fi{min-height:84px}
+  .hint{display:none}
+  .lv{padding:5px 10px}
+  .conn a{padding:7px 12px}
+  .dk{padding:10px 14px}
+  #imp-file::file-selector-button{padding:10px 14px}
+}
+/* the panel becomes a bottom sheet on phones and on tablets held upright */
+@media (max-width:720px),(max-width:1024px) and (orientation:portrait){
+  .drawer{left:8px;right:8px;width:auto;top:auto;bottom:calc(66px + env(safe-area-inset-bottom,0px));animation-name:sheet}
+  .drawer.tall{top:calc(68px + env(safe-area-inset-top,0px));height:auto}
+  .grab{display:block;position:absolute;left:50%;top:5px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--line-strong)}
+  .dhead{padding-top:16px;cursor:grab;touch-action:none}
+  body.kb .drawer{top:calc(62px + env(safe-area-inset-top,0px));bottom:8px;height:auto}
+}
+body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
+@keyframes sheet{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:721px) and (max-width:1024px) and (orientation:portrait){
+  .drawer{left:12px;right:12px;height:58%;bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:720px){
+  .hud-top{padding-left:10px;padding-right:10px;gap:8px}
+  .brand{padding:6px 11px}
+  .brand b{font-size:14.5px;white-space:nowrap}
+  .meta{padding:5px 6px;margin-left:auto}
+  body.editing .brand{display:none}
+  .editpill{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;left:10px;transform:none;padding:4px 4px 4px 12px}
+  .editpill #emsg{font-size:12.5px}
+  .dmore{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  /* tables: wide ones (and every table while editing) turn into stacked cards */
+  .dbody table.t.wide thead,.dbody table.alog thead,body.editing .dbody table.t thead{display:none}
+  .dbody table.t.wide,.dbody table.t.wide tbody,.dbody table.t.wide tr,
+  .dbody table.alog,.dbody table.alog tbody,.dbody table.alog tr,
+  body.editing .dbody table.t,body.editing .dbody table.t tbody,body.editing .dbody table.t tr{display:block;width:100%}
+  .dbody table.t.wide tr,.dbody table.alog tr,body.editing .dbody table.t tr{padding:10px 14px;border-bottom:1px solid var(--line);box-sizing:border-box}
+  .dbody table.t.wide tr:last-child,.dbody table.alog tr:last-child,body.editing .dbody table.t tr:last-child{border-bottom:0}
+  .dbody table.t.wide td,.dbody table.alog td{display:grid;grid-template-columns:88px minmax(0,1fr);gap:10px;padding:3px 0;border:0;width:auto;white-space:normal}
+  .dbody table.t.wide td::before,.dbody table.alog td::before{content:attr(data-label);font:600 10.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+  .dbody table.t.wide td:not([data-label]),.dbody table.alog td:not([data-label]){display:block}
+  .dbody table.t.wide td:empty{display:none}
+  body.editing .dbody table.t td{display:block;padding:5px 0;border:0;width:auto;white-space:normal}
+  body.editing .dbody table.t td[data-label]::before{content:attr(data-label);display:block;font:600 10.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  body.editing .dbody table.t td.ch{font:600 14px var(--f-mono);color:var(--ink);padding-bottom:2px}
+  body.editing .dbody table.t td.ch::before{display:inline;margin:0 8px 0 0}
+  body.editing .dbody .tblwrap{overflow:visible}
+  body.editing .todo li{grid-template-columns:minmax(0,1fr);gap:8px}
+  body.editing .todo li>:first-child{grid-column:auto}
+  body.editing .todo li .fi{width:100%}
+  body.editing .todo li>:last-child{display:flex;gap:8px;align-items:center}
+}
+@media (max-width:400px){
+  .brand small{display:none}
+  .brand{min-height:46px;box-sizing:border-box;align-content:center;padding:6px 10px}
+  .brand b{font-size:13.5px;line-height:1.08;white-space:normal;max-width:98px}
+}
+@media (max-width:380px){ .editpill #emsg{display:none} .editpill{padding-left:4px} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app"></div>
@@ -428,8 +524,8 @@ var NODES = {
   foyer:{label:"Foyer",kind:"spk",go:"foyer",desc:"Fed from Galaxy 1 out 16"},
   subs:{label:"End-fire subs",kind:"spk",go:"speakers",desc:"Out through each room’s wall patch"},
   loom:{label:"Loom",kind:"room",go:null},
-  opa:{label:"OPA (DM7F)",kind:"ql",go:"dev-dm7f",desc:"OPS A, bottom-left of Prince"},
-  opb:{label:"OPB (DM3)",kind:"ql",go:"dev-desks",desc:"OPS B, bottom of Monarch"},
+  opa:{label:"OPA (DM7F)",kind:"ql",go:"dev-dm7f",desc:"OPS A, the main desk, at the bottom of Monarch"},
+  opb:{label:"OPB (DM3)",kind:"ql",go:"dev-desks",desc:"OPS B, bottom of Prince"},
   opc:{label:"OPC (DM3)",kind:"ql",go:"dev-desks",desc:"OPS C, bottom of Marquis"},
   "prince-spk":{label:"Prince speakers",kind:"spk",go:"room-prince"},"monarch-spk":{label:"Monarch speakers",kind:"spk",go:"room-monarch"},"marquis-spk":{label:"Marquis speakers",kind:"spk",go:"room-marquis"},
   "prince-subs":{label:"Prince subs",kind:"spk",go:"room-prince"},"monarch-subs":{label:"Monarch subs",kind:"spk",go:"room-monarch"},"marquis-subs":{label:"Marquis subs",kind:"spk",go:"room-marquis"}
@@ -437,7 +533,7 @@ var NODES = {
 
 /* ---------- world layout (world units): drawn like the floor plan ---------- */
 var MAP_W = 1200, MAP_H = 830, TRAY = 486, DY = 456;   // TRAY: cable run to AV2; DY: the Dante line
-var ROOM_LAYOUT = [["prince",20,"opa"],["monarch",410,"opb"],["marquis",800,"opc"]];
+var ROOM_LAYOUT = [["prince",20,"opb"],["monarch",410,"opa"],["marquis",800,"opc"]];   // OPA (the main desk) sits in the middle
 var GEO = {}, EDGES = [], ZONES = {}, DRAW = [];
 (function(){
   function box(id, g, kind, go, title, sub, extra, part){ DRAW.push({id:id, g:g, kind:kind, go:go, title:title, sub:sub || "", extra:extra || "", part:part || ""}); }
@@ -447,14 +543,14 @@ var GEO = {}, EDGES = [], ZONES = {}, DRAW = [];
     // wall patch sits on the back (top) wall, just left of centre, with the downfill below it
     var wp = [x+104, 50, 92, 40], subs = [x+208, 54, 80, 32];
     var upqL = [x+14, 104, 86, 46], x20 = [x+147, 104, 86, 46], upqR = [x+280, 104, 86, 46];
-    var opg = k==="prince" ? [x+8, 372, 96, 52] : [x+138, 372, 104, 52];
+    var opg = op==="opa" ? [x+134, 356, 132, 68] : [x+138, 372, 104, 52];
     GEO[k] = wp; GEO[k+"-subs"] = subs; GEO[k+"-spk"] = [x+14, 104, 352, 46]; GEO[op] = opg;
     box(k, wp, "room", "room-"+k, "WALL PATCH", "", " wp");
     box(k+"-subs", subs, "spk", "room-"+k, "SUBS", "end-fire", " planned sm");
     box(k+"-spk", upqL, "spk", "room-"+k, "UPQ L", "", " sm", "L");
     box(k+"-spk", x20, "spk", "room-"+k, k==="monarch" ? "X20 L·C·R" : "X20 L·R", "downfill", " sm", "F");
     box(k+"-spk", upqR, "spk", "room-"+k, "UPQ R", "", " sm", "R");
-    box(op, opg, "ql", op==="opa" ? "dev-dm7f" : "dev-desks", op.toUpperCase(), op==="opa" ? "DM7F" : "DM3", " sm");
+    box(op, opg, "ql", op==="opa" ? "dev-dm7f" : "dev-desks", op.toUpperCase(), op==="opa" ? "DM7F · main desk" : "DM3", op==="opa" ? " main" : " sm");
     var tx = x+124, y0 = 90, sy = 172;
     var rioX = 742, g1X = 890, g2X = 370;   // one line out of each AV2 box; the tray splits it to the rooms
     EDGES.push([k, "rio", "M"+tx+" "+y0+" L"+tx+" "+TRAY+" L"+rioX+" "+TRAY+" L"+rioX+" 540", ""]);
@@ -465,10 +561,10 @@ var GEO = {}, EDGES = [], ZONES = {}, DRAW = [];
     EDGES.push([k, k+"-subs", "M"+(x+196)+" 70 L"+(x+208)+" 70", "sp"]);
     EDGES.push([op, "dante", "M"+(opg[0]+opg[2]/2)+" 424 L"+(opg[0]+opg[2]/2)+" "+(DY-4), "dn"]);
   });
-  GEO.dante = [56, DY-6, 1036, 12];
+  GEO.dante = [190, DY-6, 902, 12];
   GEO.gal2 = [310, 540, 120, 80]; GEO.ql5 = [492, 540, 130, 80]; GEO.rio = [662, 540, 120, 80]; GEO.gal1 = [830, 540, 120, 80];
   GEO.external = [110, 540, 170, 80]; GEO.stage = [1000, 540, 150, 80]; GEO.foyer = [820, 742, 140, 50];
-  GEO.desks = [28, 372, 1012, 52]; GEO.dm7f = GEO.opa; GEO.speakers = [34, 104, 1132, 46]; GEO.subs = [124, 50, 964, 40];
+  GEO.desks = [158, 356, 882, 68]; GEO.dm7f = GEO.opa; GEO.speakers = [34, 104, 1132, 46]; GEO.subs = [124, 50, 964, 40];
   var g2planned = false;
   box("gal2", GEO.gal2, "gal", "dev-gal2", "GALAXY 2", "subs + front fill");
   box("ql5", GEO.ql5, "ql", "dev-ql5", "QL5", "output router");
@@ -522,7 +618,7 @@ function svgMap(){
   });
   // Dante: a thin line the OP positions, AV2 and the stage racks plug into. The dark edge makes
   // the room cable runs read as passing underneath it rather than joining it.
-  var dl = 'M56 '+DY+' L1092 '+DY;
+  var dl = 'M190 '+DY+' L1092 '+DY;
   o.push('<g class="node k-dante dline" data-go="dev-dante" data-id="dante" tabindex="0" role="link" aria-label="Dante network: open details">'+
     '<path class="dhalo" d="'+dl+'"/><path class="dglow" d="'+dl+'"/><path class="dl" d="'+dl+'"/><path class="dhit" d="'+dl+'"/>'+
     '<text class="dlab" x="1102" y="'+(DY+4)+'">DANTE</text></g>');
@@ -645,7 +741,7 @@ function viewDevice(key){
   return h;
 }
 function viewStage(){
-  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F CURRENT BASE sheet.</p>';
+  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F show file, which calls them rack A and rack B.</p>';
   ["sr1","sr2"].forEach(function(k){
     var d = cur().devices[k];
     h += '<h2 class="sec">'+esc(d.name)+'<small>'+esc(d.model)+'</small></h2><div class="io" style="margin-top:0">'+
@@ -705,12 +801,12 @@ function viewSpeakers(){
 var ROOMNUM = {prince:1, monarch:2, marquis:3};
 var ROOMNAME = {prince:"Prince", monarch:"Monarch", marquis:"Marquis"};
 var KINDNAME = {sub:"Subs", mains:"Mains", lec:"Lectern", pc:"Stage PC", foyer:"Foyer", ext:"External", spare:"Spare", fill:"Fill", rf:"Wireless mic", bgm:"BGM", opa:"OPS A", opb:"OPS B", opc:"OPS C"};
-var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk"};
-var PORTNAME = {"in":"In", out:"Out", omni:"Omni", dante:"Dante"};
+var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk", sr1:"Stage rack 1", sr2:"Stage rack 2", stage:"Stage racks"};
+var PORTNAME = {"in":"In", out:"Out", omni:"Omni", dante:"Dante", mt:"Matrix", mix:"Mix"};
 var VOCAB = {}, VKEYS = [], LCACHE = {};
 function vocab(words, f, v, w){ words.split(" ").forEach(function(x){ if (!VOCAB[x]){ VOCAB[x] = {f:f, v:v, w:w||6}; VKEYS.push(x); } }); }
 vocab("prince princes princess room1","room","prince");
-vocab("monarch monarchs room2","room","monarch");
+vocab("monarch monarchs room2 middle","room","monarch");
 vocab("marquis marquee marque markee marquise room3","room","marquis");
 vocab("sub subs subwoofer subwoofers woofer woofers bass lfc lfcs endfire lowend 750","kind","sub");
 vocab("main mains pa tops top upq upqs x20 lr stereo foh","kind","mains");
@@ -726,20 +822,25 @@ vocab("team teams","kind","ext",4);
 vocab("spare spares","kind","spare");
 vocab("fill fills","kind","fill");
 vocab("bgm background","kind","bgm");
-vocab("opa opsa","kind","opa"); vocab("opb opsb","kind","opb"); vocab("opc opsc","kind","opc");
+vocab("opa opsa","dev","dm7f"); vocab("opb opsb","kind","opb"); vocab("opc opsc","kind","opc");
 vocab("left l","side","L"); vocab("right r","side","R");
 vocab("ql5 ql router","dev","ql5"); vocab("rio","dev","rio"); vocab("galaxy galaxies gal","dev","gal");
 vocab("galaxy1 gal1 g1","dev","gal1"); vocab("galaxy2 gal2 g2","dev","gal2");
 vocab("wallpatch patch","dev","wall"); vocab("loom looms","dev","loom"); vocab("dm7f","dev","dm7f");
 vocab("desk desks dm7 dm7c dm3 dm3s console","dev","desks");
 vocab("omni omnis","port","omni"); vocab("dante","port","dante");
+vocab("matrix matrices mtx mt","port","mt"); vocab("mix mixes aux auxes","port","mix");
+vocab("sr1","dev","sr1"); vocab("sr2","dev","sr2"); vocab("stagerack","dev","stage");
 vocab("in input inputs ch chan channel channels","port","in"); vocab("out output outputs","port","out");
 vocab("room rooms rm","roomword","");
 vocab("buzz buzzing buzzy hum humming hummy noise noisy hiss hissing static","trouble","hum");
 vocab("distorted distorting distortion distorts clipping clip","trouble","dist");
 vocab("feedback feeding ringing squeal squealing","trouble","fb");
 vocab("quiet low weak soft","trouble","low");
-vocab("crackle crackling crackly dropping dropout dropouts cutting cuts intermittent","trouble","crackle");
+vocab("crackle crackling crackly dropping dropout dropouts cutting cuts intermittent glitch glitchy glitching popping pops crackles stutter stuttering","trouble","crackle");
+vocab("loud louder blasting booming peaking","trouble","loud");
+vocab("echo echoey echoing delayed latency lipsync sync","trouble","delay");
+vocab("thin tinny muffled muddy boomy harsh","trouble","tone");
 vocab("not no working work works worked dead silent issue issues problem problems broken fault faulty missing nothing cant cannot down help fix isnt doesnt wont arent gone lost muted mute off bad wrong","trouble","");
 vocab("the a an on at for of to from my i it its we our and with say sound audio signal there any has have get getting coming is are was be can what why where how whats hear heard just all whole everything anything some me please this that only but though still side one wire wires cable cables lead leads xlr","stop","");
 
@@ -760,6 +861,7 @@ function lookup(w){
   var e = null, i, k;
   if (VOCAB[w]) e = VOCAB[w];
   else if (/^\d+$/.test(w)) e = {f:"num", v:Number(w)};
+  else if (chWords()[w]) e = null;
   else {
     if (w.length >= 4){
       var max = w.length <= 5 ? 1 : 2, bd = 9, bk = null;
@@ -778,7 +880,9 @@ function normQ(q){
     .replace(/\b(stage|stg)[\s-]*pc\b/g,"stgpc").replace(/\bbackground[\s-]*music\b/g,"bgm").replace(/\bfront[\s-]*fills?\b/g,"fill").replace(/\b(op|ops|operator)[\s-]*([abc])\b/g,"op$2")
     .replace(/\b(room|rm|lectern|lecturn|lec|pc|stgpc|loom|in|out|input|output|omni|dante|ch|channel|galaxy|gal)\s+(one|two|three)\b/g,function(m,a,b){return a+" "+({one:1,two:2,three:3})[b];}).replace(/\bwall[\s-]*patch\b/g,"wallpatch").replace(/\bpre[\s-]*function\b/g,"prefunction")
     .replace(/\bql[\s-]*5\b/g,"ql5").replace(/\bl\s*\/\s*r\b/g," lr ").replace(/\bx[\s-]*20s?\b/g,"x20").replace(/\bdm[\s-]*7\b/g,"dm7")
-    .replace(/\b(galaxy|gal|g)[\s-]*([12])\b/g,"$1$2").replace(/\b(room|rm|r)[\s-]*([123])\b/g,"room$2");
+    .replace(/\b(galaxy|gal|g)[\s-]*([12])\b/g,"$1$2").replace(/\b(room|rm|r)[\s-]*([123])\b/g,"room$2")
+    .replace(/\b(?:stage[\s-]*)?racks?[\s-]*(1|a|one)\b/g," sr1 ").replace(/\b(?:stage[\s-]*)?racks?[\s-]*(2|b|two)\b/g," sr2 ").replace(/\bsr[\s-]*([12])\b/g,"sr$1").replace(/\bstage[\s-]*racks?\b/g," stagerack ")
+    .replace(/\bmain[\s-]*(desk|console|mixer)\b/g," dm7f ").replace(/\b(?:can ?not|cant|can t|unable to)\s+hear\b/g," cant ");
 }
 function parseQ(q){
   var nq = normQ(q), okSide = null;
@@ -810,7 +914,7 @@ function parseQ(q){
   if (P.kinds.rf) delete P.kinds.lec;
   P.ports.forEach(function(p){ if (!p.dev && P.devs.length===1){ p.dev = P.devs[0]; P.devs = []; } });
   P.ports.forEach(function(p){
-    if (!p.port && /^(ql5|rio|gal|gal1|gal2)$/.test(p.dev||"")) p.port = "in";
+    if (!p.port && /^(ql5|rio|gal|gal1|gal2|sr1|sr2|dm7f)$/.test(p.dev||"")) p.port = "in";
     said((p.dev?DEVNAME[p.dev]+" ":"")+(p.port?PORTNAME[p.port]+" ":(p.dev?"":"Ch "))+p.n);
   });
   P.devs.forEach(function(d){ said(DEVNAME[d]); });
@@ -818,7 +922,7 @@ function parseQ(q){
   P.core = String(q||"").toLowerCase().split(/\s+/).filter(function(w){ var e = lookup(w.replace(/[^a-z0-9]/g,"")); return w && !(e && (e.f==="stop"||e.f==="trouble")); }).join(" ");
   return P;
 }
-var PORTRE = {"in":/\bin\s+([\d\s+()]+)/i, out:/\bout\s+([\d\s+()]+)/i, omni:/\bomni\s+([\d\s+()]+)/i, dante:/\bdante\s+([\d\s+()]+)/i};
+var PORTRE = {"in":/\bin\s+([\d\s+()]+)/i, out:/\bout\s+([\d\s+()]+)/i, omni:/\bomni\s+([\d\s+()]+)/i, dante:/\bdante\s+([\d\s+()]+)/i, mt:/\bmt\s+([\d\s+()]+)/i, mix:/\bmix\s+([\d\s+()]+)/i};
 function stepPortMatch(s, p){
   var k = s[0], t = s[1];
   if (p.dev){
@@ -894,6 +998,88 @@ function findSignals(q){
   return {groups:groups, near:near, P:P, top:top};
 }
 
+/* console channel search: find names that are on the desks (kick, RX 3, IEM 2, Zoom…) and direct "dm7f ch 97" lookups */
+var CH_ALIAS = {wedge:"fb", wedges:"fb", monitor:"fb", monitors:"fb", foldback:"fb", foldbacks:"fb", inear:"iem", inears:"iem", ears:"iem", iems:"iem",
+  handheld:"rx", handhelds:"rx", lapel:"rx", lapels:"rx", lav:"rx", lavalier:"rx", headset:"rx", radio:"rx", wireless:"rx", receiver:"rx", receivers:"rx",
+  hihat:"hh", hats:"hh", hat:"hh", overhead:"oh", overheads:"oh", guitar:"guit", guitars:"guit", gtr:"guit", acoustic:"a guit", keyboard:"keys", keyboards:"keys", key:"keys",
+  vocal:"vox", vocals:"vox", voice:"vox", tracks:"track", backing:"track", strings:"string", horn:"brass", horns:"brass", trumpet:"brass", sax:"brass",
+  recording:"rec", record:"rec", stinger:"sting", stingers:"sting", stings:"sting", reverb:"rev", reverbs:"rev", verb:"rev", delay:"dly", left:"l", right:"r",
+  lectern:"lec", lecterns:"lec", lecturn:"lec", podium:"lec", texttospeech:"tts", bgm:"bgm", music:"bgm"};
+var CH_SKIP = {dm7f:1, ql5:1, desk:1, desks:1, console:1, consoles:1, mixer:1, channel:1, channels:1, chan:1, ch:1, input:1, inputs:1, "in":1, out:1, output:1, outputs:1, mix:1, mixes:1,
+  matrix:1, mt:1, stage:1, rack:1, racks:1, sr:1, drum:1, drums:1, kit:1, coming:1, through:1, audio:1, sound:1, call:1, calls:1, feed:1, feeds:1, video:1, meeting:1, line:1, lines:1};
+var DRUMS_RE = /^(KICK|SNARE|HH\b|R[123]\b|FT\b|OH |DRUM |TOM)/i;
+var CHW = null;
+function chTok(s){ return String(s||"").toLowerCase().replace(/[’'`]/g,"").replace(/([a-z])(\d)/g,"$1 $2").replace(/(\d)([a-z])/g,"$1 $2").split(/[^a-z0-9]+/).filter(Boolean); }
+function chWords(){
+  if (CHW) return CHW; CHW = {};
+  var D = (state && state.devices) || {};
+  Object.keys(D).forEach(function(k){ ["ins","outs"].forEach(function(s){ (D[k][s]||[]).forEach(function(r){ chTok(r.sig).forEach(function(w){ if (w.length >= 3 && !/^\d+$/.test(w)) CHW[w] = 1; }); }); }); });
+  Object.keys(CH_ALIAS).forEach(function(w){ if (!VOCAB[w]) CHW[w] = 1; });
+  return CHW;
+}
+var CH_DEVS = ["dm7f","ql5"];
+function chLabel(key, side, r){ var c = String(r.ch); return side==="ins" ? (key==="dm7f" ? "Ch " : "In ") + c : (/^\d+$/.test(c) ? "Out " + c : c); }
+function chRef(side, r){ return side + ":" + r.ch; }
+function tokMatch(q, s, fuzzy){
+  if (/^\d+$/.test(q)) return q === s;
+  if (q === s) return true;
+  if (q.length >= 3 && s.indexOf(q) === 0) return true;
+  if (q.length >= 4 && /s$/.test(q) && q.slice(0,-1) === s) return true;
+  return !!fuzzy && q.length >= 4 && s.length >= 4 && osa(q, s) <= 1;
+}
+function chanSearch(q, P, res){
+  var D = cur().devices, out = [], seen = {}, prio = false;
+  function add(key, side, r, why){ var id = key+"|"+side+"|"+r.ch; if (seen[id]) return; seen[id] = 1; out.push({key:key, side:side, r:r, why:why}); }
+  // 1) direct lookups like "dm7f ch 97", "stage rack 1 input 3", "ql5 in 7"
+  P.ports.forEach(function(p){
+    var key = p.dev, d = key && D[key]; if (!d || !p.n) return;
+    var side = (p.port==="out" || p.port==="omni" || p.port==="mt" || p.port==="mix") ? "outs" : "ins";
+    var want = p.port==="omni" ? "Omni " + p.n : (p.port==="mt" ? "MT " + p.n : (p.port==="mix" ? "Mix " + p.n : String(p.n)));
+    (d[side]||[]).forEach(function(r){ if (String(r.ch).toLowerCase() === want.toLowerCase()) add(key, side, r, "port"); });
+  });
+  var direct = out.length;
+  // 2) names: every meaningful word has to appear in the channel name
+  var toks = [];
+  chTok(q).forEach(function(w){ (CH_ALIAS[w] ? CH_ALIAS[w].split(" ") : [w]).forEach(function(x){ var e = VOCAB[x]; if (CH_SKIP[x] || (e && (e.f==="stop" || e.f==="trouble" || e.f==="roomword"))) return; if (toks.indexOf(x) < 0) toks.push(x); }); });
+  if (toks.indexOf("rx") >= 0) toks = toks.filter(function(w){ return !/^(mic|mics|microphone|microphones|mike)$/.test(w); });
+  var named = [], stageQ = P.devs.some(function(d){ return /^(stage|sr1|sr2)$/.test(d); });
+  var devs = CH_DEVS.concat(stageQ ? ["sr1","sr2"] : []).concat(P.devs.filter(function(d){ return D[d] && CH_DEVS.indexOf(d) < 0 && !/^(sr1|sr2)$/.test(d); }));
+  function scan(test){ var hits = []; devs.forEach(function(key){ ["ins","outs"].forEach(function(side){ ((D[key]||{})[side]||[]).forEach(function(r){
+      if (!r.sig) return; var st = chTok(r.sig);
+      if (stageQ && !/^sr/.test(key) && !/stage rack/i.test((r.from||"") + " " + (r.to||""))) return;
+      if (test(r, st)) hits.push({key:key, side:side, r:r, extra:st.length - toks.length});
+    }); }); }); return hits; }
+  if (toks.length && toks.some(function(w){ return !/^\d+$/.test(w); })){
+    named = scan(function(r, st){ return toks.every(function(w){ return st.some(function(s){ return tokMatch(w, s); }); }); });
+    if (!named.length) named = scan(function(r, st){ return toks.every(function(w){ return st.some(function(s){ return tokMatch(w, s, true); }); }); });   // typo-tolerant second pass
+    named.sort(function(a, b){ return a.extra - b.extra; });
+  } else if (!toks.length && /\bdrums?\b/i.test(q)){
+    named = scan(function(r){ return DRUMS_RE.test(r.sig); });
+  }
+  // leave out channels that are already part of the routes being shown
+  var shown = {}, sigs = {};
+  ((res && res.top) || []).forEach(function(r){ sigs[String(r.sig).toLowerCase()] = 1; r.steps.forEach(function(s){ if (CONSOLES[s[0]]) String(s[1]).split("→").forEach(function(p){ var row = chRow(s[0], p); if (row) shown[s[0]+"|"+row.ch] = 1; }); }); });
+  named.forEach(function(x){ if (!shown[x.key+"|"+x.r.ch] && !sigs[String(x.r.sig).toLowerCase()]) add(x.key, x.side, x.r, "name"); });
+  out = out.slice(0, 8);
+  // words the route finder didn't understand, explained by channel names, put these first
+  var explains = P.unknown.length && named.length && P.unknown.every(function(u){ return chTok(u).every(function(w){ var w2 = CH_ALIAS[w] ? CH_ALIAS[w].split(" ") : [w]; return w2.every(function(x){ return CH_SKIP[x] || toks.indexOf(x) < 0 || named.some(function(n){ return chTok(n.r.sig).some(function(s){ return tokMatch(x, s); }); }); }); }); });
+  prio = !!out.length && (explains || (direct && !(res && res.groups)) || (P.kinds.rf && named.length > 0) || (stageQ && named.length > 0) || (!toks.length && named.length > 0));
+  var used = named.length ? P.unknown.filter(function(u){ return chTok(u).some(function(w){ var w2 = CH_ALIAS[w] ? CH_ALIAS[w].split(" ") : [w]; return w2.some(function(x){ return toks.indexOf(x) >= 0; }); }); }) : [];
+  if (!toks.length && named.length) used = P.unknown.filter(function(u){ return /^drums?$/i.test(u); });
+  return {rows:out, prio:prio, hideRoutes: prio && (explains || direct > 0), used:used};
+}
+function chanBlock(ch, first){
+  var D = cur().devices;
+  var rows = ch.rows.map(function(x){
+    var d = D[x.key] || {name:x.key}, n = NODES[x.key] || {kind:"ql", go:"dev-"+x.key}, r = x.r;
+    var href = (n.go || ("dev-"+x.key)) + "?rows=" + encodeURIComponent(chRef(x.side, r));
+    var detail = [r.from, r.to].filter(Boolean).join(" · ");
+    return '<a class="chrow k-'+(n.kind||"ql")+'" href="#'+href+'"><span class="chdev">'+esc(DEVNAME[x.key] || d.name)+'</span><span class="chch">'+esc(chLabel(x.key, x.side, r))+'</span>'+
+      (r.sig ? '<span class="cnm">'+esc(r.sig)+'</span>' : '<span class="dim">not named · spare</span>')+(detail ? '<span class="chft">'+esc(detail)+'</span>' : '')+'</a>';
+  }).join("");
+  return '<section class="card chres"><h3 class="chh">'+(first ? "On the consoles" : "Also on the consoles")+'<small>'+ch.rows.length+' channel'+(ch.rows.length===1?"":"s")+'</small></h3>'+rows+'</section>';
+}
+
 /* route diagram + checks */
 function stepVals(rs, key, nth){
   return rs.map(function(r){ var c = 0; for (var i=0;i<r.steps.length;i++){ if (nk(r.steps[i][0])===key){ if (c===nth) return r.steps[i][1]; c++; } } return ""; });
@@ -944,6 +1130,25 @@ function linkFor(key, vals){
   if (/^(dev|room)-/.test(n.go)) vals.forEach(function(v){ rowRefs(key, v).forEach(function(r){ if (refs.indexOf(r) < 0) refs.push(r); }); });
   return n.go + (refs.length ? "?rows=" + encodeURIComponent(refs.join(",")) : "");
 }
+/* console channel names: what's written on the QL5 / DM7F for a step like "In 35 → Out 3 → Omni 1" */
+var CONSOLES = {ql5:1, dm7f:1};
+function chRow(key, part){
+  var d = cur().devices[key], m; if (!d) return null; part = String(part||"").trim();
+  function find(rows, ch){ ch = String(ch).toLowerCase(); for (var i=0;i<(rows||[]).length;i++) if (String(rows[i].ch).toLowerCase() === ch) return rows[i]; return null; }
+  if (key === "dm7f"){
+    m = /^(MT|Mix|Ch)\s+(\d+)/i.exec(part); if (!m) return null;
+    var q = m[1].toLowerCase();
+    return q === "ch" ? find(d.ins, m[2]) : find(d.outs, (q === "mt" ? "MT " : "Mix ") + m[2]);
+  }
+  m = /^(in|out|omni)\s+(\d+)\b/i.exec(part); if (!m) return null;
+  var p = m[1].toLowerCase();
+  return p === "in" ? find(d.ins, m[2]) : (p === "out" ? find(d.outs, m[2]) : find(d.outs, "Omni " + m[2]));
+}
+function chName(key, part){ var r = CONSOLES[key] ? chRow(key, part) : null; return r && r.sig ? r.sig : ""; }
+function withNames(key, v){
+  var prev = "";
+  return String(v).split("→").map(function(p){ p = p.trim(); var nm = chName(key, p), out = esc(p) + (nm && nm !== prev ? '<span class="cnm" title="Channel name on the '+esc(DEVNAME[key] || key)+'">'+esc(nm)+'</span>' : ''); if (nm) prev = nm; return out; }).join(" → ");
+}
 function flowDiagram(rs, type){
   var lanes = laneNames(rs);
   return '<ol class="flowv" aria-label="Signal route, top to bottom">' + flowRows(rs).map(function(row){
@@ -955,7 +1160,7 @@ function flowDiagram(rs, type){
       else if (/^wall patch/i.test(v0)){ label += " wall patch"; row.vals = row.vals.map(function(v){return cap(v.replace(/^wall patch\s*/i,""));}); v0 = row.vals[0]; }
     }
     var same = row.vals.every(function(v){return v===v0;});
-    function lv(v, i, lane){ var h = linkFor(row.ks[i], [v]), inner = (lane ? '<i>'+esc(lane)+'</i>' : '')+esc(v); return h && h.indexOf("?")>0 ? '<a class="lv" href="#'+h+'" title="Open the patch row">'+inner+'</a>' : '<span class="lv">'+inner+'</span>'; }
+    function lv(v, i, lane){ var h = linkFor(row.ks[i], [v]), inner = (lane ? '<i>'+esc(lane)+'</i>' : '')+(CONSOLES[row.ks[i]] ? '<span>'+withNames(row.ks[i], v)+'</span>' : esc(v)); return h && h.indexOf("?")>0 ? '<a class="lv" href="#'+h+'" title="Open the patch row">'+inner+'</a>' : '<span class="lv">'+inner+'</span>'; }
     var vals = same ? lv(v0, 0, "") : row.vals.map(function(v,i){return lv(v, i, lanes[i]);}).join("");
     var go = sameK ? linkFor(k, row.vals) : null;
     return '<li class="fstep k-'+kind+'" data-k="'+nk(k)+'"><span class="fdot" aria-hidden="true"></span><div>'+(go?'<a class="fnode" href="#'+go+'">'+esc(label)+'</a>':'<span class="fnode">'+esc(label)+'</span>')+'<div class="fvals">'+vals+'</div></div></li>';
@@ -966,17 +1171,23 @@ var SYMTIP = {
   dist:"Distorted? Look for clipping at each stop: Rio gain, desk channel, then the Galaxy input meters.",
   fb:"Feedback? Pull the mic gain back and keep the mic out of the speakers’ coverage.",
   low:"Too quiet? Check the level at each stop. A low Rio gain or a pulled-down Galaxy output is the usual cause.",
-  crackle:"Crackling or dropping out usually means a loose or damaged lead or connector."
+  crackle:"Crackling or dropping out usually means a loose or damaged lead or connector.",
+  loud:"Too loud? Check the desk fader, then the QL5 output and the Galaxy output level, in that order.",
+  delay:"Echo or late sound usually means the same signal is arriving twice (two desks sending, or a desk and the QL5), or a delay is set on a Galaxy output.",
+  tone:"Sounds wrong rather than missing? Check the Galaxy preset or EQ, and whether one part (UPQ, X20 or sub) has dropped out of the mix."
 };
 function checksFor(rs){
   var f = feat(rs[0]), multi = rs.length > 1, V = function(k,n){ return J(stepVals(rs, k, n||0)); };
   var rooms = J(rs.map(function(r){ return ROOMNAME[feat(r).room] || ""; }));
   var items = [], tip = "", first = rs[0].steps[0];
   function part(k, i){ return J(stepVals(rs, k, 0).map(function(v){ return (v.split(" → ")[i] || "").trim(); })); }
+  function names(k, n){ var u = []; stepVals(rs, k, n||0).forEach(function(v){ var nm = chName(k, String(v).split("→")[0]); if (nm && u.indexOf(nm) < 0) u.push(nm); }); return u.length ? " “" + u.join("” / “") + "”" : ""; }
+  function N(k, n){ var v = V(k, n); return v ? v + names(k, n) : v; }
+  function MX(){ return "Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + names("dm7f", 0); }
   if (f.kinds.indexOf("mains") >= 0 && !f.ext){
     items = [
-      {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
-      {b:"QL5", t:V("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
+      {b:"QL5", t:N("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
       {b:"AV2 Rio", t:V("rio",0)+" meters moving."},
       {b:"Galaxy 1", t:V("gal1",0)+" has signal, "+lc(V("gal1",1))+" not muted."},
       {b:"Speakers", t:(multi ? "UPQs and X20s" : V("room",0))+" powered, front LED green, cables in."}
@@ -984,9 +1195,9 @@ function checksFor(rs){
     tip = multi ? "One side dead? The fault is in that side’s path. Both dead? Start at the desk and the QL5." : "If the other side works, the fault is in this path, not the desk mix.";
   } else if (f.kinds.indexOf("sub") >= 0 && !f.ext){
     items = [
-      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk’s sub send instead."}
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk’s sub send instead."}
                   : {b:"Desk", k:"desks", t:"Sub send up and unmuted. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
-      {b:"QL5", t:V("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."},
+      {b:"QL5", t:N("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."},
       {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
       {b:"Wall patch", t:(rooms ? rooms+" " : "")+lc(V("room",0))+" patched to the stage loom."},
       {b:"Subs", t:"Powered, LED green, cables in."}
@@ -994,8 +1205,8 @@ function checksFor(rs){
     tip = multi ? "Every room out at once? Start at Galaxy 2 and the QL5 Omni outs, they’re shared." : "Check another room’s subs. If they’re out too, start at Galaxy 2, it runs every room’s subs.";
   } else if (f.kinds.indexOf("foyer") >= 0 && !f.ext){
     items = [
-      {b:"DM7F", k:"dm7f", t:(part("dm7f",0) || "Foyer mix")+" (Foyer) up and unmuted, sending on "+(part("dm7f",1) || "Dante")+"."},
-      {b:"QL5", t:V("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"DM7F", k:"dm7f", t:(part("dm7f",0) || "Foyer mix")+(names("dm7f",0) || " (Foyer)")+" up and unmuted, sending on "+(part("dm7f",1) || "Dante")+"."},
+      {b:"QL5", t:N("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
       {b:"AV2 Rio", t:V("rio",0)+" meters moving."},
       {b:"Galaxy 1", t:V("gal1",0)+" has signal, "+lc(V("gal1",1))+" not muted."},
       {b:"Foyer speakers", t:"Powered and cabled."}
@@ -1003,9 +1214,9 @@ function checksFor(rs){
   } else if (f.kinds.indexOf("fill") >= 0 && !f.ext){
     var fillDesk = V("dm7f",0);
     items = [
-      fillDesk ? {b:"DM7F", k:"dm7f", t:"Matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "out") + " (Fill) up and unmuted, sending on " + (part("dm7f",1) || "Dante") + "."} : null,
-      V("ql5",2) ? {b:"QL5", t:V("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."}
-                 : {b:"QL5", t:V("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
+      fillDesk ? {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + "."} : null,
+      V("ql5",2) ? {b:"QL5", t:N("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."}
+                 : {b:"QL5", t:N("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
       {b:"Galaxy 2", t:V("gal2",0)+" has signal, "+lc(V("gal2",1))+" not muted."},
       {b:"Front fill", k:"fill", t:"Speakers powered and cabled."}
     ].filter(Boolean);
@@ -1017,23 +1228,23 @@ function checksFor(rs){
       pc ? {b:"Stage PC", t:"Audio not muted, plugged into "+rooms+" "+wp+"."} : {b:"Source", t:"Plugged into "+rooms+" "+wp+"."},
       {b:"Loom", t:V("loom",0)+" connected."},
       {b:"AV2 Rio", t:V("rio",0)+" metering. Check the gain"+(lec ? ", and +48V if the mic needs it." : ".")},
-      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:V("dm7f",0)+" (from Rio "+V("rio",0)+" over Dante) unmuted, fader up. If another desk is running the room, check its channel instead."}
-      : V("ql5",0) ? {b:"QL5", t:V("ql5",0)+" (from Rio "+V("rio",0)+" over Dante) has signal and isn’t muted. If an OPS desk is mixing the room, check its channel too."}
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:N("dm7f",0)+" (from Rio "+V("rio",0)+" over Dante) unmuted, fader up. If another desk is running the room, check its channel instead."}
+      : V("ql5",0) ? {b:"QL5", t:N("ql5",0)+" (from Rio "+V("rio",0)+" over Dante) has signal and isn’t muted. If an OPS desk is mixing the room, check its channel too."}
       : {b:"Desk", k:"desks", t:"Spare inputs aren’t patched by default. Patch Rio "+V("rio",0)+" over Dante on the desk you’re using."}
     ];
     tip = lec ? "Swap the mic lead into another wall patch input. If the fault moves with it, it’s the lead or the mic." : (pc ? "Try another cable or device at the wall patch to rule out the PC." : "");
   } else if (f.ext){
     var viaRio = V("rio",0);
     items = [
-      {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRio+"." : "Sending to QL5 "+V("ql5",0)+" (how it gets there isn’t documented yet)."},
-      viaRio ? {b:"AV2 Rio", t:viaRio+" metering. It reaches QL5 "+V("ql5",0)+" over Dante."} : null,
+      {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRio+"." : "Sending to QL5 "+N("ql5",0)+" (how it gets there isn’t documented yet)."},
+      viaRio ? {b:"AV2 Rio", t:viaRio+" metering. It reaches QL5 "+N("ql5",0)+" over Dante."} : null,
       {b:"iPad", t:"TD hasn’t muted it."},
-      {b:"QL5", t:V("ql5",0)+" has signal and is routed to the right outputs."}
+      {b:"QL5", t:N("ql5",0)+" has signal and is routed to the right outputs."}
     ].filter(Boolean);
   } else if (rs[0].type==="feed"){
     items = [
       {b:first[1], k:nk(first[0]), t:"Sending, and that output isn’t muted."},
-      {b:"QL5", t:V("ql5",0)+" has signal and isn’t muted."}
+      {b:"QL5", t:N("ql5",0)+" has signal and isn’t muted."}
     ];
     tip = "If the QL5 shows signal but nobody hears it, check the input is routed to the right outputs on the QL5.";
   } else {
@@ -1132,14 +1343,29 @@ function signalResults(){
     });
     return h;
   }
+  var ch = chanSearch(q, res.P, res);
+  if (ch.rows.length){   // words the console search used aren't "skipped"; bare numbers weren't rooms after all
+    res.P.unknown = res.P.unknown.filter(function(u){ return ch.used.indexOf(u) < 0 && !CH_SKIP[u]; });
+    if (ch.prio && !Object.keys(res.P.rooms).length) res.P.read = res.P.read.filter(function(x){ return !/^Room \d$/.test(x); });
+    ch.used.forEach(function(u){ res.P.read.push("“" + u + "”"); });
+  }
   h += readLine(res.P);
+  if (ch.rows.length && ch.prio){
+    h += chanBlock(ch, true);
+    if (res.rf) return h + rfCard(res.P);
+    if (ch.hideRoutes || res.none){
+      var alt = (res.top || res.many || []).slice(0, 4);
+      return h + (alt.length ? '<div class="near"><span>Or did you mean</span>'+alt.map(function(r){return qChip(r.sig, r.sig);}).join("")+'</div>' : '');
+    }
+  }
   if (res.rf) return h + rfCard(res.P);
+  if (res.none && ch.rows.length) return h + chanBlock(ch, true);
   if (res.none){
     return h + '<div class="card empty" style="margin-top:14px">Not sure which signal that is. Try naming the room and what’s affected, like <b>Monarch subs</b> or <b>lectern 2</b>.</div>'+
       '<div class="qchips">'+(res.P.trouble ? ["Prince","Monarch","Marquis","Foyer"].map(function(r){return qChip(r, q+" "+r.toLowerCase());}).join("") : EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join(""))+'</div>';
   }
   if (res.many){
-    var dgo = res.P.devs.length===1 ? {ql5:"dev-ql5", rio:"dev-rio", gal1:"dev-gal1", gal2:"dev-gal2", gal:"dev-gal1", desks:"dev-desks", dm7f:"dev-dm7f"}[res.P.devs[0]] : null;
+    var dgo = res.P.devs.length===1 ? {ql5:"dev-ql5", rio:"dev-rio", gal1:"dev-gal1", gal2:"dev-gal2", gal:"dev-gal1", desks:"dev-desks", dm7f:"dev-dm7f", sr1:"dev-sr1", sr2:"dev-sr2", stage:"stage"}[res.P.devs[0]] : null;
     if (dgo) h += '<p style="margin:12px 0 0"><a class="btn" href="#'+dgo+'" style="text-decoration:none">Open the '+esc(DEVNAME[res.P.devs[0]])+' page</a></p>';
     return h + '<div class="card empty" style="margin-top:14px">'+res.many.length+' signals fit that. Add a room or say what’s affected to narrow it down.</div>'+refineChips(res.many, res.P, q)+
       '<div class="card routes" style="margin-top:12px">'+res.many.slice(0,12).map(routeRow).join("")+'</div>'+(res.many.length>12?'<p class="note">And '+(res.many.length-12)+' more.</p>':'');
@@ -1153,6 +1379,7 @@ function signalResults(){
   });
   h += refineChips(res.top, res.P, q);
   if (res.near.length) h += '<div class="near"><span>Not it? Try</span>'+res.near.map(function(r){return qChip(r.sig, r.sig);}).join("")+'</div>';
+  if (ch.rows.length && !ch.prio) h += chanBlock(ch, false);
   return h;
 }
 
@@ -1177,6 +1404,13 @@ function mapKey(r, i){
 function edgeFor(a, b){
   for (var i=0;i<EDGES.length;i++){ var e = EDGES[i]; if (e[0]===a && e[1]===b) return {a:a, b:b, rev:false}; if (e[0]===b && e[1]===a) return {a:b, b:a, rev:true}; }
   return null;
+}
+function routeRect(){
+  if (!hl) return null;
+  var rs = cur().routes.filter(function(r){ return hl.sigs.indexOf(r.sig) >= 0; }), G = routeGraph(rs), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, n = 0;
+  G.nodes.forEach(function(k){ var g = GEO[k]; if (!g || k==="dante") return; x0 = Math.min(x0, g[0]); y0 = Math.min(y0, g[1]); x1 = Math.max(x1, g[0]+g[2]); y1 = Math.max(y1, g[1]+g[3]); n++; });
+  if (!n) return null;
+  return {x:x0 - 30, y:y0 - 40, w:x1 - x0 + 60, h:y1 - y0 + 80};
 }
 function routeGraph(rs){
   var nodes = {}, edges = {};
@@ -1227,7 +1461,7 @@ function applyHL(){
   if (c){ c.hidden = !(hl && baseRoute()!=="signals"); if (hl){ $("rlabel").textContent = hl.label; $("rlabel").setAttribute("href", "#signals" + (sigFilter.q.trim() ? "?q=" + encodeURIComponent(sigFilter.q.trim()) : "")); } }
 }
 function ensureSystemVisible(){
-  if (!hl || window.innerWidth <= 720 || baseRoute()!=="signals") return;
+  if (!hl || sheetMode() || baseRoute()!=="signals") return;
   var a = viewArea(), S = AREA.system, sx = cam.x + S.x*cam.k, sy = cam.y + S.y*cam.k, sw = S.w*cam.k, sh = S.h*cam.k;
   var ix = Math.max(0, Math.min(a.x+a.w, sx+sw) - Math.max(a.x, sx)), iy = Math.max(0, Math.min(a.y+a.h, sy+sh) - Math.max(a.y, sy));
   if (cam.k < 0.3 || (ix*iy) / (Math.min(sw,a.w)*Math.min(sh,a.h)) < 0.7) flyTo(S, 1.3);
@@ -1388,7 +1622,7 @@ function applyCam(){ if (camQueued) return; camQueued = true; requestAnimationFr
 function viewArea(){
   var W = window.innerWidth, H = window.innerHeight, top = 70, bottom = 76, d = $("drawer");
   if (d && !d.hidden){
-    if (W > 720) { var dw = d.offsetWidth + 28; return {x:16, y:top, w:Math.max(200, W - dw - 32), h:H - top - bottom}; }
+    if (!sheetMode()) { var dw = d.offsetWidth + 28; return {x:16, y:top, w:Math.max(200, W - dw - 32), h:H - top - bottom}; }
     return {x:10, y:top, w:W - 20, h:Math.max(90, H - d.offsetHeight - top - bottom + 10)};
   }
   return {x:16, y:top, w:W - 32, h:H - top - bottom};
@@ -1447,7 +1681,8 @@ function buildShell(){
     '<div class="hud hint">Drag to move · scroll to zoom</div>'+
     '<div id="rchip" class="hud rchip glass" hidden><i class="live" aria-hidden="true"></i><small>Route on map</small><a id="rlabel" href="#signals" title="Back to the signal finder"></a><button class="x" id="clearroute" aria-label="Clear the route from the map">✕</button></div>'+
     '<div id="gate" class="gate" hidden></div>'+
-    '<aside id="drawer" class="drawer glass" hidden aria-label="Details"><div class="dhead"><span id="dlabel"></span><button class="x" id="dclose" aria-label="Close panel">✕</button></div><div id="dbody" class="dbody"></div></aside>'+
+    '<div id="dmore" class="hud dmore glass" hidden role="menu" aria-label="More sections"></div>'+
+    '<aside id="drawer" class="drawer glass" hidden aria-label="Details"><div class="dhead" id="dhead"><i class="grab" aria-hidden="true"></i><span id="dlabel"></span><button class="x" id="dclose" aria-label="Close panel">✕</button></div><div id="dbody" class="dbody"></div></aside>'+
     '</div>';
 }
 function renderWorld(){ $("world").innerHTML = worldHTML(); applyHL(); }
@@ -1461,11 +1696,38 @@ function renderHud(){
   var b = $("banner"); b.hidden = !(pending && !editing);
   if (pending && !editing) b.innerHTML = '<span>Your last changes weren’t saved because someone else saved first.</span><button class="btn primary" id="reapply">Put them back</button><button class="btn" id="dropdraft">Throw away</button>';
   var r = resolve(route());
-  $("dock").innerHTML = DOCK.concat(isAdmin() ? [["admin","Admin","var(--warn)"]] : []).map(function(d){return '<button class="dk" data-go="'+d[0]+'" aria-current="'+(r.dock===d[0])+'" style="--k:'+d[2]+'"><i></i>'+d[1]+'</button>';}).join("");
+  document.body.classList.toggle("editing", !!editing);
+  DOCKITEMS = DOCK.concat(isAdmin() ? [["admin","Admin","var(--warn)"]] : []);
+  $("dock").innerHTML = DOCKITEMS.map(function(d){return '<button class="dk" data-go="'+d[0]+'" aria-current="'+(r.dock===d[0])+'" style="--k:'+d[2]+'"><i></i>'+d[1]+'</button>';}).join("") +
+    '<button class="dk more" id="dkmore" aria-haspopup="true" aria-expanded="false" style="--k:var(--muted)"><b aria-hidden="true">⋯</b>More</button>';
+  layoutDock(r.dock);
 }
+var DOCKITEMS = [];
+// Show as many sections as fit; the rest go under "More" (phones, small tablets).
+function layoutDock(cur){
+  var dk = $("dock"); if (!dk) return;
+  var items = [].slice.call(dk.querySelectorAll(".dk:not(.more)"));
+  dk.classList.remove("compact", "nomore"); items.forEach(function(b){ b.classList.remove("x"); });
+  if (dk.scrollWidth <= dk.clientWidth + 1) { closeMore(); return; }
+  dk.classList.add("compact", "nomore");   // tighter spacing first; maybe everything fits without a More button
+  if (dk.scrollWidth <= dk.clientWidth + 1) { closeMore(); return; }
+  dk.classList.remove("nomore");
+  // what folds into More first: Admin, All, Network, Kit, RF, then To-do (System and Signals always stay)
+  var order = ["admin","all","network","kit","rf","todo"];
+  for (var i = 0; i < order.length && dk.scrollWidth > dk.clientWidth + 1; i++){ var b = dk.querySelector('.dk[data-go="'+order[i]+'"]'); if (b) b.classList.add("x"); }
+  var hidden = items.filter(function(b){ return b.classList.contains("x"); });
+  var mb = $("dkmore"); if (mb) mb.setAttribute("aria-current", String(hidden.some(function(b){ return b.getAttribute("aria-current")==="true"; })));
+  var pop = $("dmore"); if (pop) pop.innerHTML = hidden.map(function(b){ return '<button class="dk" role="menuitem" data-go="'+b.getAttribute("data-go")+'" aria-current="'+b.getAttribute("aria-current")+'" style="'+b.getAttribute("style")+'"><i></i>'+esc(b.textContent)+'</button>'; }).join("");
+}
+function closeMore(){ var p = $("dmore"); if (p && !p.hidden){ p.hidden = true; var mb = $("dkmore"); if (mb) mb.setAttribute("aria-expanded","false"); } }
+function toggleMore(){ var p = $("dmore"), mb = $("dkmore"); if (!p) return; p.hidden = !p.hidden; if (mb) mb.setAttribute("aria-expanded", String(!p.hidden)); }
+// Bottom-sheet layout (phones, upright tablets) vs side panel.
+function sheetMode(){ var d = $("drawer"); return !!d && !d.hidden && d.offsetWidth > window.innerWidth * 0.8; }
+var COARSE = !!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
+function smallScreen(){ return window.innerWidth <= 1024; }
 function renderDrawer(r){
   var d = $("drawer");
-  if (!r.view){ d.hidden = true; return; }
+  if (!r.view){ d.hidden = true; d.classList.remove("tall"); d.style.transform = ""; return; }
   var wasHidden = d.hidden;
   d.hidden = false; $("dlabel").textContent = r.label || "";
   var y = wasHidden ? 0 : $("dbody").scrollTop;
@@ -1478,10 +1740,16 @@ function onRoute(){
   var v = route(), rp = routeParts(), r = resolve(v), changed = v !== lastRoute, baseChanged = rp.base !== String(lastRoute==null ? "\u0000" : lastRoute).split("?")[0];
   if (rp.base==="signals" && rp.q.q != null && rp.q.q !== sigFilter.q) sigFilter.q = rp.q.q;
   renderHud(); renderDrawer(r); afterDrawer();
-  if (changed) { if (baseChanged && !skipFly && !(r.view && window.innerWidth <= 720)) flyTo(r.rect, r.view ? 1.3 : 1.15); if (r.view && lastRoute !== null) $("dbody").scrollTop = 0; }
+  if (changed) {
+    var rect = r.rect, fromFinder = String(lastRoute||"").split("?")[0]==="signals";
+    if (!r.view && r.dock==="map" && hl && fromFinder && smallScreen()){ var rr = routeRect(); if (rr) rect = rr; }   // phones and tablets: zoom to the route itself
+    if (baseChanged && !skipFly && !(r.view && sheetMode())) flyTo(rect, r.view ? 1.3 : 1.15);
+    if (r.view && lastRoute !== null) $("dbody").scrollTop = 0;
+  }
+  closeMore();
   applyRowHL();
   if (baseChanged) logView();
-  if (baseChanged && rp.base==="signals" && window.innerWidth > 720 && lastRoute !== null){ var qi = $("q"); if (qi) try{ qi.focus({preventScroll:true}); }catch(x){} }
+  if (baseChanged && rp.base==="signals" && !COARSE && !sheetMode() && lastRoute !== null){ var qi = $("q"); if (qi) try{ qi.focus({preventScroll:true}); }catch(x){} }
   skipFly = false; lastRoute = route();
 }
 function refreshAll(keepFly){ if (!started) return; renderWorld(); renderHud(); var r = resolve(route()); renderDrawer(r); afterDrawer(); applyRowHL(); }
@@ -1565,6 +1833,7 @@ app.addEventListener("click", function(e){
   if (t.closest("#viewport") && moved){ moved = false; return; }
   if (t.matches("[data-go]")) { var g = t.getAttribute("data-go"); if (baseRoute()===g) { lastRoute = null; onRoute(); } else location.hash = g; return; }
   if (t.id==="hsearch"){ openFinder(); return; }
+  if (t.id==="dkmore"){ toggleMore(); return; }
   if (CLOUD){
     if (t.id==="g-retry"){ if (!sb.session) { gate("signin"); return; } gate("loading"); loadAll().then(enterApp).catch(bootErr); return; }
     if (t.id==="g-out"){ doSignOut(); return; }
@@ -1631,7 +1900,63 @@ document.addEventListener("keydown", function(e){
   var t = e.target, tag = t && t.tagName; if (tag==="INPUT" || tag==="TEXTAREA" || tag==="SELECT" || (t && t.isContentEditable)) return;
   e.preventDefault(); openFinder();
 });
-var rz = null; window.addEventListener("resize", function(){ drawStars(); clearTimeout(rz); rz = setTimeout(function(){ if (!started) return; var r = resolve(route()); flyTo(r.rect, r.view ? 1.3 : 1.15); }, 180); });
+var rz = null, lastW = window.innerWidth, lastH = window.innerHeight;
+window.addEventListener("resize", function(){
+  drawStars(); clearTimeout(rz);
+  rz = setTimeout(function(){
+    if (!started) return;
+    var w = window.innerWidth, h = window.innerHeight, big = Math.abs(w - lastW) > 40 || Math.abs(h - lastH) > 160;
+    lastW = w; lastH = h; layoutDock();
+    if (!big || typing()) return;
+    var r = resolve(route()); flyTo(r.rect, r.view ? 1.3 : 1.15);
+  }, 180);
+});
+function typing(){ var a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== "checkbox"; }
+// Phones: keep the panel above the on-screen keyboard, and keep the field you're typing in visible.
+if (window.visualViewport){
+  var vv = window.visualViewport, kbOn = false;
+  var onVV = function(){
+    var on = COARSE && typing() && (window.innerHeight - vv.height) > 120, sc = document.querySelector(".scene");
+    if (!sc) return;
+    if (on){ sc.style.height = vv.height + "px"; sc.style.transform = vv.offsetTop ? "translateY(" + vv.offsetTop + "px)" : ""; }
+    else if (kbOn){ sc.style.height = ""; sc.style.transform = ""; }
+    if (on !== kbOn){ kbOn = on; document.body.classList.toggle("kb", on); }
+  };
+  vv.addEventListener("resize", onVV); vv.addEventListener("scroll", onVV);
+  document.addEventListener("focusout", function(){ setTimeout(onVV, 60); });
+}
+app.addEventListener("focusin", function(e){
+  var t = e.target;
+  if (COARSE && t && t.closest && t.closest("#dbody") && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && t.type !== "checkbox")
+    setTimeout(function(){ try{ t.scrollIntoView({block:"center", behavior:"smooth"}); }catch(x){} }, 320);
+});
+// Stop Safari zooming the whole page on a pinch (the map has its own zoom).
+document.addEventListener("gesturestart", function(e){ e.preventDefault(); }, {passive:false});
+// Bottom sheet: drag the top bar down to close, up (or tap) to make it taller.
+(function(){
+  var hd = $("dhead"), dr = $("drawer"), st = null;
+  hd.addEventListener("pointerdown", function(e){ if (!sheetMode() || e.target.closest("button")) return; st = {y:e.clientY, id:e.pointerId}; try{ hd.setPointerCapture(e.pointerId); }catch(x){} });
+  hd.addEventListener("pointermove", function(e){ if (!st || e.pointerId !== st.id) return; var dy = e.clientY - st.y; dr.style.transform = dy > 0 ? "translateY(" + dy + "px)" : ""; });
+  function end(e){
+    if (!st || e.pointerId !== st.id) return;
+    var dy = e.clientY - st.y; st = null; dr.style.transform = "";
+    if (dy > 90){ skipFly = true; location.hash = "map"; }
+    else if (dy < -40) dr.classList.add("tall");
+    else if (Math.abs(dy) < 8) dr.classList.toggle("tall");
+  }
+  hd.addEventListener("pointerup", end); hd.addEventListener("pointercancel", function(e){ if (st && e.pointerId===st.id){ st = null; dr.style.transform = ""; } });
+})();
+// Give every table cell its column name, so tables can turn into cards on a phone.
+function labelTables(){
+  document.querySelectorAll("#dbody table.t").forEach(function(tb){
+    var hs = [].map.call(tb.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
+    if (hs.length >= 5) tb.classList.add("wide");
+    tb.querySelectorAll("tbody tr").forEach(function(tr){ [].forEach.call(tr.children, function(td, i){ if (hs[i] && !td.hasAttribute("data-label")) td.setAttribute("data-label", hs[i]); }); });
+  });
+}
+var ltQ = false;
+new MutationObserver(function(){ if (ltQ) return; ltQ = true; requestAnimationFrame(function(){ ltQ = false; labelTables(); }); }).observe($("dbody"), {childList:true, subtree:true});
+document.addEventListener("click", function(e){ var p = $("dmore"); if (p && !p.hidden && !e.target.closest("#dmore,#dkmore")) closeMore(); });
 
 /* ---------- accounts, database and activity log (GitHub version) ---------- */
 var CFG = window.BALLROOM_CONFIG || null, me = null, started = false, SESSION_KEY = "ballroomAudioSession";
