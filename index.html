@@ -53,7 +53,31 @@ button{font-family:inherit}
 @keyframes flow{to{stroke-dashoffset:-40}}
 .mk{fill:var(--wire)}.mk-d{fill:var(--dante)}.mk-s{fill:var(--spk)}
 .elab{font:500 10.5px var(--f-body);fill:var(--muted);transition:opacity .2s}
-.dante-t{font:700 14px var(--f-display);fill:var(--dante);letter-spacing:.3em}
+.dline .dhalo{fill:none;stroke:#070B16;stroke-width:8;stroke-linecap:round}
+.dline .dglow{fill:none;stroke:var(--dante);stroke-width:7;opacity:.14;stroke-linecap:round;transition:opacity .2s}
+.dline .dl{fill:none;stroke:var(--dante);stroke-width:2.2;stroke-linecap:round;transition:stroke-width .15s}
+.dline .dhit{fill:none;stroke:transparent;stroke-width:18}
+.dline:hover .dl,.dline.on .dl{stroke-width:3.2}
+.dline:focus-visible .dl{stroke:var(--ink);stroke-width:3.5}
+svg.routing .dline.ron .dl{stroke-width:3.4}
+svg.routing .dline.ron .dglow{opacity:.4}
+.dlab{font:700 11px var(--f-display);fill:var(--dante);letter-spacing:.24em}
+.node .nt.sm{font-size:12.5px;letter-spacing:.06em}
+.node .ns.sm{font-size:11px;fill:var(--muted)}
+.zone{cursor:pointer}
+.zone rect{fill:rgba(179,192,214,.035);stroke:var(--line-strong);stroke-width:1.2;stroke-dasharray:5 6;transition:stroke .15s,fill .15s}
+.zone:hover rect,.zone:focus-visible rect{stroke:var(--room);fill:rgba(179,192,214,.06)}
+.zone:focus{outline:none}
+.zone .wall{stroke:var(--room);stroke-width:3;opacity:.55}
+.zone .zn{font:700 30px var(--f-display);letter-spacing:.32em;fill:rgba(230,236,247,.14);pointer-events:none}
+.zone .zs{font:600 12px var(--f-display);letter-spacing:.3em;fill:rgba(142,157,186,.45);pointer-events:none}
+.foyerz .zn{font-size:20px}
+.av2 rect{fill:rgba(118,171,255,.045);stroke:rgba(118,171,255,.45);stroke-width:1.4}
+.av2t{font:700 14px var(--f-display);letter-spacing:.3em;fill:var(--rio)}
+.halo{fill:none;stroke:#070B16;stroke-width:7;stroke-linecap:round}
+.node rect.nbg{fill:#070B16;stroke:none!important}
+svg.routing .zone,svg.focus .zone{opacity:.55}
+.legend i.p{border-top-style:dashed;border-color:var(--spk)}
 svg.focus .e:not(.on),svg.focus .flow:not(.on){opacity:.08}
 svg.focus .node:not(.on){opacity:.3}
 svg.focus .elab{opacity:.2}
@@ -101,6 +125,8 @@ svg.routing .flow{opacity:0}
 svg.routing .flow.ron{opacity:1;stroke-width:3;animation-duration:1.1s}
 svg.routing .flow.ron.rev{animation-direction:reverse}
 svg.routing .elab{opacity:.25}
+svg.routing .halo{opacity:0}
+svg.routing .halo.ron{opacity:1}
 .rchip{top:calc(70px + env(safe-area-inset-top,0px));left:14px;border-radius:12px;padding:5px 5px 5px 12px;display:flex;align-items:center;gap:10px;max-width:min(460px,calc(100% - 28px));font-size:14px}
 .rchip .live{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 10px var(--accent)}
 .rchip small{font:700 10px var(--f-display);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
@@ -383,10 +409,10 @@ function F(path, o){
 
 /* ---------- registry ---------- */
 var NODES = {
-  prince:{label:"Prince",kind:"room",go:"room-prince",desc:"Room 1 · wall patch and speakers"},
-  monarch:{label:"Monarch",kind:"room",go:"room-monarch",desc:"Room 2 · wall patch and speakers"},
-  marquis:{label:"Marquis",kind:"room",go:"room-marquis",desc:"Room 3 · wall patch and speakers"},
-  rio:{label:"AV2 Rio",kind:"rio",go:"dev-rio",desc:"Lecterns and PCs in, Room L/R out"},
+  prince:{label:"Prince",kind:"room",go:"room-prince",desc:"Room 1 · wall patch on the top wall, mainly for the subs"},
+  monarch:{label:"Monarch",kind:"room",go:"room-monarch",desc:"Room 2 · wall patch on the top wall, mainly for the subs"},
+  marquis:{label:"Marquis",kind:"room",go:"room-marquis",desc:"Room 3 · wall patch on the top wall, mainly for the subs"},
+  rio:{label:"AV2 Rio",kind:"rio",go:"dev-rio",desc:"In AV2 · lecterns and PCs in, Room L/R out"},
   desks:{label:"Operating desks",kind:"ql",go:"dev-desks",desc:"DM7F, DM3s and DM7 Compact mix the rooms"},
   dm7f:{label:"DM7F",kind:"ql",go:"dev-dm7f",desc:"Main desk at OPS A (DM7 full size)"},
   bgm:{label:"BGM",kind:"room",go:"dev-ql5",desc:"Background music into QL5 input 8"},
@@ -401,69 +427,125 @@ var NODES = {
   speakers:{label:"Speakers",kind:"spk",go:"speakers",desc:"UPQs and X20s in each room"},
   foyer:{label:"Foyer",kind:"spk",go:"foyer",desc:"Fed from Galaxy 1 out 16"},
   subs:{label:"End-fire subs",kind:"spk",go:"speakers",desc:"Out through each room’s wall patch"},
-  loom:{label:"Loom",kind:"room",go:null}
+  loom:{label:"Loom",kind:"room",go:null},
+  opa:{label:"OPA (DM7F)",kind:"ql",go:"dev-dm7f",desc:"OPS A, bottom-left of Prince"},
+  opb:{label:"OPB (DM3)",kind:"ql",go:"dev-desks",desc:"OPS B, bottom of Monarch"},
+  opc:{label:"OPC (DM3)",kind:"ql",go:"dev-desks",desc:"OPS C, bottom of Marquis"},
+  "prince-spk":{label:"Prince speakers",kind:"spk",go:"room-prince"},"monarch-spk":{label:"Monarch speakers",kind:"spk",go:"room-monarch"},"marquis-spk":{label:"Marquis speakers",kind:"spk",go:"room-marquis"},
+  "prince-subs":{label:"Prince subs",kind:"spk",go:"room-prince"},"monarch-subs":{label:"Monarch subs",kind:"spk",go:"room-monarch"},"marquis-subs":{label:"Marquis subs",kind:"spk",go:"room-marquis"}
 };
 
-/* ---------- world layout (world units) ---------- */
-var GEO = {prince:[20,120,170,96],monarch:[20,236,170,96],marquis:[20,352,170,96],rio:[240,140,150,176],desks:[430,140,150,176],
-  ql5:[620,130,160,196],external:[620,410,160,90],stage:[430,410,150,90],gal1:[880,120,140,130],gal2:[880,340,140,130],
-  speakers:[1060,100,130,150],foyer:[1060,264,130,56],subs:[1060,340,130,150],dante:[240,40,540,48]};
-var EDGES = [
-  ["prince","rio","M190 168 L240 212",""],["monarch","rio","M190 284 L240 228",""],["marquis","rio","M190 400 L240 244",""],
-  ["rio","dante","M315 140 L315 88","dn"],["desks","dante","M505 140 L505 88","dn"],["ql5","dante","M700 130 L700 88","dn"],
-  ["stage","desks","M505 410 L505 316","dn"],["external","ql5","M700 410 L700 326",""],["external","rio","M700 500 L700 512 L315 512 L315 316",""],
-  ["ql5","gal1","M780 190 L880 185",""],["ql5","gal2","M780 290 L880 405","g2"],
-  ["gal1","speakers","M1020 175 L1060 175","sp"],["gal1","foyer","M1020 225 L1060 292","sp"],["gal2","subs","M1020 405 L1060 415","sp g2"]];
+/* ---------- world layout (world units): drawn like the floor plan ---------- */
+var MAP_W = 1200, MAP_H = 830, TRAY = 486, DY = 456;   // TRAY: cable run to AV2; DY: the Dante line
+var ROOM_LAYOUT = [["prince",20,"opa"],["monarch",410,"opb"],["marquis",800,"opc"]];
+var GEO = {}, EDGES = [], ZONES = {}, DRAW = [];
+(function(){
+  function box(id, g, kind, go, title, sub, extra, part){ DRAW.push({id:id, g:g, kind:kind, go:go, title:title, sub:sub || "", extra:extra || "", part:part || ""}); }
+  ROOM_LAYOUT.forEach(function(r, i){
+    var k = r[0], x = r[1], op = r[2], name = k.charAt(0).toUpperCase() + k.slice(1);
+    ZONES[k] = [x, 70, 380, 370];
+    // wall patch sits on the back (top) wall, just left of centre, with the downfill below it
+    var wp = [x+104, 50, 92, 40], subs = [x+208, 54, 80, 32];
+    var upqL = [x+14, 104, 86, 46], x20 = [x+147, 104, 86, 46], upqR = [x+280, 104, 86, 46];
+    var opg = k==="prince" ? [x+8, 372, 96, 52] : [x+138, 372, 104, 52];
+    GEO[k] = wp; GEO[k+"-subs"] = subs; GEO[k+"-spk"] = [x+14, 104, 352, 46]; GEO[op] = opg;
+    box(k, wp, "room", "room-"+k, "WALL PATCH", "", " wp");
+    box(k+"-subs", subs, "spk", "room-"+k, "SUBS", "end-fire", " planned sm");
+    box(k+"-spk", upqL, "spk", "room-"+k, "UPQ L", "", " sm", "L");
+    box(k+"-spk", x20, "spk", "room-"+k, k==="monarch" ? "X20 L·C·R" : "X20 L·R", "downfill", " sm", "F");
+    box(k+"-spk", upqR, "spk", "room-"+k, "UPQ R", "", " sm", "R");
+    box(op, opg, "ql", op==="opa" ? "dev-dm7f" : "dev-desks", op.toUpperCase(), op==="opa" ? "DM7F" : "DM3", " sm");
+    var tx = x+124, y0 = 90, sy = 172;
+    var rioX = 742, g1X = 890, g2X = 370;   // one line out of each AV2 box; the tray splits it to the rooms
+    EDGES.push([k, "rio", "M"+tx+" "+y0+" L"+tx+" "+TRAY+" L"+rioX+" "+TRAY+" L"+rioX+" 540", ""]);
+    // mains: up the loom to a speaker line under the front row, then a short feed into each box
+    EDGES.push(["gal1", k+"-spk", "M"+g1X+" 540 L"+g1X+" "+TRAY+" L"+tx+" "+TRAY+" L"+tx+" "+sy, "sp nm"]);
+    [[x+57,"L"], [x+190,"F"], [x+323,"R"]].forEach(function(p){ EDGES.push(["gal1", k+"-spk", "M"+tx+" "+sy+" L"+p[0]+" "+sy+" L"+p[0]+" 151", "sp", p[1]]); });
+    EDGES.push(["gal2", k, "M"+g2X+" 540 L"+g2X+" "+TRAY+" L"+tx+" "+TRAY+" L"+tx+" "+y0, "sp"]);
+    EDGES.push([k, k+"-subs", "M"+(x+196)+" 70 L"+(x+208)+" 70", "sp"]);
+    EDGES.push([op, "dante", "M"+(opg[0]+opg[2]/2)+" 424 L"+(opg[0]+opg[2]/2)+" "+(DY-4), "dn"]);
+  });
+  GEO.dante = [56, DY-6, 1036, 12];
+  GEO.gal2 = [310, 540, 120, 80]; GEO.ql5 = [492, 540, 130, 80]; GEO.rio = [662, 540, 120, 80]; GEO.gal1 = [830, 540, 120, 80];
+  GEO.external = [110, 540, 170, 80]; GEO.stage = [1000, 540, 150, 80]; GEO.foyer = [820, 742, 140, 50];
+  GEO.desks = [28, 372, 1012, 52]; GEO.dm7f = GEO.opa; GEO.speakers = [34, 104, 1132, 46]; GEO.subs = [124, 50, 964, 40];
+  var g2planned = false;
+  box("gal2", GEO.gal2, "gal", "dev-gal2", "GALAXY 2", "subs + front fill");
+  box("ql5", GEO.ql5, "ql", "dev-ql5", "QL5", "output router");
+  box("rio", GEO.rio, "rio", "dev-rio", "AV2 RIO", "16 in / 8 out");
+  box("gal1", GEO.gal1, "gal", "dev-gal1", "GALAXY 1", "mains + foyer");
+  box("external", GEO.external, "room", "dev-external", "EXTERNAL", "via Rio in 13–16");
+  box("stage", GEO.stage, "rio", "stage", "STAGE RACKS", "Rack 1 & 2 · band I/O");
+  box("foyer", GEO.foyer, "spk", "foyer", "FOYER", "speakers");
+  EDGES.push(["ql5", "gal2", "M492 580 L430 580", ""]);
+  EDGES.push(["rio", "gal1", "M782 580 L830 580", ""]);
+  EDGES.push(["external", "rio", "M195 620 L195 650 L722 650 L722 620", ""]);
+  EDGES.push(["gal1", "foyer", "M890 620 L890 742", "sp"]);
+  EDGES.push(["ql5", "dante", "M557 540 L557 "+(DY+4), "dn"]);
+  EDGES.push(["rio", "dante", "M702 540 L702 "+(DY+4), "dn"]);
+  EDGES.push(["stage", "dante", "M1075 540 L1075 "+(DY+4), "dn"]);
+})();
 var AREA = {
-  system:{x:-30,y:-110,w:1260,h:720},
+  system:{x:-30,y:-110,w:1260,h:1000},
   rf:{x:-1400,y:-60,w:1080,h:640},
   todo:{x:1500,y:10,w:860,h:500},
-  kit:{x:60,y:800,w:1080,h:360},
+  kit:{x:60,y:1060,w:1080,h:360},
   network:{x:1500,y:620,w:860,h:420},
   signals:{x:350,y:-470,w:500,h:250}
 };
 
 function svgMap(){
-  var s = cur(), g2planned = /plan/i.test(s.devices.gal2.status||"");
-  var T = {
-    prince:["PRINCE",["Room 1 wall patch","lecterns + stage PC"]],monarch:["MONARCH",["Room 2 wall patch","lecterns + stage PC"]],
-    marquis:["MARQUIS",["Room 3 wall patch","lecterns + stage PC"]],rio:["AV2 RIO",["16 in / 8 out","","rooms onto Dante,","Room L/R out"]],
-    desks:["DESKS",["DM7F at OPS A","DM3s · DM7 Compact","","mix the rooms"]],ql5:["QL5",["OUTPUT ROUTER","","every room output","goes through here"]],
-    external:["EXTERNAL",["via Rio in 13–16","TD mutes on iPad"]],stage:["STAGE RACKS",["Rack 1 & 2","band I/O"]],
-    gal1:["GALAXY 1",["mains + foyer","GALAXY 816"]],gal2:["GALAXY 2",["subs + front fill",g2planned?"PLANNED":"GALAXY 816"]],
-    speakers:["SPEAKERS",["UPQ L/R + X20s","in each room"]],foyer:["FOYER",[]],subs:["END-FIRE",["subs via each","room’s wall patch"]]
-  };
-  var o = ['<svg id="map" width="1200" height="520" viewBox="0 0 1200 520" role="group" aria-label="System topology. Select a block to open it.">',
+  var s = cur();
+  var o = ['<svg id="map" width="'+MAP_W+'" height="'+MAP_H+'" viewBox="0 0 '+MAP_W+' '+MAP_H+'" role="group" aria-label="System map, laid out like the floor plan. Select a block to open it.">',
     '<defs><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
     '<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>',
     '<marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-d" d="M0,0 L10,5 L0,10 z"/></marker>',
     '<marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-s" d="M0,0 L10,5 L0,10 z"/></marker>',
     '</defs>'];
-  [["ROOMS",105],["AV2",315],["ANY DESK",505],["AV2",700],["AV2",950],["OUT TO THE ROOMS",1125]].forEach(function(h){o.push('<text class="hdr" x="'+h[1]+'" y="22" text-anchor="middle">'+h[0]+'</text>');});
+  // rooms, AV2 and the foyer as floor-plan zones
+  ROOM_LAYOUT.forEach(function(r, i){
+    var k = r[0], z = ZONES[k], room = s.rooms[k] || {name:k};
+    o.push('<g class="zone" data-go="room-'+k+'" tabindex="0" role="link" aria-label="'+esc(room.name)+' room: open details"><rect x="'+z[0]+'" y="'+z[1]+'" width="'+z[2]+'" height="'+z[3]+'" rx="6"/>'+
+      '<line class="wall" x1="'+z[0]+'" y1="'+z[1]+'" x2="'+(z[0]+z[2])+'" y2="'+z[1]+'"/>'+
+      '<text class="zn" x="'+(z[0]+z[2]/2)+'" y="'+(z[1]+215)+'" text-anchor="middle">'+esc(String(room.name).toUpperCase())+'</text>'+
+      '<text class="zs" x="'+(z[0]+z[2]/2)+'" y="'+(z[1]+240)+'" text-anchor="middle">ROOM '+(i+1)+'</text></g>');
+  });
+  o.push('<g class="av2"><rect x="300" y="508" width="666" height="200" rx="14"/><text class="av2t" x="318" y="694">AV2</text></g>');
+  o.push('<g class="zone foyerz" data-go="foyer" tabindex="0" role="link" aria-label="Foyer: open details"><rect x="20" y="724" width="1160" height="86" rx="6"/><text class="zn" x="400" y="776" text-anchor="middle">ROYAL BENOWA FOYER</text></g>');
+  // cables first (behind the blocks); Dante gets a dark halo so crossings read as bridges
   EDGES.forEach(function(e){
     var cls = e[3], m = /dn/.test(cls) ? "ahd" : (/sp/.test(cls) ? "ahs" : "ah");
-    var planned = /g2/.test(cls) && g2planned, c = cls.replace("g2","").trim();
-    o.push('<path class="e '+c+(planned?' planned':'')+'" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+e[2]+'" marker-end="url(#'+m+')"'+(/dn/.test(cls)?' marker-start="url(#'+m+')"':'')+'/>');
-    if (!planned) o.push('<path class="flow '+c+'" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+e[2]+'"/>');
+    if (/dn/.test(cls)) o.push('<path class="halo" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+e[2]+'"/>');
+    var pa = e[4] ? ' data-part="'+e[4]+'"' : '';
+    o.push('<path class="e '+cls+'" data-a="'+e[0]+'" data-b="'+e[1]+'"'+pa+' d="'+e[2]+'"'+(/nm/.test(cls)?'':' marker-end="url(#'+m+')"')+(/dn/.test(cls)?' marker-start="url(#'+m+')"':'')+'/>');
+    o.push('<path class="flow '+cls+'" data-a="'+e[0]+'" data-b="'+e[1]+'"'+pa+' d="'+e[2]+'"/>');
   });
-  o.push('<g class="node k-dante" data-go="dev-dante" data-id="dante" tabindex="0" role="link" aria-label="Dante network: open details"><rect x="240" y="40" width="540" height="48" rx="24" filter="url(#glow)"/><text class="dante-t" x="510" y="69" text-anchor="middle">DANTE NETWORK</text></g>');
-  Object.keys(GEO).forEach(function(k){
-    if (k==="dante") return;
-    var g = GEO[k], n = NODES[k], t = T[k], x=g[0], y=g[1], w=g[2], h=g[3], cx = x + w/2;
-    var planned = k==="gal2" && g2planned;
-    o.push('<g class="node k-'+n.kind+(planned?' planned':'')+'" data-go="'+n.go+'" data-id="'+k+'" tabindex="0" role="link" aria-label="'+esc(n.label)+': open details">');
-    o.push('<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" filter="url(#glow)"/>');
-    var ty = t[1].length ? y + 27 : y + h/2 + 5;
-    o.push('<text class="nt" x="'+cx+'" y="'+ty+'" text-anchor="middle">'+esc(t[0])+'</text>');
-    t[1].forEach(function(line,i){ if(line) o.push('<text class="'+(line===line.toUpperCase() && /[A-Z]/.test(line)?'nm':'ns')+'" x="'+cx+'" y="'+(y+49+i*17)+'" text-anchor="middle">'+esc(line)+'</text>'); });
+  // Dante: a thin line the OP positions, AV2 and the stage racks plug into. The dark edge makes
+  // the room cable runs read as passing underneath it rather than joining it.
+  var dl = 'M56 '+DY+' L1092 '+DY;
+  o.push('<g class="node k-dante dline" data-go="dev-dante" data-id="dante" tabindex="0" role="link" aria-label="Dante network: open details">'+
+    '<path class="dhalo" d="'+dl+'"/><path class="dglow" d="'+dl+'"/><path class="dl" d="'+dl+'"/><path class="dhit" d="'+dl+'"/>'+
+    '<text class="dlab" x="1102" y="'+(DY+4)+'">DANTE</text></g>');
+  DRAW.forEach(function(b){
+    var g = b.g, x = g[0], y = g[1], w = g[2], h = g[3], cx = x + w/2, sm = / sm/.test(b.extra), n = NODES[b.id] || {label:b.title};
+    o.push('<g class="node k-'+b.kind+b.extra+'" data-go="'+b.go+'" data-id="'+b.id+'"'+(b.part ? ' data-part="'+b.part+'"' : '')+' tabindex="0" role="link" aria-label="'+esc(n.label || b.title)+': open details">');
+    o.push('<rect class="nbg" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(sm ? 9 : 12)+'"/>');
+    o.push('<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(sm ? 9 : 12)+'" filter="url(#glow)"/>');
+    if (b.sub){
+      o.push('<text class="nt'+(sm?' sm':'')+'" x="'+cx+'" y="'+(y + h/2 - (sm ? 2 : 4))+'" text-anchor="middle">'+esc(b.title)+'</text>');
+      o.push('<text class="ns'+(sm?' sm':'')+'" x="'+cx+'" y="'+(y + h/2 + (sm ? 12 : 16))+'" text-anchor="middle">'+esc(b.sub)+'</text>');
+    } else {
+      o.push('<text class="nt'+(sm || / wp/.test(b.extra) ?' sm':'')+'" x="'+cx+'" y="'+(y + h/2 + 4)+'" text-anchor="middle">'+esc(b.title)+'</text>');
+    }
     o.push('</g>');
   });
-  [["room looms",214,108,"middle"],["lecterns & PCs",322,116,"start"],["room mix",512,116,"start"],["L / R / Sub",707,116,"start"],
-   ["stage I/O",512,366,"start"],["Room L/R + Foyer",830,148,"middle"],["via Rio out",830,161,"middle"],["1–6 and 8",830,174,"middle"],
-   ["Subs + fill",812,392,"middle"],["omni 1–4",812,406,"middle"],["EXT in",322,466,"start"],["Rio 13–16",322,479,"start"]].forEach(function(l){o.push('<text class="elab" x="'+l[1]+'" y="'+l[2]+'" text-anchor="'+l[3]+'">'+l[0]+'</text>');});
+  [["cable tray to AV2",156,TRAY+16,"start"],["omni 1–4",461,572,"middle"],["EXT in 13–16",205,664,"start"],["Rio out",806,572,"middle"],["Gal 1 out 16",898,700,"start"]].forEach(function(l){
+    o.push('<text class="elab" x="'+l[1]+'" y="'+l[2]+'" text-anchor="'+l[3]+'">'+l[0]+'</text>');
+  });
   o.push('</svg>');
   return o.join("");
 }
+
 function rfSvg(){
   var s = cur(), n = s.rf.length, W = 1080, H = 560, cx = W/2, cy = 300, rx = 400, ry = 190;
   var total = s.rf.reduce(function(a,r){return a+(Number(r.ch)||0);},0);
@@ -484,9 +566,9 @@ function worldHTML(){
   var open = s.todo.filter(function(t){return t.status!=="Done";});
   var C = 2*Math.PI*52, frac = n ? done/n : 0;
   var h = '';
-  h += '<div class="area sys" style="left:0;top:-76px"><div class="atitle"><b>System</b> · Royal Benowa Ballroom</div><div class="asub">Room 1 Prince · Room 2 Monarch · Room 3 Marquis. Select any block to open it.</div></div>';
+  h += '<div class="area sys" style="left:0;top:-76px"><div class="atitle"><b>System</b> · Royal Benowa Ballroom</div><div class="asub">Laid out like the floor plan: UPQs, downfills and wall patches along the back wall (top), OP positions at the bottom of each room, AV2 under Monarch. Select any block to open it.</div></div>';
   h += '<div class="area sys" style="left:0;top:0">'+svgMap()+'</div>';
-  h += '<div class="area" style="left:0;top:540px;width:1200px"><div class="legend"><span><i></i>analogue / loom</span><span><i class="d"></i>Dante (both ways)</span><span><i class="s"></i>to speakers</span></div></div>';
+  h += '<div class="area" style="left:0;top:'+(MAP_H+14)+'px;width:1200px"><div class="legend"><span><i></i>analogue / loom</span><span><i class="d"></i>Dante (both ways)</span><span><i class="s"></i>to speakers</span><span><i class="p"></i>per event</span></div></div>';
   h += '<div class="area sector" data-go="signals" tabindex="0" role="link" aria-label="Signal finder" style="left:'+AREA.signals.x+'px;top:'+AREA.signals.y+'px;width:'+AREA.signals.w+'px"><div class="panelw beacon"><div class="pulse"><i></i><i></i><i></i><b></b></div><div><div class="atitle"><b>Signal finder</b></div><div class="asub">Say what’s wrong in plain words and watch the route light up here.</div></div></div></div>';
   h += '<div class="area sector" data-go="rf" tabindex="0" role="link" aria-label="RF in the venue" style="left:'+AREA.rf.x+'px;top:'+AREA.rf.y+'px;width:'+AREA.rf.w+'px"><div class="atitle"><b>RF</b> · wireless in the venue</div><div class="asub">'+s.rf.length+' locations. Select to open the RF plot.</div>'+rfSvg()+'</div>';
   h += '<div class="area sector" data-go="todo" tabindex="0" role="link" aria-label="Upgrade to-do" style="left:'+AREA.todo.x+'px;top:'+AREA.todo.y+'px;width:'+AREA.todo.w+'px"><div class="atitle"><b>Upgrade log</b> · to-do</div><div class="panelw mission" style="margin-top:14px">'+
@@ -1070,15 +1152,19 @@ function signalResults(){
 
 /* route highlight on the main map */
 var hl = null, hlKey = "", hlFlyT = null;
-var DSET = {rio:1, desks:1, ql5:1, stage:1};
+var DSET = {rio:1, ql5:1, stage:1, opa:1, opb:1, opc:1};
 function mapKey(r, i){
-  var k = r.steps[i][0];
-  if (k==="dm7f") return "desks";
-  if (k==="loom") return null;
+  var k = r.steps[i][0], v = r.steps[i][1] || "";
+  if (k==="dm7f") return "opa";
+  if (k==="desks"){ if (/OPS?\s*B/i.test(v)) return "opb"; if (/OPS?\s*C/i.test(v)) return "opc"; return null; }
+  if (k==="loom" || k==="fill" || k==="bgm") return null;
+  if (k==="subs") return ROOMNUM[r.group] ? r.group + "-subs" : null;
   if (ROOMNUM[k]){
     if (r.type==="src") return k;
     var prev = r.steps[i-1] && r.steps[i-1][0];
-    return prev==="gal1" ? "speakers" : null;
+    if (prev==="gal1") return k + "-spk";
+    if (/wall patch/i.test(v)) return k;
+    return null;
   }
   return (GEO[k] || k==="dante") ? k : null;
 }
@@ -1095,12 +1181,25 @@ function routeGraph(rs){
     for (var i=1;i<seq.length;i++){
       var a = seq[i-1], b = seq[i], e = edgeFor(a, b), list = [];
       if (e) list.push(e);
-      else if (a==="rio" && b==="gal1") list.push(edgeFor("ql5","gal1"));
       else if (DSET[a] && DSET[b]){ list.push(edgeFor(a,"dante"), edgeFor("dante",b)); nodes.dante = 1; }
       list.forEach(function(x){ if (x) edges[x.a+">"+x.b] = x; });
     }
   });
   return {nodes:Object.keys(nodes), edges:Object.keys(edges).map(function(k){return edges[k];})};
+}
+// which boxes in a room's speaker row a route actually uses: UPQ L, the X20 downfill (F), UPQ R
+function spkParts(rs){
+  var out = {};
+  rs.forEach(function(r){ r.steps.forEach(function(s, i){
+    var k = mapKey(r, i); if (!k || !/-spk$/.test(k)) return;
+    var v = String(s[1] || ""), p = {};
+    if (/UPQ\s*L\b/i.test(v)) p.L = 1;
+    if (/UPQ\s*R\b/i.test(v)) p.R = 1;
+    if (/X20/i.test(v)) p.F = 1;
+    if (!p.L && !p.R && !p.F) p = {L:1, F:1, R:1};
+    out[k] = out[k] || {}; Object.keys(p).forEach(function(x){ out[k][x] = 1; });
+  }); });
+  return out;
 }
 function applyHL(){
   var svg = $("map");
@@ -1113,6 +1212,8 @@ function applyHL(){
         svg.classList.add("routing");
         G.nodes.forEach(function(k){ svg.querySelectorAll('.node[data-id="'+k+'"]').forEach(function(x){x.classList.add("ron");}); });
         G.edges.forEach(function(e){ svg.querySelectorAll('path[data-a="'+e.a+'"][data-b="'+e.b+'"]').forEach(function(p){ p.classList.add("ron"); if (e.rev) p.classList.add("rev"); }); });
+        var P = spkParts(rs);
+        Object.keys(P).forEach(function(k){ svg.querySelectorAll('[data-part][data-id="'+k+'"],path[data-part][data-b="'+k+'"]').forEach(function(x){ if (!P[k][x.getAttribute("data-part")]) x.classList.remove("ron"); }); });
       }
     }
   }
@@ -1263,11 +1364,11 @@ function resolve(v){
   if (v==="all") return {view:viewDirectory, rect:null, dock:"all", label:"Everything"};
   if (v==="admin" && CLOUD) return {view:viewAdmin, rect:null, dock:"admin", label:"Admin"};
   if (v==="account" && CLOUD) return {view:viewAccount, rect:null, dock:"", label:"Your account"};
-  if (v==="rooms") return {view:viewRooms, rect:pad([20,120,170,328],520,420), dock:"map", label:"Rooms"};
-  if (v==="speakers") return {view:viewSpeakers, rect:pad([1060,100,130,390],560,460), dock:"map", label:"Speakers"};
+  if (v==="rooms") return {view:viewRooms, rect:pad([20,40,1160,400],520,420), dock:"map", label:"Rooms"};
+  if (v==="speakers") return {view:viewSpeakers, rect:pad(GEO.speakers,560,300), dock:"map", label:"Speakers"};
   if (v==="foyer") return {view:viewFoyer, rect:pad(GEO.foyer,560,420), dock:"map", label:"Foyer"};
   if (v==="stage") return {view:viewStage, rect:pad(GEO.stage,560,420), dock:"map", label:"Stage racks"};
-  var m = /^room-(\w+)$/.exec(v); if (m && cur().rooms[m[1]]) return {view:function(){return viewRoom(m[1]);}, rect:pad(GEO[m[1]],560,420), dock:"map", label:"Room"};
+  var m = /^room-(\w+)$/.exec(v); if (m && cur().rooms[m[1]]) return {view:function(){return viewRoom(m[1]);}, rect:pad(ZONES[m[1]],420,420), dock:"map", label:"Room"};
   m = /^dev-(\w+)$/.exec(v);
   if (m && cur().devices[m[1]]) { var g = GEO[m[1]] || (m[1]==="sr1"||m[1]==="sr2" ? GEO.stage : (m[1]==="dm7f" ? GEO.desks : GEO.ql5)); return {view:function(){return viewDevice(m[1]);}, rect:pad(g,560,420), dock:"map", label:cur().devices[m[1]].name}; }
   return {view:null, rect:AREA.system, dock:"map"};
