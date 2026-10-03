@@ -465,6 +465,31 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
   .brand b{font-size:13.5px;line-height:1.08;white-space:normal;max-width:98px}
 }
 @media (max-width:380px){ .editpill #emsg{display:none} .editpill{padding-left:4px} }
+/* event planner */
+.plform{margin-top:14px;padding:6px 16px 14px}
+.plh{font:700 13.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;margin:16px 0 8px;display:flex;justify-content:space-between;gap:10px;color:var(--ql)}
+.plh small{font:500 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.plrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0}
+.plroom{font:700 15px var(--f-display);letter-spacing:.05em;min-width:84px}
+.plsegs{display:flex;flex-wrap:wrap;gap:6px}
+.pllab{font:600 11px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.plstep{display:inline-flex;align-items:center;gap:8px}
+.plstep .btn{width:36px;padding:4px 0;font-size:17px;line-height:1}
+.plstep b{min-width:18px;text-align:center;font:700 16px var(--f-display)}
+.pltext{display:grid;gap:4px;flex:1 1 200px;min-width:0}
+.pltext .fi{width:100%}
+.pllist{padding:4px 0}
+.plitem{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 14px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.plitem:last-child{border-bottom:0}
+.plitem b{font:700 12.5px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.plchecks{padding:2px 4px 8px}
+.plcheck{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:8px 10px;border-radius:8px;cursor:pointer}
+.plcheck:hover{background:var(--glass-2)}
+.plcheck input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ok)}
+.plcheck input:checked + span{color:var(--muted);text-decoration:line-through}
+.plsum .flowv{margin-top:10px}
+@media (max-width:560px){.plitem{grid-template-columns:minmax(0,1fr)}.plroom{min-width:0;flex-basis:100%}}
+@media (pointer:coarse){.plcheck{padding:11px 10px}.plcheck input{width:22px;height:22px}.plstep .btn{width:42px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app"></div>
@@ -1383,6 +1408,313 @@ function signalResults(){
   return h;
 }
 
+/* ---------- event planner: rooms + desks + sources -> signal plan, patch list, desk settings, checklist ---------- */
+var PL_ROOMS = ["prince","monarch","marquis"];
+var PL_DESKS = {opa:{name:"OPA", desk:"DM7F", dev:"dm7f", rf:"OPA"}, opb:{name:"OPB", desk:"DM3", dev:"desks", rf:"OPB"}, opc:{name:"OPC", desk:"DM3", dev:"desks", rf:"OPC"}};
+var PL_SRC = {sr1:"Stage Rack 1", sr2:"Stage Rack 2", sr3:"Stage Rack 3", wall:"Room wall patch (via AV2 Rio)"};
+function plEv(o){ return Object.assign({stage:"", src:"sr1", lec:2, pc:1, spare:1, rx:2, band:0, play:0, subs:1, ff:0, pos:"", wpBox:"", wpDesk:""}, o || {}); }
+var PL_TEMPLATES = [
+  ["conf", "Conference · two-thirds", function(){ return {t:"conf", name:"", rooms:{prince:"opa", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"prince"})}, foyer:"opa", ext:0}; }],
+  ["one", "One room", function(){ return {t:"one", name:"", rooms:{prince:"", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"monarch"})}, foyer:"opa", ext:0}; }],
+  ["full", "Full ballroom", function(){ return {t:"full", name:"", rooms:{prince:"opa", monarch:"opa", marquis:"opa"}, ev:{opa:plEv({stage:"monarch", rx:4, ff:1})}, foyer:"opa", ext:0}; }],
+  ["gala", "Gala / band", function(){ return {t:"gala", name:"", rooms:{prince:"opa", monarch:"opa", marquis:"opa"}, ev:{opa:plEv({stage:"monarch", rx:4, band:1, play:1, ff:1})}, foyer:"opa", ext:0}; }],
+  ["break", "Breakouts", function(){ return {t:"break", name:"", rooms:{prince:"opb", monarch:"opa", marquis:"opc"}, ev:{opa:plEv({stage:"monarch"}), opb:plEv({stage:"prince", src:"wall", spare:0, subs:0}), opc:plEv({stage:"marquis", src:"wall", spare:0, subs:0})}, foyer:"opa", ext:0}; }]
+];
+var PLAN = null, PLAN_TICKS_KEY = "ballroomPlanChecks";
+function plTemplate(id){ for (var i=0;i<PL_TEMPLATES.length;i++) if (PL_TEMPLATES[i][0]===id) return PL_TEMPLATES[i][2](); return PL_TEMPLATES[0][2](); }
+function plEncode(p){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }catch(e){ return ""; } }
+function plDecode(s){
+  try{
+    var p = JSON.parse(decodeURIComponent(escape(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")))));
+    if (!p || typeof p !== "object" || !p.rooms) return null;
+    var out = {t:String(p.t||""), name:String(p.name||"").slice(0,80), rooms:{}, ev:{}, foyer:/^(opa|bgm|)$/.test(p.foyer||"") ? (p.foyer||"") : "opa", ext:p.ext ? 1 : 0};
+    PL_ROOMS.forEach(function(k){ var d = (p.rooms||{})[k]; out.rooms[k] = PL_DESKS[d] ? d : ""; });
+    Object.keys(PL_DESKS).forEach(function(d){ if (p.ev && p.ev[d]) out.ev[d] = plEv(p.ev[d]); });
+    return plNormalise(out);
+  }catch(e){ return null; }
+}
+// keep the plan consistent: every desk in use has settings, a valid stage room, sane numbers
+function plNormalise(p){
+  Object.keys(PL_DESKS).forEach(function(d){
+    var rooms = PL_ROOMS.filter(function(k){ return p.rooms[k]===d; });
+    if (!rooms.length) return;
+    var e = p.ev[d] = plEv(p.ev[d]);
+    if (rooms.indexOf(e.stage) < 0) e.stage = rooms[0];
+    if (!PL_SRC[e.src]) e.src = "sr1";
+    e.lec = Math.max(0, Math.min(2, Number(e.lec)||0)); e.rx = Math.max(0, Math.min(12, Number(e.rx)||0));
+    ["pc","spare","band","play","subs","ff"].forEach(function(k){ e[k] = e[k] ? 1 : 0; });
+    ["pos","wpBox","wpDesk"].forEach(function(k){ e[k] = String(e[k]||"").slice(0,60); });
+  });
+  if (p.foyer==="opa" && !plDesks(p).some(function(d){ return d==="opa"; })) p.foyer = "bgm";
+  return p;
+}
+function plDesks(p){ var out = []; PL_ROOMS.forEach(function(k){ var d = p.rooms[k]; if (d && out.indexOf(d) < 0) out.push(d); }); return out.sort(); }
+function plRoomsOf(p, d){ return PL_ROOMS.filter(function(k){ return p.rooms[k]===d; }); }
+function plRoomList(ks){ return ks.map(function(k){ return ROOMNAME[k]; }).join(" + "); }
+function plKey(p){ var s = plEncode(Object.assign({}, p, {name:""})), h = 5381; for (var i=0;i<s.length;i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return "p" + (h >>> 0).toString(36); }
+function plLoadTicks(){ try{ var o = JSON.parse(localStorage.getItem(PLAN_TICKS_KEY) || "{}"); return o && typeof o === "object" ? o : {}; }catch(e){ return {}; } }
+function plSaveTick(key, id, on){
+  var o = plLoadTicks(); o[key] = o[key] || {}; if (on) o[key][id] = 1; else delete o[key][id];
+  var ks = Object.keys(o); if (ks.length > 12) ks.slice(0, ks.length - 12).forEach(function(k){ delete o[k]; });
+  try{ localStorage.setItem(PLAN_TICKS_KEY, JSON.stringify(o)); }catch(e){}
+}
+
+/* data lookups (all from the site data, so the plan follows any edits) */
+function plRoute(sig){ var rs = cur().routes; for (var i=0;i<rs.length;i++) if (rs[i].sig===sig) return rs[i]; return null; }
+function plStep(r, key, nth){ if (!r) return ""; var c = 0; for (var i=0;i<r.steps.length;i++){ if (r.steps[i][0]===key){ if (c===(nth||0)) return r.steps[i][1]; c++; } } return ""; }
+function plRoomRoutes(k){ var n = ROOMNUM[k]; return {L:plRoute("Room "+n+" L"), R:plRoute("Room "+n+" R"), S:plRoute("Room "+n+" Sub")}; }
+function plMT(v){ var m = /\bMT\s*(\d+)/i.exec(v||""); return m ? "MT " + m[1] : ""; }
+function plDante(v){ var m = /Dante\s*(\d+)/i.exec(v||""); return m ? "Dante " + m[1] : ""; }
+function plCh(dev, ch){ var d = cur().devices[dev]; if (!d) return null; for (var i=0;i<(d.ins||[]).length;i++) if (String(d.ins[i].ch)===String(ch)) return d.ins[i]; return null; }
+function plRackInputs(){   // what the DM7F show file has on Stage Rack 1 (rack A) inputs 1-4
+  var d = cur().devices.dm7f, out = {};
+  ((d && d.ins) || []).forEach(function(r){ var m = /Stage rack A\.(\d+)\b/i.exec(r.from||""); if (m && Number(m[1]) <= 4 && r.sig) out[Number(m[1])] = {ch:r.ch, sig:r.sig}; });
+  return out;
+}
+function plRX(n){ var out = [], d = cur().devices.dm7f; ((d && d.ins) || []).forEach(function(r){ var m = /^RX\s*(\d+)$/i.exec(r.sig||""); if (m && Number(m[1]) <= n) out.push({ch:r.ch, sig:r.sig}); }); return out; }
+function plRF(loc){ var r = (cur().rf||[]).filter(function(x){ return x.loc===loc; })[0]; return r ? Number(r.ch)||0 : null; }
+function plMTs(mts){   // ["MT 1","MT 2","MT 3"] -> "MT 1–3"
+  var n = mts.map(function(m){ return Number(String(m).replace(/\D/g,"")); }), seq = n.every(function(x, i){ return i===0 || x===n[i-1]+1; });
+  return n.length > 1 && seq ? "MT " + n[0] + "–" + n[n.length-1] : mts.join(", ");
+}
+function plRange(list){ if (!list.length) return ""; var a = Number(list[0]), b = Number(list[list.length-1]); return list.length > 1 ? a + "–" + b : String(a); }
+
+/* build the plan: one block per desk, plus the shared bits */
+function plBuild(p){
+  var out = {events:[], warn:[], patch:[], checks:[], hlSigs:[]};
+  plDesks(p).forEach(function(d){
+    var D = PL_DESKS[d], e = p.ev[d], rooms = plRoomsOf(p, d), st = e.stage, ev = {d:d, D:D, e:e, rooms:rooms, flow:[], desk:[], patch:[], checks:[]};
+    var sources = [];
+    if (e.lec) sources.push(e.lec===2 ? "Lectern (2 feeds)" : "Lectern");
+    if (e.pc) sources.push("Stage PC"); if (e.spare) sources.push("Spare");
+    if (e.rx) sources.push(e.rx + " radio mic" + (e.rx===1?"":"s"));
+    if (e.band) sources.push("Band"); if (e.play && d==="opa") sources.push("OPA playback");
+    ev.sources = sources;
+    var box = e.src==="wall" ? null : PL_SRC[e.src];
+    // inputs
+    if (d==="opa"){
+      var rk = plRackInputs(), used = [];
+      if (box){
+        if (e.lec >= 1 && rk[1]) used.push([1, rk[1]]); if (e.lec >= 2 && rk[2]) used.push([2, rk[2]]);
+        if (e.pc && rk[3]) used.push([3, rk[3]]); if (e.spare && rk[4]) used.push([4, rk[4]]);
+        ev.flow.push(["Sources", "room", used.map(function(u){ return u[1].sig; }).join(" · ") || "None on the stage box"]);
+        ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", used.length ? "Inputs " + used.map(function(u){ return u[0]; }).join(", ") + " → wall point " + (e.wpBox || "(pick one)") : "→ wall point " + (e.wpBox || "(pick one)")]);
+        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], used.map(function(u){ return "In " + u[0] + " " + u[1].sig; }).join(", ") + (used.length ? ". " : "") + "Network to wall point " + (e.wpBox || "(pick one)") + "."]);
+        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack 1 (rack A) inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
+        ev.desk.push(["DM7F channels", (used.length ? "Ch " + used.map(function(u){ return u[1].ch + " " + u[1].sig; }).join(", ") : "No stage box inputs")]);
+      } else {
+        ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
+        ev.flow.push([ROOMNAME[st] + " wall patch", "room", "In 1–4 → loom → AV2 Rio → Dante"]);
+        out.warn.push("The DM7F show file doesn’t patch the AV2 Rio room inputs. Patch them on the DM7F if OPA takes sources from the wall patch.");
+      }
+      if (e.rx){
+        var rx = plRX(e.rx), cap = plRF("OPA");
+        ev.desk.push(["Radio mics", "RX 1–" + e.rx + " on Ch " + plRange(rx.map(function(r){ return r.ch; }))]);
+        ev.patch.push(["Radio mic receivers", "OPA", e.rx + " mic" + (e.rx===1?"":"s") + " · RX 1–" + e.rx + " into the DM7F over Dante"]);
+        if (cap != null && e.rx > cap) out.warn.push("OPA has " + cap + " RF channels on the RF page; this plan needs " + e.rx + ".");
+      }
+      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks 1 and 2 (A and B). Foldback FB 1–8 out of rack A, in-ears IEM 1–8 out of rack B."]); ev.patch.push(["Stage Racks 1 and 2", "On stage", "Band inputs per the DM7F show file. Foldback from rack A outs 1–8, in-ears from rack B outs 1–8."]); }
+      if (e.play) ev.desk.push(["OPA playback", "PC 1–4, PVP 1–2 and Zoom on Ch 73–86 (Omni 1–14 as backup), audio Mac on Ch 88–96"]);
+      // where the mix goes
+      var feeds = [];
+      rooms.forEach(function(k){
+        var R = plRoomRoutes(k), mts = [plMT(plStep(R.L,"dm7f")), plMT(plStep(R.R,"dm7f")), plMT(plStep(R.S,"dm7f"))].filter(Boolean);
+        feeds.push(ROOMNAME[k] + " " + plMTs(mts));
+        out.hlSigs.push(R.L && R.L.sig, R.R && R.R.sig); if (k===st && e.subs && R.S) out.hlSigs.push(R.S.sig);
+      });
+      ev.desk.push(["DM7F matrices", "Send the mix " + (rooms.length > 1 ? "equally " : "") + "to " + feeds.join(", ") + (e.ff ? ", and Fill " + plMT(plStep(plRoute("Front Fill"),"dm7f")) : "") + (p.foyer==="opa" ? ", and Foyer " + plMT(plStep(plRoute("Foyer"),"dm7f")) : "") + "."]);
+      ev.flow.push(["DM7F at OPA" + (e.pos ? " (" + e.pos + ")" : ""), "ql", "Matrices: " + feeds.join(" · ") + " → Dante"]);
+    } else {
+      var op = d==="opb" ? "B" : "C", rL = plRoute("OP " + op + " L"), rR = plRoute("OP " + op + " R"), rS = plRoute("OP " + op + " Sub");
+      if (e.src==="wall"){
+        ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
+        ev.flow.push([ROOMNAME[st] + " wall patch", "room", "In 1–4 → loom → AV2 Rio → Dante → the DM3"]);
+        ev.patch.push([ROOMNAME[st] + " wall patch", ROOMNAME[st], "Lectern into In 1–2, stage PC into In 3 (AV2 Rio " + (plStep(plRoute(roomSrcSig(st, "LEC", "L")),"rio") || "inputs") + " onward)."]);
+      } else {
+        ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
+        ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", "→ wall point " + (e.wpBox || "(pick one)") + " → the DM3"]);
+        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], "Network to wall point " + (e.wpBox || "(pick one)") + ". The DM3 channel patch for this rack isn’t in the notes."]);
+      }
+      var qi = [plStep(rL,"ql5"), plStep(rR,"ql5"), plStep(rS,"ql5")].filter(Boolean).map(function(v){ return v.replace(/^In\s*/i,""); });
+      ev.desk.push(["DM3 at " + D.name, "Send ST L/R and the sub matrix to the QL5 (In " + qi.join(", ") + ")."]);
+      ev.desk.push(["QL5", "Check In " + qi.join(", ") + " (OP " + op + ") reaches " + plRoomList(rooms) + "’s outputs. How the QL5 routes OP " + op + " to a room isn’t in the notes yet."]);
+      if (e.rx){ var capB = plRF(D.rf); ev.desk.push(["Radio mics", e.rx + " mic" + (e.rx===1?"":"s") + " at " + D.name]); if (capB != null && e.rx > capB) out.warn.push(D.name + " has " + capB + " RF channels on the RF page; this plan needs " + e.rx + "."); }
+      ev.flow.push(["DM3 at " + D.name + (e.pos ? " (" + e.pos + ")" : ""), "ql", "ST L/R + Sub → Dante → QL5 In " + qi.join(", ")]);
+      rooms.forEach(function(k){ var R = plRoomRoutes(k); out.hlSigs.push(R.L && R.L.sig, R.R && R.R.sig); if (k===st && e.subs && R.S) out.hlSigs.push(R.S.sig); });
+      out.hlSigs.push(rL && rL.sig, rR && rR.sig);
+    }
+    // QL5 → Galaxy → speakers, room by room (fixed QL5 routing)
+    var qlBits = [], galBits = [], spk = [];
+    rooms.forEach(function(k){
+      var R = plRoomRoutes(k);
+      qlBits.push(ROOMNAME[k] + " " + plStep(R.L,"ql5",1) + "/" + plStep(R.R,"ql5",1).replace(/^Out\s*/,"") + (k===st && e.subs ? " (sub " + plStep(R.S,"ql5",2) + ")" : ""));
+      galBits.push("Galaxy 1 " + plStep(R.L,"gal1") + " / " + plStep(R.R,"gal1").replace(/^In\s*/,"") + " → " + ROOMNAME[k] + " UPQs and X20s");
+      spk.push(ROOMNAME[k]);
+    });
+    ev.flow.push(["QL5 in AV2 (fixed routing)", "ql", qlBits.join(" · ")]);
+    ev.flow.push(["AV2 Rio → Galaxy 1", "gal", galBits.join(" · ")]);
+    ev.flow.push([plRoomList(rooms) + " speakers", "spk", "UPQ L/R and X20 downfills"]);
+    if (e.subs){
+      var RS = plRoomRoutes(st).S, gOut = plStep(RS, "gal2", 1), wp = lc(plStep(RS, st, 0));
+      ev.flow.push(["Subs (4 × 750-LFC, end-fire under the stage)", "spk", "Galaxy 2 " + gOut + " → " + ROOMNAME[st] + " " + (wp || "wall patch out 1 + 2") + " (hardline)"]);
+      ev.patch.push(["Subs: 4 × 750-LFC", "Under the stage, " + ROOMNAME[st] + ", end-fire", "From " + ROOMNAME[st] + " " + (wp || "wall patch out 1 + 2") + " (Galaxy 2 " + gOut + ")."]);
+    }
+    if (e.ff){
+      var F = plRoute("Front Fill");
+      ev.flow.push(["Front fill", "spk", "DM7F " + plMT(plStep(F,"dm7f")) + " → QL5 " + plStep(F,"ql5") + " → " + plStep(F,"ql5",2) + " → Galaxy 2 " + plStep(F,"gal2",1)]);
+      ev.patch.push(["Front fills", "Stage lip, " + ROOMNAME[st], "Galaxy 2 " + plStep(F,"gal2",1) + ". Where the fill speakers patch in isn’t in the notes yet."]);
+      if (d !== "opa") out.warn.push("Front fill comes from the DM7F matrix in the notes; " + D.name + " would need its own fill send.");
+      if (F) out.hlSigs.push(F.sig);
+    }
+    ev.patch.push([D.name + " (" + D.desk + ")", e.pos || "Desk position (pick a pillar)", "Network to wall point " + (e.wpDesk || "(pick one)") + "."]);
+    out.events.push(ev);
+  });
+  // shared: foyer, external team
+  var Fy = plRoute("Foyer"), B = plRoute("BGM");
+  if (p.foyer==="opa" && Fy){ out.foyer = "From the DM7F " + plMT(plStep(Fy,"dm7f")) + " → QL5 " + plStep(Fy,"ql5") + " → " + plStep(Fy,"ql5",1) + " → AV2 Rio " + plStep(Fy,"rio") + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.hlSigs.push(Fy.sig); }
+  else if (p.foyer==="bgm"){ out.foyer = "BGM player into the QL5 " + (plStep(B,"ql5") || "In 8") + " (local Omni in 1), routed to the foyer output " + plStep(Fy,"ql5",1) + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.patch.push(["BGM player", "AV2", "Into the QL5 Omni in 1 (QL5 " + (plStep(B,"ql5") || "In 8") + ")."]); if (Fy) out.hlSigs.push(Fy.sig); }
+  if (p.ext){ out.ext = "External team into AV2 Rio In 13–16 → QL5 In 1–4 (EXT L, R, Sub, Fill), EXT Foyer on QL5 In 5. The TD mutes them from the iPad."; out.patch.push(["External team", "AV2", "Their L, R, Sub, Fill into AV2 Rio In 13–16."]); ["EXT L","EXT R","EXT Sub","EXT Fill"].forEach(function(s){ out.hlSigs.push(s); }); }
+  out.hlSigs = out.hlSigs.filter(function(s, i, a){ return s && a.indexOf(s)===i; });
+  if (p.foyer==="opa" && Fy && /check/i.test(plCh("ql5", 48) ? plCh("ql5",48).from : "")) out.warn.push("Foyer: still to confirm which QL5 input it lands on (46 or 48). It’s on the to-do list.");
+  out.checks = plChecks(p, out);
+  return out;
+}
+function roomSrcSig(k, kind, side){ return kind + " " + ROOMNUM[k] + " " + side; }
+
+/* the step-by-step list for the day */
+function plChecks(p, out){
+  var C = [];
+  function add(group, id, text){ C.push({g:group, id:id, t:text}); }
+  out.events.forEach(function(ev){
+    var e = ev.e, d = ev.d, D = ev.D, st = ROOMNAME[e.stage], box = e.src==="wall" ? null : PL_SRC[e.src], tag = out.events.length > 1 ? D.name + ": " : "";
+    add("Set up", d+"-stage", tag + "Build the stage in " + st + (box ? ", and put " + box + " side-stage and power it on." : "."));
+    if (box && d==="opa"){
+      var rk = plRackInputs(), ins = [];
+      if (e.lec >= 1 && rk[1]) ins.push("In 1 " + rk[1].sig); if (e.lec >= 2 && rk[2]) ins.push("In 2 " + rk[2].sig);
+      if (e.pc && rk[3]) ins.push("In 3 " + rk[3].sig); if (e.spare && rk[4]) ins.push("In 4 " + rk[4].sig);
+      if (ins.length) add("Set up", d+"-boxpatch", tag + "Patch the stage box: " + ins.join(", ") + ".");
+    }
+    if (box) add("Set up", d+"-boxwp", tag + "Plug the stage box into wall point " + (e.wpBox || "(pick one)") + ".");
+    if (!box) add("Set up", d+"-wall", tag + "Plug the lectern and stage PC into the " + st + " wall patch (In 1–3).");
+    if (e.subs) add("Set up", d+"-subs", tag + "Put 4 subs under the stage in end-fire and patch them to the " + st + " wall patch sub outputs. Power on.");
+    if (e.ff) add("Set up", d+"-ff", tag + "Place the front fills on the stage lip and patch them (Galaxy 2 Out 7).");
+    add("Set up", d+"-desk", tag + "Set up " + D.name + (e.pos ? " at " + e.pos : " at a pillar, opposite end to the speakers") + ", plug into wall point " + (e.wpDesk || "(pick one)") + ", and power on the " + D.desk + (d==="opa" ? ". Recall the base show file." : "."));
+    if (e.rx) add("Set up", d+"-rx", tag + "Set out " + e.rx + " radio mic" + (e.rx===1?"":"s") + " with fresh batteries; receivers at " + D.name + ".");
+    if (e.band) add("Set up", d+"-band", tag + "Stage Racks 1 and 2 on stage for the band; foldback and in-ear lines run.");
+  });
+  if (p.foyer==="bgm") add("Set up", "bgm", "BGM player plugged into the QL5 in AV2 (Omni in 1).");
+  if (p.ext) add("Set up", "ext", "External team patched into AV2 Rio In 13–16.");
+  out.events.forEach(function(ev){
+    var e = ev.e, d = ev.d, D = ev.D, tag = out.events.length > 1 ? D.name + ": " : "", box = e.src==="wall" ? null : PL_SRC[e.src];
+    var rk2 = (d==="opa" && box) ? plRackInputs() : {}, lch = [rk2[1], e.lec===2 ? rk2[2] : null].filter(Boolean).map(function(r){ return r.ch; });
+    if (d==="opa" && box) add("Line check", d+"-dante", tag + "The stage box shows up on the DM7F and its channels meter" + (Object.keys(rk2).length ? " (Ch " + plRange(Object.keys(rk2).map(function(k){ return rk2[k].ch; })) + ")" : "") + ".");
+    if (e.lec) add("Line check", d+"-lec", tag + "Talk on the lectern" + (e.lec===2 ? " (both feeds)" : "") + (lch.length ? " — Ch " + lch.join("/") : "") + ".");
+    if (e.pc) add("Line check", d+"-pc", tag + "Play audio from the stage PC" + (rk2[3] ? " — Ch " + rk2[3].ch : "") + ".");
+    if (e.rx) add("Line check", d+"-rxc", tag + "Each radio mic, 1 to " + e.rx + (d==="opa" ? " (Ch " + plRange(plRX(e.rx).map(function(r){ return r.ch; })) + ")" : "") + ".");
+    if (e.band) add("Line check", d+"-bandc", tag + "Band line check, then foldback and in-ears.");
+    add("Line check", d+"-ql5", tag + "QL5 in AV2: the room feeds from " + D.name + " are metering (routing is fixed).");
+    ev.rooms.forEach(function(k){ add("Line check", d+"-room-"+k, tag + "Walk " + ROOMNAME[k] + ": UPQ L, UPQ R and the X20s all working."); });
+    if (e.subs) add("Line check", d+"-subc", tag + "Subs under the stage in " + ROOMNAME[e.stage] + " working, end-fire sounding right from the room.");
+    if (e.ff) add("Line check", d+"-ffc", tag + "Front fills working at the stage lip.");
+  });
+  if (p.foyer) add("Line check", "foyer", "Foyer speakers working (" + (p.foyer==="opa" ? "from the DM7F" : "BGM player") + ").");
+  if (p.ext) add("Line check", "extc", "External team’s feeds metering on the QL5, and the TD can mute them on the iPad.");
+  add("Doors", "levels", "Final walk around every room in use and set levels.");
+  return C;
+}
+
+/* the page */
+function plSeg(path, val, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+esc(val)+'" aria-pressed="'+(String(cur)===String(val))+'">'+esc(label)+'</button>'; }
+function plToggle(path, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+(cur?0:1)+'" aria-pressed="'+(!!cur)+'">'+esc(label)+'</button>'; }
+function plStepper(path, val, min, max, label){ return '<span class="plstep"><span class="pllab">'+esc(label)+'</span><button class="btn" data-pl="'+path+'" data-v="'+Math.max(min,val-1)+'" aria-label="Fewer '+esc(label)+'"'+(val<=min?' disabled':'')+'>−</button><b>'+val+'</b><button class="btn" data-pl="'+path+'" data-v="'+Math.min(max,val+1)+'" aria-label="More '+esc(label)+'"'+(val>=max?' disabled':'')+'>+</button></span>'; }
+function plText(path, val, ph, label){ return '<label class="pltext"><span class="pllab">'+esc(label)+'</span><input class="fi" data-plf="'+path+'" value="'+esc(val)+'" placeholder="'+esc(ph)+'" autocomplete="off"></label>'; }
+function viewPlan(){
+  var p = PLAN, h = '<h1>Event planner</h1><p class="lede">Pick the rooms and desks, say what’s on, and get the signal path, patch list, desk settings and a checklist for the day. Share the link so everyone works from the same plan.</p>';
+  h += '<p class="qlabel">Start from</p><div class="qchips">' + PL_TEMPLATES.map(function(t){ return '<button class="fchip" data-pltpl="'+t[0]+'" aria-pressed="'+(p.t===t[0])+'">'+esc(t[1])+'</button>'; }).join("") + '</div>';
+  h += '<div class="plform card"><div class="plrow">'+plText("name", p.name, "e.g. Smith Co. conference", "Event name")+'</div>';
+  h += '<h2 class="plh">Rooms and desks</h2>';
+  PL_ROOMS.forEach(function(k){ h += '<div class="plrow"><span class="plroom">'+ROOMNAME[k]+'</span><span class="plsegs">'+plSeg("rooms."+k, "", p.rooms[k], "Off")+plSeg("rooms."+k, "opa", p.rooms[k], "OPA")+plSeg("rooms."+k, "opb", p.rooms[k], "OPB")+plSeg("rooms."+k, "opc", p.rooms[k], "OPC")+'</span></div>'; });
+  var desks = plDesks(p);
+  if (!desks.length) h += '<p class="note">Turn on at least one room.</p>';
+  desks.forEach(function(d){
+    var e = p.ev[d], rooms = plRoomsOf(p, d), D = PL_DESKS[d], b = "ev."+d+".";
+    h += '<h2 class="plh">'+D.name+' · '+esc(plRoomList(rooms))+'<small>'+D.desk+'</small></h2>';
+    if (rooms.length > 1) h += '<div class="plrow"><span class="pllab">Stage in</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"stage", k, e.stage, ROOMNAME[k]); }).join("")+'</span></div>';
+    h += '<div class="plrow"><span class="pllab">Inputs from</span><span class="plsegs">'+["sr1","sr2","sr3","wall"].map(function(s){ return plSeg(b+"src", s, e.src, s==="wall" ? "Wall patch" : PL_SRC[s].replace("Stage Rack","Rack")); }).join("")+'</span></div>';
+    h += '<div class="plrow plwrap">'+plStepper(b+"lec", e.lec, 0, 2, "Lectern feeds")+plStepper(b+"rx", e.rx, 0, 12, "Radio mics")+'</div>';
+    h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+plToggle(b+"band", e.band, "Band")+(d==="opa"?plToggle(b+"play", e.play, "OPA playback"):"")+plToggle(b+"subs", e.subs, "Subs under stage")+plToggle(b+"ff", e.ff, "Front fill")+'</span></div>';
+    h += '<div class="plrow plwrap">'+plText(b+"pos", e.pos, "e.g. Pillar 2, back of Monarch", D.name+" position")+plText(b+"wpDesk", e.wpDesk, "Wall point", D.name+" wall point")+(e.src!=="wall"?plText(b+"wpBox", e.wpBox, "Wall point", "Stage box wall point"):"")+'</div>';
+  });
+  h += '<h2 class="plh">Foyer and external</h2><div class="plrow"><span class="pllab">Foyer</span><span class="plsegs">'+plSeg("foyer", "", p.foyer, "Off")+(desks.indexOf("opa")>=0?plSeg("foyer", "opa", p.foyer, "From OPA"):"")+plSeg("foyer", "bgm", p.foyer, "BGM player")+'</span></div>';
+  h += '<div class="plrow"><span class="plsegs">'+plToggle("ext", p.ext, "External AV team")+'</span></div></div>';
+  return h + '<div id="planout" aria-live="polite">'+planOutput()+'</div>';
+}
+function planOutput(){
+  var p = PLAN; if (!plDesks(p).length) return "";
+  var P = plBuild(p), key = plKey(p), ticks = plLoadTicks()[key] || {}, done = P.checks.filter(function(c){ return ticks[c.id]; }).length;
+  var title = (p.name ? p.name + " · " : "") + P.events.map(function(ev){ return ev.D.name + " " + plRoomList(ev.rooms); }).join(" · ");
+  var h = '<section class="card best plsum"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">The plan</span><h2 class="btitle">'+esc(title)+'</h2><div class="bsub">'+esc(P.events.map(function(ev){ return (ev.sources.join(", ") || "No sources") + (ev.e.subs ? ", subs" : "") + (ev.e.ff ? ", front fill" : ""); }).join(" · "))+'</div></div>'+
+    '<div class="bact">'+(canShare()?'<button class="btn" id="plshare">Share</button>':'')+'<button class="btn" id="plmap">Show on map</button></div></div>';
+  P.warn.forEach(function(w){ h += '<p class="tip warn">'+esc(w)+'</p>'; });
+  P.events.forEach(function(ev){
+    if (P.events.length > 1) h += '<p class="qlabel">'+esc(ev.D.name+" · "+plRoomList(ev.rooms))+'</p>';
+    h += '<ol class="flowv" aria-label="Signal path">'+ev.flow.map(function(f){ return '<li class="fstep k-'+f[1]+'"><span class="fdot" aria-hidden="true"></span><div><span class="fnode">'+esc(f[0])+'</span><div class="fvals"><span class="lv">'+esc(f[2])+'</span></div></div></li>'; }).join("")+'</ol>';
+  });
+  if (P.foyer) h += '<p class="note"><b>Foyer:</b> '+esc(P.foyer)+'.</p>';
+  if (P.ext) h += '<p class="note"><b>External:</b> '+esc(P.ext)+'</p>';
+  h += '</section>';
+  h += '<h2 class="sec">Desk settings</h2><div class="card pllist">'+P.events.map(function(ev){ return ev.desk.map(function(x){ return '<div class="plitem"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>'; }).join(""); }).join("")+'</div>';
+  var patch = [].concat.apply([], P.events.map(function(ev){ return ev.patch; })).concat(P.patch);
+  h += '<h2 class="sec">Patch list<small>'+patch.length+'</small></h2><div class="card panel k-rio"><div class="tblwrap"><table class="t wide"><thead><tr><th>What</th><th>Where</th><th>Connect</th></tr></thead><tbody>'+
+    patch.map(function(r){ return '<tr><td><b>'+esc(r[0])+'</b></td><td>'+esc(r[1])+'</td><td class="dim">'+esc(r[2])+'</td></tr>'; }).join("")+'</tbody></table></div></div>';
+  h += '<h2 class="sec">Checklist<small>'+done+' of '+P.checks.length+' done</small></h2><div class="prog" aria-hidden="true"><i style="width:'+(P.checks.length?Math.round(done/P.checks.length*100):0)+'%"></i></div><div class="card plchecks" style="margin-top:10px">';
+  var g = "";
+  P.checks.forEach(function(c){
+    if (c.g !== g){ g = c.g; h += '<p class="qlabel" style="margin:12px 12px 2px">'+esc(g)+'</p>'; }
+    h += '<label class="plcheck"><input type="checkbox" data-plck="'+esc(c.id)+'"'+(ticks[c.id]?' checked':'')+'><span>'+esc(c.t)+'</span></label>';
+  });
+  h += '</div><p class="note">Ticks are kept on this device for this plan. Change the plan and you get a fresh list.</p>';
+  if (done) h += '<p><button class="btn" id="plclear">Clear ticks</button></p>';
+  return h;
+}
+function planInit(){
+  var rp = routeParts(), p = rp.q.p ? plDecode(rp.q.p) : null;
+  if (p) PLAN = p; else if (!PLAN) PLAN = plNormalise(plTemplate("conf"));
+}
+function planSync(){
+  var h = "plan?p=" + plEncode(PLAN);
+  if (route() !== h){ try{ history.replaceState(history.state, "", "#" + h); lastRoute = route(); }catch(e){} }
+}
+function planRefresh(full){
+  plNormalise(PLAN); planSync();
+  if (full){ var db = $("dbody"), y = db.scrollTop; db.innerHTML = viewPlan(); db.scrollTop = y; }
+  else { var o = $("planout"); if (o) o.innerHTML = planOutput(); }
+}
+function planSet(path, v){
+  var ks = path.split("."), o = PLAN;
+  for (var i=0;i<ks.length-1;i++){ if (o[ks[i]] == null) o[ks[i]] = {}; o = o[ks[i]]; }
+  var last = ks[ks.length-1];
+  o[last] = (/^(lec|rx|pc|spare|band|play|subs|ff|ext)$/.test(last)) ? Number(v) : v;
+  if (/^rooms\./.test(path)) PLAN.t = "";
+}
+function planClick(t){
+  if (t.hasAttribute("data-pltpl")){ PLAN = plNormalise(plTemplate(t.getAttribute("data-pltpl"))); planRefresh(true); return true; }
+  if (t.hasAttribute("data-pl")){ planSet(t.getAttribute("data-pl"), t.getAttribute("data-v")); planRefresh(true); return true; }
+  if (t.id==="plshare"){
+    var url = location.href.split("#")[0] + "#plan?p=" + plEncode(PLAN), title = "Ballroom Audio plan" + (PLAN.name ? ": " + PLAN.name : "");
+    if (navigator.share && COARSE){ navigator.share({title:title, url:url}).catch(function(){}); return true; }
+    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ toast("Link copied. Anyone signed in can open this plan."); }, function(){ toast("Couldn’t copy. The link is in your address bar."); }); return true; }
+    toast("The link is in your address bar."); return true;
+  }
+  if (t.id==="plmap"){
+    var P = plBuild(PLAN); if (!P.hlSigs.length) return true;
+    hl = {sigs:P.hlSigs, label:"Plan: " + (PLAN.name || P.events.map(function(ev){ return plRoomList(ev.rooms); }).join(" · ")), back:"#plan?p=" + plEncode(PLAN)};
+    hlKey = ""; location.hash = "map"; return true;
+  }
+  if (t.id==="plclear"){ var o = plLoadTicks(); delete o[plKey(PLAN)]; try{ localStorage.setItem(PLAN_TICKS_KEY, JSON.stringify(o)); }catch(e){} planRefresh(false); return true; }
+  return false;
+}
+
 /* route highlight on the main map */
 var hl = null, hlKey = "", hlFlyT = null;
 var DSET = {rio:1, ql5:1, stage:1, opa:1, opb:1, opc:1};
@@ -1458,7 +1790,7 @@ function applyHL(){
     }
   }
   var c = $("rchip");
-  if (c){ c.hidden = !(hl && baseRoute()!=="signals"); if (hl){ $("rlabel").textContent = hl.label; $("rlabel").setAttribute("href", "#signals" + (sigFilter.q.trim() ? "?q=" + encodeURIComponent(sigFilter.q.trim()) : "")); } }
+  if (c){ c.hidden = !(hl && !/^(signals|plan)$/.test(baseRoute())); if (hl){ $("rlabel").textContent = hl.label; $("rlabel").setAttribute("href", hl.back || ("#signals" + (sigFilter.q.trim() ? "?q=" + encodeURIComponent(sigFilter.q.trim()) : ""))); } }
 }
 function ensureSystemVisible(){
   if (!hl || sheetMode() || baseRoute()!=="signals") return;
@@ -1578,7 +1910,7 @@ function viewDirectory(){
     var n = NODES[k]; h += '<a class="k-'+n.kind+'" href="#'+n.go+'"><i class="dot"></i><div><b>'+esc(n.label)+'</b><span>'+esc(n.desc)+'</span></div></a>';
   });
   h += '</div><h2 class="sec">Sectors</h2><div class="dir">';
-  [["signals","Signal finder","Follow any signal end to end"],["rooms","Rooms","Prince, Monarch, Marquis and the Foyer"],["rf","RF","Wireless channels per location"],["todo","Upgrade log","What's done and what's left"],["kit","Speaker kit","Specs, manuals and software"],["network","Network","IP addresses for every device"]].forEach(function(x){
+  [["signals","Signal finder","Follow any signal end to end"],["plan","Event planner","Plan an event: signal path, patch list, desk settings and a checklist"],["rooms","Rooms","Prince, Monarch, Marquis and the Foyer"],["rf","RF","Wireless channels per location"],["todo","Upgrade log","What's done and what's left"],["kit","Speaker kit","Specs, manuals and software"],["network","Network","IP addresses for every device"]].forEach(function(x){
     h += '<a href="#'+x[0]+'"><i class="dot" style="background:var(--accent)"></i><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></a>';
   });
   return h + '</div>';
@@ -1597,6 +1929,7 @@ function resolve(v){
   v = String(v).split("?")[0];
   if (v==="map") return {view:null, rect:AREA.system, dock:"map"};
   if (v==="signals") return {view:viewSignals, rect:AREA.system, dock:"signals", label:"Signal finder"};
+  if (v==="plan") return {view:function(){ planInit(); return viewPlan(); }, rect:AREA.system, dock:"plan", label:"Event planner"};
   if (v==="rf") return {view:viewRF, rect:AREA.rf, dock:"rf", label:"RF"};
   if (v==="todo") return {view:viewTodo, rect:AREA.todo, dock:"todo", label:"Upgrade log"};
   if (v==="kit") return {view:viewKit, rect:AREA.kit, dock:"kit", label:"Speaker kit"};
@@ -1669,7 +2002,7 @@ function drawStars(){
 }
 
 /* ---------- shell ---------- */
-var DOCK = [["map","System","var(--accent)"],["signals","Signals","var(--accent)"],["rf","RF","var(--dante)"],["todo","To-do","var(--ok)"],["kit","Kit","var(--spk)"],["network","Network","var(--dante)"],["all","All","var(--muted)"]];
+var DOCK = [["map","System","var(--accent)"],["signals","Signals","var(--accent)"],["plan","Plan","var(--ql)"],["rf","RF","var(--dante)"],["todo","To-do","var(--ok)"],["kit","Kit","var(--spk)"],["network","Network","var(--dante)"],["all","All","var(--muted)"]];
 function fmtDate(iso){try{return new Date(iso).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"});}catch(e){return "";}}
 function buildShell(){
   app.innerHTML = '<div class="scene"><canvas id="stars" aria-hidden="true"></canvas>'+
@@ -1713,7 +2046,7 @@ function layoutDock(cur){
   if (dk.scrollWidth <= dk.clientWidth + 1) { closeMore(); return; }
   dk.classList.remove("nomore");
   // what folds into More first: Admin, All, Network, Kit, RF, then To-do (System and Signals always stay)
-  var order = ["admin","all","network","kit","rf","todo"];
+  var order = ["admin","all","network","kit","rf","todo","plan"];
   for (var i = 0; i < order.length && dk.scrollWidth > dk.clientWidth + 1; i++){ var b = dk.querySelector('.dk[data-go="'+order[i]+'"]'); if (b) b.classList.add("x"); }
   var hidden = items.filter(function(b){ return b.classList.contains("x"); });
   var mb = $("dkmore"); if (mb) mb.setAttribute("aria-current", String(hidden.some(function(b){ return b.getAttribute("aria-current")==="true"; })));
@@ -1741,7 +2074,7 @@ function onRoute(){
   if (rp.base==="signals" && rp.q.q != null && rp.q.q !== sigFilter.q) sigFilter.q = rp.q.q;
   renderHud(); renderDrawer(r); afterDrawer();
   if (changed) {
-    var rect = r.rect, fromFinder = String(lastRoute||"").split("?")[0]==="signals";
+    var rect = r.rect, fromFinder = /^(signals|plan)$/.test(String(lastRoute||"").split("?")[0]);
     if (!r.view && r.dock==="map" && hl && fromFinder && smallScreen()){ var rr = routeRect(); if (rr) rect = rr; }   // phones and tablets: zoom to the route itself
     if (baseChanged && !skipFly && !(r.view && sheetMode())) flyTo(rect, r.view ? 1.3 : 1.15);
     if (r.view && lastRoute !== null) $("dbody").scrollTop = 0;
@@ -1834,6 +2167,7 @@ app.addEventListener("click", function(e){
   if (t.matches("[data-go]")) { var g = t.getAttribute("data-go"); if (baseRoute()===g) { lastRoute = null; onRoute(); } else location.hash = g; return; }
   if (t.id==="hsearch"){ openFinder(); return; }
   if (t.id==="dkmore"){ toggleMore(); return; }
+  if (planClick(t)) return;
   if (CLOUD){
     if (t.id==="g-retry"){ if (!sb.session) { gate("signin"); return; } gate("loading"); loadAll().then(enterApp).catch(bootErr); return; }
     if (t.id==="g-out"){ doSignOut(); return; }
@@ -1863,9 +2197,12 @@ app.addEventListener("keydown", function(e){
   if (e.key==="Escape" && !$("drawer").hidden){ skipFly = true; location.hash = "map"; }
   if (e.key==="Enter" && t.id==="q"){ e.preventDefault(); recordRecent(); logSearch(); if (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) t.blur(); }
 });
+var plT = null;
 app.addEventListener("input", function(e){
   var t = e.target;
   if (t.id==="q"){ sigFilter.q = t.value; $("sigres").innerHTML = signalResults(); afterResults(); return; }
+  var pf = t.getAttribute && t.getAttribute("data-plf");
+  if (pf){ planSet(pf, t.value); plNormalise(PLAN); planSync(); clearTimeout(plT); plT = setTimeout(function(){ var o = $("planout"); if (o) o.innerHTML = planOutput(); }, 250); return; }
   if (t.id==="flt"){ var q = t.value.trim().toLowerCase(); document.querySelectorAll("#dbody tr[data-txt]").forEach(function(tr){tr.hidden = !!q && tr.getAttribute("data-txt").indexOf(q)<0;}); return; }
   var p = t.getAttribute && t.getAttribute("data-path");
   if (p && editing){
@@ -1877,6 +2214,7 @@ app.addEventListener("input", function(e){
 app.addEventListener("submit", function(e){ if (e.target && e.target.id==="signinform"){ e.preventDefault(); doSignIn(); } });
 app.addEventListener("change", function(e){
   if (CLOUD && started && adminChange(e.target)) return;
+  var pk = e.target.getAttribute && e.target.getAttribute("data-plck"); if (pk){ plSaveTick(plKey(PLAN), pk, e.target.checked); planRefresh(false); return; }
   var ck = e.target.getAttribute && e.target.getAttribute("data-ck"); if (ck){ CHECKED[ck] = e.target.checked; syncChecks(e.target.closest(".best")); return; }
   if (e.target.tagName==="SELECT" && editing) refreshAll();
 });
@@ -1934,16 +2272,17 @@ app.addEventListener("focusin", function(e){
 document.addEventListener("gesturestart", function(e){ e.preventDefault(); }, {passive:false});
 // Bottom sheet: drag the top bar down to close, up (or tap) to make it taller.
 (function(){
-  var hd = $("dhead"), dr = $("drawer"), st = null;
+  var hd = $("dhead"), dr = $("drawer"), st = null, dragged = false;
   hd.addEventListener("pointerdown", function(e){ if (!sheetMode() || e.target.closest("button")) return; st = {y:e.clientY, id:e.pointerId}; try{ hd.setPointerCapture(e.pointerId); }catch(x){} });
   hd.addEventListener("pointermove", function(e){ if (!st || e.pointerId !== st.id) return; var dy = e.clientY - st.y; dr.style.transform = dy > 0 ? "translateY(" + dy + "px)" : ""; });
   function end(e){
     if (!st || e.pointerId !== st.id) return;
-    var dy = e.clientY - st.y; st = null; dr.style.transform = "";
+    var dy = e.clientY - st.y; st = null; dr.style.transform = ""; dragged = Math.abs(dy) >= 8;
     if (dy > 90){ skipFly = true; location.hash = "map"; }
     else if (dy < -40) dr.classList.add("tall");
-    else if (Math.abs(dy) < 8) dr.classList.toggle("tall");
   }
+  // a tap toggles the height; done on click so the tap can't land on whatever moves under the finger
+  hd.addEventListener("click", function(e){ if (!sheetMode() || e.target.closest("button")) return; if (dragged){ dragged = false; return; } dr.classList.toggle("tall"); });
   hd.addEventListener("pointerup", end); hd.addEventListener("pointercancel", function(e){ if (st && e.pointerId===st.id){ st = null; dr.style.transform = ""; } });
 })();
 // Give every table cell its column name, so tables can turn into cards on a phone.
