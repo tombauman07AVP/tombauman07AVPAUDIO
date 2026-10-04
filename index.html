@@ -575,31 +575,76 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 .evmsg{flex:1 1 auto;font-size:13.5px;color:var(--muted)}
 .evbar [data-evdel][aria-pressed="true"]{border-color:var(--warn);color:var(--warn)}
 @media (max-width:620px){.evform{grid-template-columns:minmax(0,1fr)}.evtimesin{grid-template-columns:repeat(2,minmax(0,1fr))}.evmsg{flex-basis:100%;font-size:12.5px}.evbar .btn{flex:1 1 0;padding-left:8px;padding-right:8px}.evrow{grid-template-columns:46px minmax(0,1fr);gap:12px}.evrow .evst{grid-column:2;justify-self:start}}
+.dgwrap{margin-top:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dg{display:block;width:100%;min-width:540px;max-width:720px;height:auto;margin:0 auto}
+.dghead{font:700 11.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
+.dg .bx{fill:rgba(255,255,255,.035);stroke:var(--line-strong);stroke-width:1}
+.dg .k-ql .bx{fill:var(--ql-bg)}.dg .k-rio .bx{fill:var(--rio-bg)}.dg .k-gal .bx{fill:var(--gal-bg)}.dg .k-spk .bx{fill:var(--spk-bg)}
+.dg .src .bx{fill:rgba(255,255,255,.07)}
+.dg .ac{fill:none;stroke-width:3;stroke-linecap:round;stroke:var(--room)}
+.dg .k-ql .ac{stroke:var(--ql)}.dg .k-rio .ac{stroke:var(--rio)}.dg .k-gal .ac{stroke:var(--gal)}.dg .k-spk .ac{stroke:var(--spk)}
+.dg .tt{fill:var(--ink);font:600 13px var(--f-body)}
+.dg .st{fill:var(--muted);font:500 11px var(--f-body)}
+.dg .ct{fill:var(--ink);font:500 11px var(--f-body)}
+.dg .ed{fill:none;stroke:var(--wire);stroke-width:1.4}
+.dg .ed.dante{stroke:var(--dante);stroke-dasharray:5 3}
+.dg .ah{fill:var(--wire)}.dg .ah.dante{fill:var(--dante)}
+.dg .lb{fill:var(--muted);font:700 9px var(--f-display);letter-spacing:.08em;paint-order:stroke;stroke:#0E1526;stroke-width:3px;stroke-linejoin:round}
+.dgkey{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 0 0}
+.dgkey span{display:inline-block;width:22px;height:0;border-top:2px solid var(--wire);margin-right:-8px;vertical-align:middle}
+.dgkey .k1{border-top:2px dashed var(--dante)}
+.plsteps{margin-top:14px}
+.plsteps summary{cursor:pointer;font:700 12px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.evgear,.evgearlist{padding:10px 14px}
+.gq{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.gq:last-child{border-bottom:0}
+.gq .plstep{flex:none}
+.gn{flex:none;min-width:30px;text-align:center;font:700 18px var(--f-display);color:var(--ink)}
+.gi{display:grid;gap:1px;min-width:0}
+.gi b{font-weight:600}
+.gi small{color:var(--muted);font-size:12.5px}
+.gx .gxq{width:72px;flex:none}
+.gx .fi:not(.gxq){flex:1;min-width:0}
 #printsheet{display:none}
+#printsheet{color:#111;font:10.5pt/1.4 Arial,Helvetica,sans-serif}
+#printsheet .ps-top{display:flex;justify-content:space-between;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#555;border-top:3pt solid #111;padding-top:5pt}
+#printsheet h1{font-size:24pt;line-height:1.1;margin:6pt 0 2pt;letter-spacing:-.01em}
+#printsheet .ps-sub{margin:0;font-size:11.5pt;color:#333}
+#printsheet .ps-sec{margin-top:11pt}
+#printsheet h2{display:flex;justify-content:space-between;align-items:flex-end;gap:10pt;font-size:9pt;letter-spacing:.18em;text-transform:uppercase;color:#555;margin:0 0 6pt;padding-bottom:3pt;border-bottom:.75pt solid #bbb;break-after:avoid}
+#printsheet h2 .dgkey{margin:0;letter-spacing:0;text-transform:none;font-weight:normal;font-size:7.5pt}
+#printsheet .ps-times{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6pt}
+#printsheet .ps-times div{box-sizing:border-box;min-width:0;border:.75pt solid #999;border-radius:4pt;padding:4pt 8pt}
+#printsheet .ps-times small{display:block;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:#555}
+#printsheet .ps-times b{font-size:15pt}
+#printsheet .ps-gear{width:100%;border-collapse:collapse}
+#printsheet .ps-gear th{font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:#555;text-align:left;padding:0 6pt 3pt;border-bottom:.75pt solid #999}
+#printsheet .ps-gear td{padding:2.2pt 6pt;border-bottom:.5pt solid #ddd;vertical-align:top}
+#printsheet .ps-gear .q{width:34pt;text-align:center;font-weight:bold;font-size:12pt}
+#printsheet .ps-gear th.q{font-size:7.5pt}
+#printsheet .ps-gear td:last-child{color:#444}
+#printsheet .ps-none{color:#666;margin:0}
+#printsheet .dgwrap{overflow:visible;margin-top:2pt;break-inside:avoid}
+#printsheet .dg{min-width:0;max-width:none;width:100%}
+#printsheet .dghead{font:bold 9pt Arial,Helvetica,sans-serif;letter-spacing:.06em;color:#222;margin:6pt 0 0}
+#printsheet .dg .bx{fill:#fff;stroke:#777;stroke-width:.9}
+#printsheet .dg .k-ql .bx{fill:#FFF5EC}#printsheet .dg .k-rio .bx{fill:#EEF4FF}#printsheet .dg .k-gal .bx{fill:#EEF8EE}#printsheet .dg .k-spk .bx{fill:#F5EFFC}#printsheet .dg .src .bx{fill:#F2F2F2}
+#printsheet .dg .ac{stroke:#888}#printsheet .dg .k-ql .ac{stroke:#D9772B}#printsheet .dg .k-rio .ac{stroke:#2F6FD6}#printsheet .dg .k-gal .ac{stroke:#3A9A45}#printsheet .dg .k-spk .ac{stroke:#8C55D6}
+#printsheet .dg .tt{fill:#000;font:bold 13px Arial,Helvetica,sans-serif}
+#printsheet .dg .st,#printsheet .dg .ct{fill:#333;font:11px Arial,Helvetica,sans-serif}
+#printsheet .dg .ed{stroke:#333}#printsheet .dg .ed.dante{stroke:#1677A8}
+#printsheet .dg .ah{fill:#333}#printsheet .dg .ah.dante{fill:#1677A8}
+#printsheet .dg .lb{fill:#555;font:bold 8.5px Arial,Helvetica,sans-serif;stroke:#fff}
+#printsheet .dgkey{color:#444;font-size:8pt;margin-top:6pt}
+#printsheet .dgkey span{border-top-color:#333}#printsheet .dgkey .k1{border-top-color:#1677A8}
+#printsheet footer{margin-top:8pt;padding-top:3pt;border-top:.75pt solid #bbb;font-size:7.5pt;color:#666}
 @media print{
-  @page{margin:14mm 12mm}
+  @page{size:A4;margin:12mm 12mm 12mm}
   html,body{height:auto!important;overflow:visible!important}
   body.printing{background:#fff!important}
   body.printing #app{display:none!important}
-  body.printing #printsheet{display:block!important;color:#000;font:10.5pt/1.45 Arial,Helvetica,sans-serif}
-  #printsheet h1{font-size:20pt;line-height:1.15;margin:2pt 0 3pt}
-  #printsheet h2{font-size:11.5pt;margin:14pt 0 5pt;padding-bottom:2pt;border-bottom:1.5pt solid #000;text-transform:uppercase;letter-spacing:.06em;break-after:avoid}
-  #printsheet h3{font-size:10.5pt;margin:8pt 0 3pt;break-after:avoid}
-  #printsheet table{width:100%;border-collapse:collapse;margin:4pt 0}
-  #printsheet th,#printsheet td{border:.75pt solid #999;padding:3pt 6pt;text-align:left;vertical-align:top}
-  #printsheet th{background:#eee;font-weight:bold}
-  #printsheet .ps-info th{width:28%}
-  #printsheet .ps-times th,#printsheet .ps-times td{text-align:center}
-  #printsheet .ps-times td{font-size:13pt;font-weight:bold}
-  #printsheet .ps-k{font-size:8.5pt;letter-spacing:.12em;text-transform:uppercase;color:#444;margin:0}
-  #printsheet .ps-sub{margin:0 0 8pt;font-size:11.5pt}
-  #printsheet .ps-notes{white-space:pre-wrap}
-  #printsheet .ps-flow{margin:2pt 0;padding-left:18pt}
-  #printsheet .ps-checks{list-style:none;padding:0;margin:0}
-  #printsheet .ps-checks li{display:flex;gap:7pt;padding:2.5pt 0}
-  #printsheet .ps-box{flex:none;width:9pt;height:9pt;border:1pt solid #000;margin-top:2pt}
-  #printsheet tr,#printsheet li{break-inside:avoid}
-  #printsheet footer{margin-top:16pt;font-size:8.5pt;color:#555}
+  body.printing #printsheet{display:block!important}
+  #printsheet tr{break-inside:avoid}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -2081,7 +2126,7 @@ function viewQuickPlan(){
   return h + planForm(PLAN, true) + '<div id="planout" aria-live="polite">'+planOutput()+'</div>';
 }
 function planTickKey(){ return planMode() === "edit" && EVD ? evTickKey(EVD) : plKey(PLAN); }
-function planOutput(){ return plBody(PLAN, planTickKey(), {share: planMode() === "quick"}); }
+function planOutput(){ var ed = planMode() === "edit" && EVD; return plBody(PLAN, planTickKey(), {share: planMode() === "quick", qty: ed ? evQty(EVD) : null}); }
 // signal path, desk settings, patch list and checklist for one plan; tk = where its ticks are kept
 function plBody(p, tk, o){
   o = o || {}; if (!plDesks(p).length) return "";
@@ -2090,13 +2135,14 @@ function plBody(p, tk, o){
   var h = '<section class="card best plsum"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">The plan</span><h2 class="btitle">'+esc(title)+'</h2><div class="bsub">'+esc(P.events.map(function(ev){ return (ev.sources.join(", ") || "No sources") + (ev.e.subs ? ", subs" : "") + (ev.e.ff ? ", front fill" : ""); }).join(" · "))+'</div></div>'+
     '<div class="bact">'+(o.share && canShare()?'<button class="btn" id="plshare">Share</button>':'')+'<button class="btn" id="plmap">Show on map</button></div></div>';
   P.warn.forEach(function(w){ h += '<p class="tip warn">'+esc(w)+'</p>'; });
+  h += plDiagrams(p, {qty:o.qty}) + '<details class="plsteps"><summary>Step by step</summary>';
   P.events.forEach(function(ev){
     if (P.events.length > 1) h += '<p class="qlabel">'+esc(ev.D.name+" · "+plRoomList(ev.rooms))+'</p>';
     h += '<ol class="flowv" aria-label="Signal path">'+ev.flow.map(function(f){ return '<li class="fstep k-'+f[1]+'"><span class="fdot" aria-hidden="true"></span><div><span class="fnode">'+esc(f[0])+'</span><div class="fvals"><span class="lv">'+esc(f[2])+'</span></div></div></li>'; }).join("")+'</ol>';
   });
   if (P.foyer) h += '<p class="note"><b>Foyer:</b> '+esc(P.foyer)+'.</p>';
   if (P.ext) h += '<p class="note"><b>External:</b> '+esc(P.ext)+'</p>';
-  h += '</section>';
+  h += '</details></section>';
   h += '<h2 class="sec">Desk settings</h2><div class="card pllist">'+P.events.map(function(ev){ return ev.desk.map(function(x){ return '<div class="plitem"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>'; }).join(""); }).join("")+'</div>';
   var patch = [].concat.apply([], P.events.map(function(ev){ return ev.patch; })).concat(P.patch);
   h += '<h2 class="sec">Patch list<small>'+patch.length+'</small></h2><div class="card panel k-rio"><div class="tblwrap"><table class="t wide"><thead><tr><th>What</th><th>Where</th><th>Connect</th></tr></thead><tbody>'+
@@ -2164,6 +2210,205 @@ function planClick(t){
 }
 
 
+/* ---------- gear: what each plan needs on the day, worked out from the routing ---------- */
+function plModel(k){ var dv = cur().devices[k]; return dv && dv.model ? String(dv.model).replace(/^Yamaha\s+/i, "") : ""; }
+function plGear(p){
+  var g = [];
+  plDesks(p).forEach(function(d){
+    var e = p.ev[d], D = PL_DESKS[d], st = ROOMNAME[e.stage], box = e.src === "wall" ? null : PL_SRC[e.src];
+    function add(k, qty, item, det){ g.push({k:d + "." + k, qty:qty, item:item, det:det}); }
+    add("desk", 1, D.desk, D.name + " · " + (e.deskIn === "out" ? "not in the room" : (e.pos || "pillar in " + ROOMNAME[e.deskIn])));
+    if (box) add("box", 1, box, [plModel(e.src), "side-stage, " + st].filter(Boolean).join(" · "));
+    if (e.band) ["sr1", "sr2"].forEach(function(r){ if (r !== e.src) add("band" + r.slice(-1), 1, PL_SRC[r], [plModel(r), "on stage for the band"].filter(Boolean).join(" · ")); });
+    var where = box ? box : st + " wall patch", ik = box ? e.src : e.stage;
+    function into(nums){ return where + ": " + (dgNamed(ik, "In", nums) || "In " + dgRange(nums)); }
+    if (e.lec) add("lec", e.lec, e.lec === 2 ? "Lectern feeds (L + R)" : "Lectern feed", "XLR into " + into(e.lec === 2 ? [1, 2] : [1]));
+    if (e.pc) add("pc", 1, "Stage PC feed", "Into " + into([3]));
+    if (e.spare) add("spare", 1, "Spare line", "Into " + into([4]));
+    if (e.subs){ var sfk = e.subsFrom || e.stage, wpn = dgNums(plStep(plRoomRoutes(sfk).S, sfk, 0)); add("subs", 4, "750-LFC subs", "End-fire under the stage, " + st); add("loom", 1, "Stage loom", ROOMNAME[sfk] + " wall patch " + (dgNamed(sfk, "Out", wpn.length ? wpn : [1, 2]) || "out 1 + 2") + " to the subs"); }
+    if (e.ff){ var ffo = dgNums(plStep(plRoute("Front Fill"), "gal2", 1)); add("ff", 2, "Front fill speakers", "Stage lip, " + st + " · Galaxy 2 " + (dgNamed("gal2", "Out", ffo.length ? ffo : [7]) || "Out 7")); }
+  });
+  if (p.foyer === "bgm") g.push({k:"bgm", qty:1, item:"BGM player", det:"Into the QL5 in AV2, for the foyer"});
+  return g;
+}
+
+/* ---------- signal path diagram: one per desk, drawn as boxes and arrows (SVG) ---------- */
+var DGN = 0, DGCTX = null;
+function dgNums(s){ return (String(s || "").match(/\d+/g) || []).map(Number); }
+function dgRange(list){   // [33,34,37,38,39] -> "33–34, 37–39"
+  var n = list.filter(function(x, i){ return !isNaN(x) && list.indexOf(x) === i; }).sort(function(a, b){ return a - b; }), out = [], i = 0;
+  while (i < n.length){ var j = i; while (j + 1 < n.length && n[j+1] === n[j] + 1) j++; out.push(j > i ? n[i] + "–" + n[j] : String(n[i])); i = j + 1; }
+  return out.join(", ");
+}
+function dgNamed(key, kind, nums, mode){
+  var n = (nums || []).filter(function(x, i){ return !isNaN(x) && nums.indexOf(x) === i; }).sort(function(a, b){ return a - b; });
+  if (!n.length) return "";
+  var tbl = hasTable(key), groups = [];
+  n.forEach(function(x){
+    var nm = tbl ? String(chName(key, kind + " " + x) || "").trim() : "", w = nm ? nm.split(/\s+/) : [];
+    var pre = mode === "room" ? (w[0] || "") : w.slice(0, -1).join(" "), g = groups[groups.length - 1];
+    if (g && ((nm && pre && g.pre === pre && (mode === "room" || g.len === w.length)) || (!nm && !g.nm))) { g.nums.push(x); g.suf.push(w[w.length - 1]); return; }
+    groups.push({nm:nm, pre:pre, len:w.length, nums:[x], suf:[w[w.length - 1]]});
+  });
+  return groups.map(function(g){
+    var num = kind + " " + dgRange(g.nums);
+    if (!g.nm) return num;
+    var label = g.nums.length === 1 ? (mode === "room" ? g.pre : g.nm) : (mode === "room" ? g.pre : g.pre + " " + g.suf.join("/"));
+    return label + " (" + num + ")";
+  }).join(", ");
+}
+function dgWidth(s, font){
+  try{ if (!DGCTX) DGCTX = document.createElement("canvas").getContext("2d"); DGCTX.font = font; return DGCTX.measureText(s).width; }catch(e){ return String(s).length * 7; }
+}
+function dgWrap(s, font, w){
+  var words = String(s).split(" "), lines = [], cur0 = "";
+  words.forEach(function(wd){ var t = cur0 ? cur0 + " " + wd : wd; if (cur0 && dgWidth(t, font) > w){ lines.push(cur0); cur0 = wd; } else cur0 = t; });
+  if (cur0) lines.push(cur0);
+  return lines;
+}
+var DG_TF = "600 13px Arial, Helvetica, sans-serif", DG_SF = "500 11px Arial, Helvetica, sans-serif";
+// what goes in each box, from the plan and the site data
+function plDiagData(p, ev, o){
+  var d = ev.d, e = ev.e, D = ev.D, rooms = ev.rooms, st = e.stage, box = e.src === "wall" ? null : PL_SRC[e.src], q = o.qty || {};
+  var G = {src:[], nodes:{}, edges:[], cols:[]};
+  function N(id, row, kind, t, s, span){ G.nodes[id] = {id:id, row:row, kind:kind, t:t, s:(s || []).filter(Boolean), span:span || null}; }
+  function E(a, b, lbl, kind){ G.edges.push({a:a, b:b, l:lbl || "", k:kind || "an"}); }
+  // sources into the stage box (or the wall patch)
+  if (e.lec === 1) G.src.push("Lectern"); if (e.lec === 2) G.src.push("Lectern L", "Lectern R");
+  if (e.pc) G.src.push("Stage PC"); if (e.spare) G.src.push("Spare"); if (e.band) G.src.push("Band");
+  var rk = plRackInputs(), ins = [], chs = [];
+  if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4);
+  ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); });
+  if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks 1 + 2" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st], ins.length ? dgNamed(e.src, "In", ins) : ""]);
+  else N("in", 1, "room", ROOMNAME[st] + " wall patch", [ins.length ? dgNamed(st, "In", ins) : "", "Room loom → AV2 Rio"]);
+  // the desk
+  var dsub = [];
+  if (d === "opa"){
+    var mts = [];
+    rooms.forEach(function(k){ var R = plRoomRoutes(k); [R.L, R.R].forEach(function(r){ mts = mts.concat(dgNums(plMT(plStep(r, "dm7f")))); }); if (e.subs && k === (e.subsFrom || st)) mts = mts.concat(dgNums(plMT(plStep(R.S, "dm7f")))); });
+    if (e.ff) mts = mts.concat(dgNums(plMT(plStep(plRoute("Front Fill"), "dm7f"))));
+    if (p.foyer === "opa") mts = mts.concat(dgNums(plMT(plStep(plRoute("Foyer"), "dm7f"))));
+    if (box && chs.length) dsub.push("In: " + dgNamed("dm7f", "Ch", chs));
+    dsub.push("Out: " + dgNamed("dm7f", "MT", mts));
+  } else dsub.push("ST L/R + Sub out");
+  dsub.push(e.deskIn === "out" ? "Not in the room" : (e.pos || "Pillar in " + ROOMNAME[e.deskIn]));
+  N("desk", 2, "ql", D.desk + " · " + D.name, dsub);
+  E("in", "desk", box ? (e.deskIn === "out" ? "Dante · wall point " + (e.wpBox || "?") : "Dante") : "Dante", "dante");
+  if (e.play && d === "opa") N("play", 2, "room", "Playback", ["PC 1–4, PVP 1–2, Zoom (Ch 73–86)", "Audio Mac (Ch 88–96)"], "left");
+  // the QL5 (fixed routing)
+  var qin = [], rio = [], g1i = [], g1o = [], g2i = [], g2o = [], omni = [];
+  rooms.forEach(function(k){
+    var R = plRoomRoutes(k);
+    [R.L, R.R].forEach(function(r){ qin = qin.concat(dgNums(plStep(r, "ql5"))); rio = rio.concat(dgNums(plStep(r, "rio"))); g1i = g1i.concat(dgNums(plStep(r, "gal1"))); g1o = g1o.concat(dgNums(plStep(r, "gal1", 1))); });
+  });
+  if (d !== "opa"){ var op = d === "opb" ? "B" : "C"; qin = []; ["L", "R", "Sub"].forEach(function(s){ qin = qin.concat(dgNums(plStep(plRoute("OP " + op + " " + s), "ql5"))); }); }
+  var sf = e.subsFrom || st, RS = plRoomRoutes(sf).S, F = plRoute("Front Fill"), Y = plRoute("Foyer");
+  if (e.subs && RS){ if (d === "opa") qin = qin.concat(dgNums(plStep(RS, "ql5"))); omni = omni.concat(dgNums(plStep(RS, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(RS, "gal2"))); g2o = g2o.concat(dgNums(plStep(RS, "gal2", 1))); }
+  if (e.ff && F){ if (d === "opa") qin = qin.concat(dgNums(plStep(F, "ql5"))); omni = omni.concat(dgNums(plStep(F, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(F, "gal2"))); g2o = g2o.concat(dgNums(plStep(F, "gal2", 1))); }
+  var foy = (p.foyer === "opa" && d === "opa") || (p.foyer === "bgm" && o.first);
+  if (foy && Y){ if (p.foyer === "opa") qin = qin.concat(dgNums(plStep(Y, "ql5"))); rio = rio.concat(dgNums(plStep(Y, "rio"))); g1i = g1i.concat(dgNums(plStep(Y, "gal1"))); g1o = g1o.concat(dgNums(plStep(Y, "gal1", 1))); }
+  N("ql5", 3, "ql", "QL5 · AV2", [dgNamed("ql5", "In", qin), "Fixed routing"]);
+  E("desk", "ql5", "Dante", "dante");
+  if (p.foyer === "bgm" && o.first) N("bgm", 3, "room", "BGM player", ["Into QL5 " + (dgNamed("ql5", "In", [8]) || "In 8")], "left");
+  if (p.ext && o.first) N("ext", 3, "room", "External team", ["AV2 Rio In 13–16 → QL5", dgNamed("ql5", "In", [1, 2, 3, 4])], "right");
+  // branches: Rio + Galaxy 1 (rooms, foyer) and Galaxy 2 (subs, front fill)
+  G.cols.push("rooms"); if (foy) G.cols.push("foyer"); if (e.subs) G.cols.push("subs"); if (e.ff) G.cols.push("ff");
+  var g1 = foy ? ["rooms", "foyer"] : ["rooms"], g2 = [e.subs ? "subs" : null, e.ff ? "ff" : null].filter(Boolean);
+  N("rio", 4, "rio", "AV2 Rio", [dgNamed("rio", "Out", rio)], g1);
+  N("gal1", 5, "gal", "Galaxy 1", [dgNamed("gal1", "In", g1i), dgNamed("gal1", "Out", g1o, "room")], g1);
+  N("spk", 6, "spk", plRoomList(rooms), ["UPQ L/R + X20s"], ["rooms"]);
+  E("ql5", "rio", "Dante", "dante"); E("rio", "gal1", "XLR"); E("gal1", "spk", "Speaker lines");
+  if (foy){ N("foy", 6, "spk", "Foyer", ["From Galaxy 1 " + dgNamed("gal1", "Out", dgNums(plStep(Y, "gal1", 1)))], ["foyer"]); E("gal1", "foy", "Speaker line"); }
+  if (g2.length){
+    N("gal2", 4, "gal", "Galaxy 2", [dgNamed("gal2", "In", g2i), dgNamed("gal2", "Out", g2o)], g2);
+    E("ql5", "gal2", "Omni " + dgRange(omni) + " · XLR");
+    if (e.subs){
+      var wp = plStep(RS, sf, 0) || "Wall patch out 1 + 2";
+      N("wp", 5, "room", ROOMNAME[sf] + " wall patch", [dgNamed(sf, "Out", dgNums(wp)) || cap(wp.replace(/^wall patch\s*/i, ""))], ["subs"]);
+      N("subs", 6, "spk", (q[d + ".subs"] != null ? q[d + ".subs"] : 4) + " × 750-LFC", ["End-fire under the stage"], ["subs"]);
+      E("gal2", "wp", "Hardline"); E("wp", "subs", "Stage loom");
+    }
+    if (e.ff){ var nff = q[d + ".ff"] != null ? q[d + ".ff"] : 2; N("ff", 6, "spk", "Front fill" + (nff ? " × " + nff : ""), ["Stage lip", "From Galaxy 2 " + dgNamed("gal2", "Out", dgNums(plStep(F, "gal2", 1)))], ["ff"]); E("gal2", "ff", "Speaker line"); }
+  }
+  return G;
+}
+function plDiagram(p, ev, o){
+  o = o || {};
+  var G = plDiagData(p, ev, o), id = "dg" + (++DGN), W = 720, PAD = 6, GAP = 14, VG = 24, UW = 300, SW = 172;
+  var n = G.cols.length, cw = Math.min(n === 1 ? 420 : 340, (W - 2*PAD - (n - 1)*GAP) / n), gx = (W - (n*cw + (n - 1)*GAP)) / 2;
+  var sideRow = {}; Object.keys(G.nodes).forEach(function(k){ var nd = G.nodes[k]; if (nd.span === "left" || nd.span === "right") sideRow[nd.row] = 1; });   // branch columns, centred, no wider than the boxes above
+  function colX(c){ return gx + G.cols.indexOf(c) * (cw + GAP); }
+  // size and place the boxes
+  var rows = {}, nodes = G.nodes;
+  Object.keys(nodes).forEach(function(k){
+    var nd = nodes[k], x, w;
+    if (nd.span === "left"){ w = SW; x = PAD; }
+    else if (nd.span === "right"){ w = SW; x = W - PAD - SW; }
+    else if (nd.span){ x = colX(nd.span[0]); w = colX(nd.span[nd.span.length - 1]) + cw - x; }
+    else { w = sideRow[nd.row] ? 334 : 420; x = (W - w) / 2; }
+    nd.x = x; nd.w = w;
+    nd.tl = dgWrap(nd.t, DG_TF, w - 24); nd.sl = [];
+    nd.s.forEach(function(s){ nd.sl = nd.sl.concat(dgWrap(s, DG_SF, w - 24)); });
+    nd.h = 9 + nd.tl.length * 16 + nd.sl.length * 13 + 6;
+    (rows[nd.row] = rows[nd.row] || []).push(nd);
+  });
+  var y = PAD, chips = [], rowY = {}, rowH = {};
+  if (G.src.length){
+    var cwds = G.src.map(function(s){ return dgWidth(s, DG_SF) + 22; }), tot = cwds.reduce(function(a, b){ return a + b; }, 0) + (G.src.length - 1) * 10, cx = (W - tot) / 2;
+    G.src.forEach(function(s, i){ chips.push({t:s, x:cx, w:cwds[i], y:y, h:24}); cx += cwds[i] + 10; });
+    y += 24 + VG - 6;
+  }
+  Object.keys(rows).map(Number).sort(function(a, b){ return a - b; }).forEach(function(r){
+    var h = Math.max.apply(null, rows[r].map(function(nd){ return nd.h; }));
+    rowY[r] = y; rowH[r] = h; rows[r].forEach(function(nd){ nd.y = y + (h - nd.h) / 2; });
+    y += h + VG;
+  });
+  var H = y - VG + PAD;
+  var s = '<svg class="dg" viewBox="0 0 ' + W + ' ' + Math.ceil(H) + '" width="' + W + '" height="' + Math.ceil(H) + '" role="img" aria-label="' + esc("Signal path for " + ev.D.name + ": " + Object.keys(nodes).map(function(k){ return nodes[k].t; }).join(", ")) + '">';
+  s += '<defs><marker id="' + id + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L10 5 L0 9 z"/></marker>' +
+       '<marker id="' + id + 'd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah dante" d="M0 1 L10 5 L0 9 z"/></marker></defs>';
+  var lbls = [];
+  function edge(fx, fy, tx, ty, kind, lbl, horiz){
+    var dpath;
+    if (horiz) dpath = "M" + fx + " " + fy + " H" + tx;
+    else if (Math.abs(fx - tx) < 1) dpath = "M" + fx + " " + fy + " V" + (ty - 1);
+    else { var my = fy + Math.min(11, (ty - fy) / 2); dpath = "M" + fx + " " + fy + " V" + my + " H" + tx + " V" + (ty - 1); }
+    s += '<path class="ed ' + kind + '" d="' + dpath + '" marker-end="url(#' + id + (kind === "dante" ? "d" : "a") + ')"/>';
+    if (lbl){
+      if (horiz) lbls.push({x:(fx + tx) / 2, y:fy - 6, t:lbl, a:"middle"});
+      else { var top = Math.abs(fx - tx) < 1 ? fy : fy + Math.min(11, (ty - fy) / 2); lbls.push({x:tx + 7, y:(top + ty) / 2 + 3.5, t:lbl, a:"start"}); }
+    }
+  }
+  // sources converge on the stage box
+  var inN = nodes["in"];
+  chips.forEach(function(c, i){ edge(c.x + c.w / 2, c.y + c.h, inN.x + inN.w / 2, inN.y, "an", i === chips.length - 1 ? (inN.kind === "rio" ? "XLR" : "") : ""); });
+  G.edges.forEach(function(ed){
+    var a = nodes[ed.a], b = nodes[ed.b]; if (!a || !b) return;
+    edge(a.x + a.w / 2, a.y + a.h, b.x + b.w / 2, b.y, ed.k, ed.l);
+  });
+  if (nodes.play) edge(nodes.play.x + nodes.play.w, nodes.play.y + nodes.play.h / 2, nodes.desk.x, nodes.play.y + nodes.play.h / 2, "an", "", true);
+  if (nodes.bgm) edge(nodes.bgm.x + nodes.bgm.w, nodes.bgm.y + nodes.bgm.h / 2, nodes.ql5.x, nodes.bgm.y + nodes.bgm.h / 2, "an", "", true);
+  if (nodes.ext) edge(nodes.ext.x, nodes.ext.y + nodes.ext.h / 2, nodes.ql5.x + nodes.ql5.w, nodes.ext.y + nodes.ext.h / 2, "dante", "", true);
+  chips.forEach(function(c){ s += '<g class="nd src"><rect class="bx" x="' + c.x + '" y="' + c.y + '" width="' + c.w + '" height="' + c.h + '" rx="12"/><text class="ct" x="' + (c.x + c.w / 2) + '" y="' + (c.y + 16) + '" text-anchor="middle">' + esc(c.t) + '</text></g>'; });
+  Object.keys(nodes).forEach(function(k){
+    var nd = nodes[k], ty = nd.y + 9 + 12;
+    s += '<g class="nd k-' + nd.kind + '"><rect class="bx" x="' + nd.x + '" y="' + nd.y + '" width="' + nd.w + '" height="' + nd.h + '" rx="9"/><path class="ac" d="M' + (nd.x + 1.5) + ' ' + (nd.y + 8) + ' V' + (nd.y + nd.h - 8) + '"/>';
+    nd.tl.forEach(function(l, i){ s += '<text class="tt" x="' + (nd.x + 14) + '" y="' + (ty + i * 16) + '">' + esc(l) + '</text>'; });
+    nd.sl.forEach(function(l, i){ s += '<text class="st" x="' + (nd.x + 14) + '" y="' + (ty + nd.tl.length * 16 + 1 + i * 13) + '">' + esc(l) + '</text>'; });
+    s += '</g>';
+  });
+  lbls.forEach(function(l){ s += '<text class="lb" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.a + '">' + esc(String(l.t).toUpperCase()) + '</text>'; });
+  return s + '</svg>';
+}
+var DG_KEY = '<p class="dgkey"><span class="k1"></span>Dante <span class="k2"></span>Analogue (XLR, hardline, speaker lines)</p>';
+function plDiagrams(p, o){
+  o = o || {};
+  var P = plBuild(p);
+  return P.events.map(function(ev, i){
+    return '<div class="dgwrap">' + (P.events.length > 1 || o.heads ? '<p class="dghead">' + esc(ev.D.name + " · " + ev.D.desk + " · " + plRoomList(ev.rooms)) + '</p>' : '') + plDiagram(p, ev, {first:i === 0, qty:o.qty}) + '</div>';
+  }).join("") + (o.nokey ? "" : DG_KEY);
+}
+
 /* ---------- events: each event's details plus its routing, saved to the site for the techs ---------- */
 var EVD = null, EVDIRTY = false, EVSAVING = false, EVARM = "", EVARMT = null, EV_STASH = "ballroomEventDraft";
 var EV_STATUS = [["draft","Draft"],["ready","Ready"],["done","Done"]];
@@ -2182,11 +2427,48 @@ function evNorm(o){
     name: evStr(o.name, 100), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "",
     status: /^(draft|ready|done)$/.test(o.status || "") ? o.status : "draft",
     client: evStr(o.client, 100), contact: evStr(o.contact, 100), phone: evStr(o.phone, 40), techs: evStr(o.techs, 200),
-    times: times, notes: evStr(o.notes, 4000), plan: plan,
+    times: times, notes: evStr(o.notes, 4000), plan: plan, gear: evGearNorm(o.gear),
     createdAt: evStr(o.createdAt, 40), updatedAt: evStr(o.updatedAt, 40), updatedBy: evStr(o.updatedBy, 100)
   };
   plan.name = e.name;
   return e;
+}
+function evGearNorm(g){
+  g = g && typeof g === "object" ? g : {};
+  var adj = {}, a = g.adj && typeof g.adj === "object" ? g.adj : {};
+  Object.keys(a).slice(0, 60).forEach(function(k){ if (/^[a-z0-9.]{1,20}$/.test(k)){ var n = Math.round(Number(a[k])); if (!isNaN(n)) adj[k] = Math.max(0, Math.min(99, n)); } });
+  var extra = (Array.isArray(g.extra) ? g.extra : []).slice(0, 30).map(function(x){ x = x && typeof x === "object" ? x : {}; return {qty:Math.max(0, Math.min(999, Math.round(Number(x.qty)) || 0)), item:evStr(x.item, 80)}; });
+  return {adj:adj, extra:extra};
+}
+// the gear for an event: worked out from its routing, with any changes and extra items
+function evGear(e){
+  var adj = e.gear.adj;
+  return plGear(e.plan).map(function(r){ return {k:r.k, item:r.item, det:r.det, auto:r.qty, qty:(r.k in adj) ? adj[r.k] : r.qty}; })
+    .concat(e.gear.extra.filter(function(x){ return x.item.trim(); }).map(function(x){ return {k:"", item:x.item, det:"", qty:x.qty, extra:1}; }));
+}
+function evQty(e){ var q = {}; evGear(e).forEach(function(r){ if (r.k) q[r.k] = r.qty; }); return q; }
+function evGearList(e){
+  var rows = evGear(e).filter(function(r){ return r.qty > 0; });
+  if (!rows.length) return '<div class="card empty">No gear listed.</div>';
+  return '<div class="card evgearlist">' + rows.map(function(r){ return '<div class="gq"><b class="gn">' + r.qty + '</b><span class="gi"><b>' + esc(r.item) + '</b>' + (r.det ? '<small>' + esc(r.det) + '</small>' : '') + '</span></div>'; }).join("") + '</div>';
+}
+function evGearEdit(){
+  var e = EVD, rows = plGear(e.plan), adj = e.gear.adj;
+  var h = '<p class="note" style="margin:0 0 6px">Worked out from the routing. Change a number if this event needs more or fewer, or set it to 0 to leave it off.</p>';
+  h += rows.map(function(r){
+    var q = (r.k in adj) ? adj[r.k] : r.qty;
+    return '<div class="gq"><span class="plstep"><button class="btn" data-evgq="' + r.k + '" data-v="' + Math.max(0, q - 1) + '" aria-label="Fewer ' + esc(r.item) + '"' + (q <= 0 ? ' disabled' : '') + '>−</button><b>' + q + '</b><button class="btn" data-evgq="' + r.k + '" data-v="' + Math.min(99, q + 1) + '" aria-label="More ' + esc(r.item) + '">+</button></span>' +
+      '<span class="gi"><b>' + esc(r.item) + '</b><small>' + esc(r.det) + (q !== r.qty ? ' · usually ' + r.qty : '') + '</small></span></div>';
+  }).join("");
+  h += '<p class="pllab" style="margin:14px 0 6px">Extra gear</p>';
+  h += e.gear.extra.map(function(x, i){ return '<div class="gq gx"><input class="fi gxq" type="number" min="0" max="999" inputmode="numeric" data-evx="' + i + '.qty" value="' + x.qty + '" aria-label="How many"><input class="fi" data-evx="' + i + '.item" value="' + esc(x.item) + '" placeholder="e.g. Lectern, mic stands" aria-label="Item" autocomplete="off"><button class="btn" data-evxdel="' + i + '" aria-label="Remove this item">✕</button></div>'; }).join("");
+  return h + '<p style="margin:8px 0 0"><button class="btn" data-evxadd>Add an item</button></p>';
+}
+function evSetExtra(path, v){
+  if (!EVD) return;
+  var p = path.split("."), x = EVD.gear.extra[Number(p[0])]; if (!x) return;
+  if (p[1] === "qty") x.qty = Math.max(0, Math.min(999, Math.round(Number(v)) || 0)); else x.item = String(v).slice(0, 80);
+  evTouch();
 }
 function evAll(){ var e = cur().events; return e && typeof e === "object" && !Array.isArray(e) ? e : {}; }
 function evGet(id){ var e = evAll()[id]; return e && typeof e === "object" ? evNorm(Object.assign({}, e, {id:id})) : null; }
@@ -2201,7 +2483,7 @@ function evWhen(iso){ var d = new Date(iso); if (isNaN(d)) return ""; var h = d.
 function evRooms(e){ return plDesks(e.plan).map(function(d){ return PL_DESKS[d].name + " " + plRoomList(plRoomsOf(e.plan, d)); }).join(" · "); }
 function evPill(s){ var l = EV_STATUS.filter(function(x){ return x[0] === s; })[0] || EV_STATUS[0]; return '<span class="evst st-'+l[0]+'">'+l[1]+'</span>'; }
 function evTickKey(e){ return "ev" + e.id + "-" + plKey(e.plan); }
-function evOut(e){ return plBody(e.plan, evTickKey(e), {}); }
+function evOut(e){ return plBody(e.plan, evTickKey(e), {qty:evQty(e)}); }
 
 /* the unsaved draft is kept on this device, so a reload or a closed tab doesn't lose it */
 function evStash(){ try{ if (EVD) localStorage.setItem(EV_STASH, JSON.stringify({d:EVD, dirty:EVDIRTY})); }catch(e){} }
@@ -2220,6 +2502,7 @@ function evBusy(id){   // another event has unsaved changes: finish that one fir
   if (EVD && EVDIRTY && EVD.id !== id){ toast("Save or discard your changes to “" + (EVD.name || "the new event") + "” first."); location.hash = "plan?e=" + EVD.id; return true; }
   return false;
 }
+function evGearRefresh(){ var g = $("evgear"); if (g && EVD) g.innerHTML = evGearEdit(); var o = $("planout"); if (o) o.innerHTML = planOutput(); }
 function evTouch(){ EVDIRTY = true; EVARM = ""; evStash(); evBar(); }
 function evBar(){ var b = $("evbar"); if (b && EVD) b.innerHTML = evBarHTML(); }
 function evArm(what){ EVARM = what; evBar(); clearTimeout(EVARMT); EVARMT = setTimeout(function(){ if (EVARM === what){ EVARM = ""; evBar(); } }, 4000); }
@@ -2271,7 +2554,9 @@ function viewEventEdit(){
   h += '<div class="evtimesin evwide">'+EV_TIMES.map(function(x){ return evField("times."+x[0], x[1], e.times[x[0]], {type:"time"}); }).join("")+'</div>';
   h += evField("notes", "Run sheet and notes", e.notes, {wide:1, area:1, ph:"Session times, presenters, playback, anything the techs need to know"});
   h += '</div>';
-  h += '<h2 class="sec">Routing</h2>' + planForm(PLAN, false) + '<div id="planout" aria-live="polite">'+planOutput()+'</div>';
+  h += '<h2 class="sec">Routing</h2>' + planForm(PLAN, false);
+  h += '<h2 class="sec">Gear</h2><div class="card evgear" id="evgear">'+evGearEdit()+'</div>';
+  h += '<div id="planout" aria-live="polite">'+planOutput()+'</div>';
   return h + '<div class="evbar" id="evbar">'+evBarHTML()+'</div>';
 }
 function evBarHTML(){
@@ -2302,6 +2587,7 @@ function viewEventSheet(id){
   h += '<div class="evact">'+(canShare() ? '<button class="btn" data-evshare="'+e.id+'">Share</button>' : '')+'<button class="btn" data-evprint="'+e.id+'">Print / PDF</button>'+
     (canEdit() ? '<button class="btn" data-evedit="'+e.id+'">Edit</button><button class="btn" data-evdup="'+e.id+'">Duplicate</button>' : '')+'</div>';
   if (e.notes) h += '<h2 class="sec">Run sheet and notes</h2><div class="card evnotes">'+esc(e.notes)+'</div>';
+  h += '<h2 class="sec">Gear</h2>' + evGearList(e);
   h += '<h2 class="sec">Routing</h2><div id="evout" data-ev="'+e.id+'">'+evOut(e)+'</div>';
   if (e.updatedAt) h += '<p class="note">Last changed '+esc(evWhen(e.updatedAt))+(e.updatedBy ? ' by '+esc(e.updatedBy) : '')+'.</p>';
   return h;
@@ -2362,33 +2648,13 @@ function evShare(id){
   toast("The link is in your address bar.");
 }
 function evPrintHTML(e){
-  var P = plBuild(e.plan), t = e.times, tm = EV_TIMES.filter(function(x){ return t[x[0]]; }), st = (EV_STATUS.filter(function(x){ return x[0] === e.status; })[0] || EV_STATUS[0])[1];
-  var h = '<header><p class="ps-k">RACV Royal Pines · Ballroom audio · Event sheet</p><h1>'+esc(e.name || "Untitled event")+'</h1><p class="ps-sub">'+esc([evDate(e.date, true) || "No date yet", evRooms(e), st].filter(Boolean).join(" · "))+'</p></header>';
-  if (tm.length) h += '<table class="ps-times"><tr>'+tm.map(function(x){ return '<th>'+x[1]+'</th>'; }).join("")+'</tr><tr>'+tm.map(function(x){ return '<td>'+evTime(t[x[0]])+'</td>'; }).join("")+'</tr></table>';
-  var info = [];
-  if (e.client) info.push(["Client", e.client]);
-  if (e.contact || e.phone) info.push(["On-site contact", [e.contact, e.phone].filter(Boolean).join(" · ")]);
-  if (e.techs) info.push(["Techs", e.techs]);
-  if (info.length) h += '<table class="ps-info">'+info.map(function(i){ return '<tr><th>'+i[0]+'</th><td>'+esc(i[1])+'</td></tr>'; }).join("")+'</table>';
-  if (e.notes) h += '<h2>Run sheet and notes</h2><div class="ps-notes">'+esc(e.notes)+'</div>';
-  if (P.warn.length) h += '<h2>Check first</h2><ul>'+P.warn.map(function(w){ return '<li>'+esc(w)+'</li>'; }).join("")+'</ul>';
-  h += '<h2>Signal path</h2>';
-  P.events.forEach(function(ev){
-    h += '<h3>'+esc(ev.D.name + " (" + ev.D.desk + ") · " + plRoomList(ev.rooms))+'</h3><ol class="ps-flow">'+ev.flow.map(function(f){ return '<li><b>'+esc(f[0])+':</b> '+esc(f[2])+'</li>'; }).join("")+'</ol>';
-  });
-  if (P.foyer) h += '<p><b>Foyer:</b> '+esc(P.foyer)+'.</p>';
-  if (P.ext) h += '<p><b>External:</b> '+esc(P.ext)+'</p>';
-  h += '<h2>Desk settings</h2><table>'+[].concat.apply([], P.events.map(function(ev){ return ev.desk; })).map(function(x){ return '<tr><th>'+esc(x[0])+'</th><td>'+esc(x[1])+'</td></tr>'; }).join("")+'</table>';
-  var patch = [].concat.apply([], P.events.map(function(ev){ return ev.patch; })).concat(P.patch);
-  h += '<h2>Patch list</h2><table><tr><th>What</th><th>Where</th><th>Connect</th></tr>'+patch.map(function(r){ return '<tr><td><b>'+esc(r[0])+'</b></td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>'; }).join("")+'</table>';
-  h += '<h2>Checklist</h2>';
-  var g = "", open = false;
-  P.checks.forEach(function(c){
-    if (c.g !== g){ if (open) h += '</ul>'; g = c.g; h += '<h3>'+esc(g)+'</h3><ul class="ps-checks">'; open = true; }
-    h += '<li><span class="ps-box"></span><span>'+esc(c.t)+'</span></li>';
-  });
-  if (open) h += '</ul>';
-  h += '<footer>Printed '+esc(evWhen(new Date().toISOString()))+(e.updatedAt ? ' · last changed '+esc(evWhen(e.updatedAt))+(e.updatedBy ? ' by '+esc(e.updatedBy) : '') : '')+'</footer>';
+  var t = e.times, tm = EV_TIMES.filter(function(x){ return t[x[0]]; }), gear = evGear(e).filter(function(r){ return r.qty > 0; });
+  var h = '<header class="ps-head"><div class="ps-top"><span>RACV Royal Pines · Ballroom audio · Event sheet</span><span>Printed ' + esc(evWhen(new Date().toISOString())) + '</span></div>' +
+    '<h1>' + esc(e.name || "Untitled event") + '</h1><p class="ps-sub">' + esc([evDate(e.date, true) || "Date to be confirmed", plRoomList(PL_ROOMS.filter(function(k){ return e.plan.rooms[k]; }))].filter(Boolean).join("  ·  ")) + '</p></header>';
+  h += '<section class="ps-sec"><h2>Timings</h2>' + (tm.length ? '<div class="ps-times">' + tm.map(function(x){ return '<div><small>' + x[1] + '</small><b>' + evTime(t[x[0]]) + '</b></div>'; }).join("") + '</div>' : '<p class="ps-none">No times set.</p>') + '</section>';
+  h += '<section class="ps-sec"><h2>Gear</h2>' + (gear.length ? '<table class="ps-gear"><thead><tr><th class="q">Qty</th><th>Item</th><th>Where / notes</th></tr></thead><tbody>' +
+    gear.map(function(r){ return '<tr><td class="q">' + r.qty + '</td><td><b>' + esc(r.item) + '</b></td><td>' + esc(r.det) + '</td></tr>'; }).join("") + '</tbody></table>' : '<p class="ps-none">No gear listed.</p>') + '</section>';
+  h += '<section class="ps-sec ps-path"><h2><span>Signal path</span>' + DG_KEY + '</h2>' + plDiagrams(e.plan, {qty:evQty(e), heads:1, nokey:1}) + '</section>';
   return h;
 }
 function evPrintPrep(e){
@@ -2419,6 +2685,9 @@ function evClick(t){
     t.parentNode.querySelectorAll("[data-evset]").forEach(function(b){ b.setAttribute("aria-pressed", String(b === t)); });
     evTouch(); return true;
   }
+  if (t.hasAttribute("data-evgq") && EVD){ EVD.gear.adj[t.getAttribute("data-evgq")] = Number(t.getAttribute("data-v")); evTouch(); evGearRefresh(); return true; }
+  if (t.hasAttribute("data-evxadd") && EVD){ EVD.gear.extra.push({qty:1, item:""}); evTouch(); evGearRefresh(); var xs = document.querySelectorAll("[data-evx$='.item']"); if (xs.length) xs[xs.length - 1].focus(); return true; }
+  if (t.hasAttribute("data-evxdel") && EVD){ EVD.gear.extra.splice(Number(t.getAttribute("data-evxdel")), 1); evTouch(); evGearRefresh(); return true; }
   if (t.hasAttribute("data-evsave")){ evSave(); return true; }
   if (t.hasAttribute("data-evcancel")){
     if (EVDIRTY && EVARM !== "cancel"){ evArm("cancel"); return true; }
@@ -2927,6 +3196,7 @@ app.addEventListener("input", function(e){
   var t = e.target;
   if (t.id==="q"){ sigFilter.q = t.value; $("sigres").innerHTML = signalResults(); afterResults(); return; }
   var ef = t.getAttribute && t.getAttribute("data-evf"); if (ef){ evSetField(ef, t.value); return; }
+  var ex = t.getAttribute && t.getAttribute("data-evx"); if (ex){ evSetExtra(ex, t.value); return; }
   var pf = t.getAttribute && t.getAttribute("data-plf");
   if (pf){ planSet(pf, t.value); plNormalise(PLAN); planSync(); if (planMode() === "edit") evTouch(); clearTimeout(plT); plT = setTimeout(function(){ var o = $("planout"); if (o) o.innerHTML = planOutput(); }, 250); return; }
   if (t.id==="flt"){ var q = t.value.trim().toLowerCase(); document.querySelectorAll("#dbody tr[data-txt]").forEach(function(tr){tr.hidden = !!q && tr.getAttribute("data-txt").indexOf(q)<0;}); return; }
