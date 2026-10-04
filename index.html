@@ -763,7 +763,7 @@ function viewDevice(key){
     h += '</div>';
   }
   if (d.extra) h += '<p class="note">'+esc(d.extra)+'</p>';
-  var rs = cur().routes.filter(function(r){return r.steps.some(function(s){return s[0]===key;});});
+  var rs = allRoutes().filter(function(r){return r.steps.some(function(s){return s[0]===key;});});
   if (rs.length && key!=="dante") h += '<h2 class="sec">Signals through here<small>'+rs.length+'</small></h2><div class="card routes">'+rs.map(routeRow).join("")+'</div>';
   if (key==="desks"){
     h += '<h2 class="sec">RF at the desks</h2><div class="card panel k-ql"><div class="tblwrap"><table class="t"><thead><tr><th>Location</th><th>Channels</th></tr></thead><tbody>'+
@@ -772,7 +772,7 @@ function viewDevice(key){
   return h;
 }
 function viewStage(){
-  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F show file, which calls them rack A and rack B.</p>';
+  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F show file.</p>';
   ["sr1","sr2"].forEach(function(k){
     var d = cur().devices[k];
     h += '<h2 class="sec">'+esc(d.name)+'<small>'+esc(d.model)+'</small></h2><div class="io" style="margin-top:0">'+
@@ -796,7 +796,7 @@ function viewRoom(key){
   if (r.note || editing) h += '<p class="role">'+F(base+".note",{label:"Room note"})+'</p>';
   h += '</header><h2 class="sec">Speakers</h2>' + speakerCards(s.speakers.filter(function(sp){return sp.room===key;}));
   h += '<h2 class="sec">Where the mix goes<small>desk to speakers</small></h2><div class="card routes">'+s.routes.filter(function(x){return x.group===key && x.type==="out";}).map(routeRow).join("")+'</div>';
-  h += '<h2 class="sec">Where the sources go<small>wall patch to desks</small></h2><div class="card routes">'+s.routes.filter(function(x){return x.group===key && x.type==="src";}).map(routeRow).join("")+'</div>';
+  h += '<h2 class="sec">Wall patch sources<small>backup, for specific setups</small></h2><p class="note" style="margin:-4px 2px 10px">Normally the lectern and stage PC go into the stage box, not the wall. See the <a href="#signals?q=stage%20box">stage box routes</a>.</p><div class="card routes">'+s.routes.filter(function(x){return x.group===key && x.type==="src";}).map(routeRow).join("")+'</div>';
   var w = s.wallpatch[key];
   h += '<h2 class="sec">Wall patch</h2><div class="io" style="margin-top:0">'+
     panel("Inputs (to AV2)", used(w.ins), "room", ioTable("wallpatch."+key+".ins", w.ins, ["In","From","Goes to"]))+
@@ -913,7 +913,7 @@ function normQ(q){
     .replace(/\bql[\s-]*5\b/g,"ql5").replace(/\bl\s*\/\s*r\b/g," lr ").replace(/\bx[\s-]*20s?\b/g,"x20").replace(/\bdm[\s-]*7\b/g,"dm7")
     .replace(/\b(galaxy|gal|g)[\s-]*([12])\b/g,"$1$2").replace(/\b(room|rm|r)[\s-]*([123])\b/g,"room$2")
     .replace(/\b(?:stage[\s-]*)?racks?[\s-]*(1|a|one)\b/g," sr1 ").replace(/\b(?:stage[\s-]*)?racks?[\s-]*(2|b|two)\b/g," sr2 ").replace(/\bsr[\s-]*([12])\b/g,"sr$1").replace(/\bstage[\s-]*racks?\b/g," stagerack ")
-    .replace(/\bmain[\s-]*(desk|console|mixer)\b/g," dm7f ").replace(/\b(?:can ?not|cant|can t|unable to)\s+hear\b/g," cant ");
+    .replace(/\bmain[\s-]*(desk|console|mixer)\b/g," dm7f ").replace(/\bstage[\s-]*box(es)?\b/g," sr1 ").replace(/\b(?:can ?not|cant|can t|unable to)\s+hear\b/g," cant ");
 }
 function parseQ(q){
   var nq = normQ(q), okSide = null;
@@ -994,7 +994,8 @@ function feat(r){
 function scoreRoute(r, P){
   var f = feat(r), sc = 0;
   var rooms = Object.keys(P.rooms), ks = Object.keys(P.kinds).filter(function(k){return k!=="ext";}), wantExt = !!P.kinds.ext;
-  if (rooms.length){ if (f.room && P.rooms[f.room]) sc += 5; else if (f.room && f.room!=="foyer") sc -= 4; else sc -= 2; }
+  if (rooms.length){ if (r.group==="stage" || (f.room && P.rooms[f.room])) sc += 5; else if (f.room && f.room!=="foyer") sc -= 4; else sc -= 2; }   // the stage box serves whichever room the stage is in
+  if (isBackupSrc(r) && P.devs.indexOf("wall") < 0 && P.devs.indexOf("rio") < 0 && P.devs.indexOf("loom") < 0) sc -= 3;   // wall patch sources only win when asked for
   if (wantExt) sc += f.ext ? P.kinds.ext : -3; else if (f.ext) sc -= 2;
   if (ks.length){
     var hit = ks.filter(function(k){return f.kinds.indexOf(k) >= 0;});
@@ -1013,15 +1014,25 @@ function scoreRoute(r, P){
   return sc;
 }
 function nk(k){ return ROOMNUM[k] ? "room" : k; }
+/* Stage box routes, built from the DM7F show file: Stage Rack 1 inputs 1–4 → Dante → DM7F.
+   This is the normal way in for the lectern and stage PC; the room wall patch routes are only for specific setups. */
+function stageRoutes(){
+  var d = cur().devices && cur().devices.dm7f, out = [];
+  ((d && d.ins) || []).forEach(function(r){ var m = /Stage rack (?:A|1)\.(\d+)\b/i.exec(r.from || ""); if (m && Number(m[1]) <= 4 && r.sig) out.push({sig:r.sig, group:"stage", type:"src", steps:[["sr1","In "+m[1]],["dante","Dante"],["dm7f","Ch "+r.ch]], derived:1}); });
+  return out;
+}
+function allRoutes(){ return cur().routes.concat(stageRoutes()); }
+function isBackupSrc(r){ return !!r && r.type==="src" && !!ROOMNUM[r.group] && !!r.steps.length && !!ROOMNUM[r.steps[0][0]] && /wall patch/i.test(r.steps[0][1]); }
 function seqKey(r){ return r.steps.map(function(s){return nk(s[0]);}).join(">"); }
 function findSignals(q){
   var P = parseQ(q);
   if (!String(q||"").trim()) return {empty:true, P:P};
   if (P.kinds.rf) return {rf:true, P:P};
-  var scored = cur().routes.map(function(r){ return {r:r, s:scoreRoute(r, P)}; });
+  var scored = allRoutes().map(function(r){ return {r:r, s:scoreRoute(r, P)}; });
   var best = Math.max.apply(null, scored.map(function(x){return x.s;}));
   if (best < 4) return {none:true, P:P};
   var top = scored.filter(function(x){return x.s===best;}).map(function(x){return x.r;});
+  top.sort(function(a, b){ return (isBackupSrc(a) ? 1 : 0) - (isBackupSrc(b) ? 1 : 0); });   // on a tie, the stage box comes before the wall patch backup
   if (top.length > 4) return {many:top, P:P};
   var groups = [], idx = {};
   top.forEach(function(r){ var k = seqKey(r); if (!(k in idx)){ idx[k] = groups.length; groups.push([]); } groups[idx[k]].push(r); });
@@ -1270,6 +1281,16 @@ function checksFor(rs){
       {b:"Front fill", k:"fill", t:"Speakers powered and cabled."}
     ].filter(Boolean);
     tip = fillDesk ? "" : "Which inputs feed the fill mix isn’t documented yet. If the QL5 fill mix isn’t moving, check what’s routed to it.";
+  } else if (rs[0].type==="src" && rs[0].group==="stage"){
+    var lecS = f.kinds.indexOf("lec") >= 0, pcS = f.kinds.indexOf("pc") >= 0;
+    items = [
+      lecS ? {b:"Lectern mic", t:"Switched on and plugged into the stage box, "+N("sr1",0)+"."} :
+      pcS ? {b:"Stage PC", t:"Audio not muted, plugged into the stage box, "+N("sr1",0)+"."} : {b:"Source", t:"Plugged into the stage box, "+N("sr1",0)+"."},
+      {b:"Stage box", k:"sr1", t:"Stage Rack 1 powered and on the Dante network (its channels show up on the DM7F)."},
+      {b:"DM7F", k:"dm7f", t:N("dm7f",0)+" metering, unmuted, fader up and in the room mix."},
+      {b:"Room", t:"Meters fine on the desk but nothing in the room? Check that room’s mains next."}
+    ];
+    tip = lecS ? "Swap the mic lead into the spare input on the stage box. If the fault moves with it, it’s the lead or the mic." : (pcS ? "Try another cable or device at the stage box to rule out the PC." : "");
   } else if (rs[0].type==="src"){
     var wp = lc(V("room",0)), lec = f.kinds.indexOf("lec") >= 0, pc = f.kinds.indexOf("pc") >= 0;
     items = [
@@ -1351,7 +1372,7 @@ function rfCard(P){
 function groupTitle(rs){ return rs.length <= 2 ? rs.map(function(r){return r.sig;}).join(" + ") : rs.map(function(r){return r.sig;}).join(", "); }
 function groupSub(rs){
   var f = feat(rs[0]), rooms = J(rs.map(function(r){return ROOMNAME[feat(r).room] || "";}));
-  var what = rs[0].type==="src" ? "wall patch to desks" : (rs[0].type==="ext" ? "external team into the QL5" : (rs[0].type==="feed" ? "into the QL5" : "desk to speakers"));
+  var what = rs[0].type==="src" ? (rs[0].group==="stage" ? "stage box to the DM7F" : "wall patch to desks (backup)") : (rs[0].type==="ext" ? "external team into the QL5" : (rs[0].type==="feed" ? "into the QL5" : "desk to speakers"));
   return (rooms ? rooms+" · " : "") + what;
 }
 function readLine(P){
@@ -1386,8 +1407,8 @@ function signalResults(){
     var rec = getRecent();
     if (rec.length) h += '<p class="qlabel">Recent</p><div class="qchips">'+rec.map(function(x){return qChip(x, x);}).join("")+'</div>';
     h += (rec.length ? '<p class="qlabel">Try</p>' : '')+'<div class="qchips">'+EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join("")+'</div>';
-    [["out","Room outputs","desk to speakers"],["src","Room sources","wall patch to desks"],["ext","External teams","into the QL5"],["feed","Other feeds","into the QL5"]].forEach(function(sc){
-      var l = cur().routes.filter(function(r){return r.type===sc[0];});
+    [["stage","Stage box","lectern, stage PC and spare into the DM7F"],["out","Room outputs","desk to speakers"],["src","Wall patch sources","backup, for specific setups"],["ext","External teams","into the QL5"],["feed","Other feeds","into the QL5"]].forEach(function(sc){
+      var l = allRoutes().filter(function(r){ return sc[0]==="stage" ? r.group==="stage" : (r.type===sc[0] && r.group!=="stage"); });
       if (l.length) h += '<h2 class="sec">'+sc[1]+'<small>'+sc[2]+' · '+l.length+'</small></h2><div class="card routes">'+l.map(routeRow).join("")+'</div>';
     });
     return h;
@@ -1424,6 +1445,7 @@ function signalResults(){
       (gi===0?'<div class="bact">'+(canShare()?'<button class="btn" id="share">Share</button>':'')+'<button class="btn" id="showmap">Show on map</button></div>':'')+'</div>';
     h += flowDiagram(rs, rs[0].type);
     if (rs[0].alt) h += '<p class="note">'+esc(rs[0].alt)+'</p>';
+    if (isBackupSrc(rs[0])) h += '<p class="note">Wall patch route: only used in specific setups. Normally the lectern and stage PC go into the stage box.</p>';
     h += checksHTML(rs, res.P.trouble, res.P, gi===0) + '</section>';
   });
   h += refineChips(res.top, res.P, q);
@@ -1492,9 +1514,9 @@ function plRoomRoutes(k){ var n = ROOMNUM[k]; return {L:plRoute("Room "+n+" L"),
 function plMT(v){ var m = /\bMT\s*(\d+)/i.exec(v||""); return m ? "MT " + m[1] : ""; }
 function plDante(v){ var m = /Dante\s*(\d+)/i.exec(v||""); return m ? "Dante " + m[1] : ""; }
 function plCh(dev, ch){ var d = cur().devices[dev]; if (!d) return null; for (var i=0;i<(d.ins||[]).length;i++) if (String(d.ins[i].ch)===String(ch)) return d.ins[i]; return null; }
-function plRackInputs(){   // what the DM7F show file has on Stage Rack 1 (rack A) inputs 1-4
+function plRackInputs(){   // what the DM7F show file has on Stage Rack 1 inputs 1-4
   var d = cur().devices.dm7f, out = {};
-  ((d && d.ins) || []).forEach(function(r){ var m = /Stage rack A\.(\d+)\b/i.exec(r.from||""); if (m && Number(m[1]) <= 4 && r.sig) out[Number(m[1])] = {ch:r.ch, sig:r.sig}; });
+  ((d && d.ins) || []).forEach(function(r){ var m = /Stage rack (?:A|1)\.(\d+)\b/i.exec(r.from||""); if (m && Number(m[1]) <= 4 && r.sig) out[Number(m[1])] = {ch:r.ch, sig:r.sig}; });
   return out;
 }
 function plRX(n){ var out = [], d = cur().devices.dm7f; ((d && d.ins) || []).forEach(function(r){ var m = /^RX\s*(\d+)$/i.exec(r.sig||""); if (m && Number(m[1]) <= n) out.push({ch:r.ch, sig:r.sig}); }); return out; }
@@ -1527,7 +1549,7 @@ function plBuild(p){
         ev.flow.push(["Sources", "room", used.map(function(u){ return u[1].sig; }).join(" · ") || "None on the stage box"]);
         ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", (used.length ? used.map(function(u){ return u[1].sig + " (In " + u[0] + ")"; }).join(", ") + " → " : "→ ") + link]);
         ev.patch.push([box, "Side-stage, " + ROOMNAME[st], used.map(function(u){ return u[1].sig + " into In " + u[0]; }).join(", ") + (used.length ? ". " : "") + (e.deskIn === "out" ? "Plug into wall point " + (e.wpBox || "(pick one)") + ", as there’s no desk in the room." : "Networked to OPA over Dante, no wall point needed.")]);
-        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack 1 (rack A) inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
+        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack 1 inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
         ev.desk.push(["DM7F channels", (used.length ? used.map(function(u){ return u[1].sig + " (Ch " + u[1].ch + ")"; }).join(", ") : "No stage box inputs")]);
       } else {
         ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
@@ -1540,7 +1562,7 @@ function plBuild(p){
         ev.patch.push(["Radio mic receivers", "OPA", e.rx + " mic" + (e.rx===1?"":"s") + " · RX 1–" + e.rx + " into the DM7F over Dante"]);
         if (cap != null && e.rx > cap) out.warn.push("OPA has " + cap + " RF channels on the RF page; this plan needs " + e.rx + ".");
       }
-      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks 1 and 2 (A and B). Foldback FB 1–8 out of rack A, in-ears IEM 1–8 out of rack B."]); ev.patch.push(["Stage Racks 1 and 2", "On stage", "Band inputs per the DM7F show file. Foldback from rack A outs 1–8, in-ears from rack B outs 1–8."]); }
+      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks 1 and 2. Foldback FB 1–8 out of Stage Rack 1, in-ears IEM 1–8 out of Stage Rack 2."]); ev.patch.push(["Stage Racks 1 and 2", "On stage", "Band inputs per the DM7F show file. Foldback from Stage Rack 1 outs 1–8, in-ears from Stage Rack 2 outs 1–8."]); }
       if (e.play) ev.desk.push(["OPA playback", "PC 1–4, PVP 1–2 and Zoom on Ch 73–86 (Omni 1–14 as backup), audio Mac on Ch 88–96"]);
       // where the mix goes
       var feeds = [];
@@ -1755,6 +1777,7 @@ var DSET = {rio:1, ql5:1, stage:1, opa:1, opb:1, opc:1};
 function mapKey(r, i){
   var k = r.steps[i][0], v = r.steps[i][1] || "";
   if (k==="dm7f") return "opa";
+  if (k==="sr1" || k==="sr2") return "stage";
   if (k==="desks"){ if (/OPS?\s*B/i.test(v)) return "opb"; if (/OPS?\s*C/i.test(v)) return "opc"; return null; }
   if (k==="loom" || k==="fill" || k==="bgm") return null;
   if (k==="subs") return ROOMNUM[r.group] ? r.group + "-subs" : null;
@@ -1773,7 +1796,7 @@ function edgeFor(a, b){
 }
 function routeRect(){
   if (!hl) return null;
-  var rs = cur().routes.filter(function(r){ return hl.sigs.indexOf(r.sig) >= 0; }), G = routeGraph(rs), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, n = 0;
+  var rs = allRoutes().filter(function(r){ return hl.sigs.indexOf(r.sig) >= 0; }), G = routeGraph(rs), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, n = 0;
   G.nodes.forEach(function(k){ var g = GEO[k]; if (!g || k==="dante") return; x0 = Math.min(x0, g[0]); y0 = Math.min(y0, g[1]); x1 = Math.max(x1, g[0]+g[2]); y1 = Math.max(y1, g[1]+g[3]); n++; });
   if (!n) return null;
   return {x:x0 - 30, y:y0 - 40, w:x1 - x0 + 60, h:y1 - y0 + 80};
@@ -1813,7 +1836,7 @@ function applyHL(){
     svg.classList.remove("routing");
     svg.querySelectorAll(".ron").forEach(function(x){ x.classList.remove("ron","rev"); });
     if (hl){
-      var rs = cur().routes.filter(function(r){return hl.sigs.indexOf(r.sig) >= 0;}), G = routeGraph(rs);
+      var rs = allRoutes().filter(function(r){return hl.sigs.indexOf(r.sig) >= 0;}), G = routeGraph(rs);
       if (G.nodes.length){
         svg.classList.add("routing");
         G.nodes.forEach(function(k){ svg.querySelectorAll('.node[data-id="'+k+'"]').forEach(function(x){x.classList.add("ron");}); });
