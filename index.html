@@ -140,7 +140,7 @@ svg.routing .halo.ron{opacity:1}
 .readas{margin:12px 0 0;font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .rd{font:600 12.5px var(--f-body);color:var(--ink);background:var(--glass-3);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
 .rd.warn{color:var(--warn);background:var(--warn-bg);border-color:transparent}
-.readas .ign{font-size:12.5px;margin-left:4px}
+.readas .ign{font-size:12.5px;margin-left:4px;overflow-wrap:anywhere;min-width:0}
 .qchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .best{margin-top:14px;padding:16px 18px 14px;border-top:3px solid var(--accent)}
 .bhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
@@ -226,12 +226,13 @@ a.fnode:hover{text-decoration:underline}
 .rqmsg{margin:6px 0 0;white-space:pre-wrap;line-height:1.5}
 .rqreplyv{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:var(--glass-3);font-size:14px}
 .rqadmin{display:grid;gap:8px;margin-top:10px}
+.rqmsg,.rqabout,.rqreplyv,.alog td{overflow-wrap:anywhere}
 .rqreply{display:flex;gap:8px}
 .rqreply .fi{flex:1;min-width:0}
 .rqmail{font-size:13px}
 .rqsteps{margin:8px 0 12px;padding-left:20px;display:grid;gap:4px}
 .rqform{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin-bottom:10px}
-@media (max-width:560px){.rqreply{flex-wrap:wrap}.rqreply .btn{flex:1}}
+@media (max-width:560px){.rqreply{flex-wrap:wrap}.rqreply .fi{flex-basis:100%}.rqreply .btn{flex:1}}
 .crow{display:flex;align-items:flex-start;gap:6px}
 .crow label{flex:1;min-width:0}
 .stk{flex:none;margin-top:5px;font:600 12px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line-strong);border-radius:999px;padding:3px 11px;cursor:pointer;white-space:nowrap}
@@ -352,7 +353,7 @@ tr.hlrow td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 .editpill{top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);border-radius:12px;padding:6px 6px 6px 14px;display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);white-space:nowrap}
 .banner{z-index:8;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);border-radius:12px;padding:10px 12px 10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:calc(100% - 28px);border-color:var(--warn)}
 /* drawer */
-.drawer{position:absolute;z-index:6;top:calc(66px + env(safe-area-inset-top,0px));right:14px;bottom:calc(72px + env(safe-area-inset-bottom,0px));width:min(620px,calc(100% - 28px));border-radius:18px;border-color:var(--line-strong);display:flex;flex-direction:column;box-shadow:0 24px 70px var(--shadow);animation:slide .28s ease-out}
+.drawer{position:absolute;z-index:6;top:calc(66px + env(safe-area-inset-top,0px));right:14px;bottom:calc(72px + env(safe-area-inset-bottom,0px));width:var(--dw);border-radius:18px;border-color:var(--line-strong);display:flex;flex-direction:column;box-shadow:0 24px 70px var(--shadow);animation:slide .28s ease-out}
 @keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
 .dhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 20px;border-bottom:1px solid var(--line)}
 .dhead span{font:700 11px var(--f-display);letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
@@ -364,6 +365,14 @@ tr.hlrow td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
   .zoom,.hint{display:none}
   .meta span.upd{display:none}
 }
+:root{--dw:min(620px,calc(100% - 28px))}
+@media (min-width:1280px){:root{--dw:min(720px,calc(100% - 28px))}}
+@media (min-width:1200px){body.editing{--dw:min(900px,calc(100% - 28px))}}
+@media (min-width:721px){body.dopen .zoom{right:calc(var(--dw) + 26px)}}
+@media (min-width:721px) and (max-width:1024px) and (orientation:portrait){body.dopen .zoom{display:none}}
+@media (max-width:1400px){.hint{display:none}}
+@media (max-width:900px){.meta span.upd{display:none}}
+.dbody table.t td .fi[data-path$=".ip"]{min-width:118px}
 /* content inside the drawer */
 h1{font:700 clamp(24px,3.4vw,30px)/1.1 var(--f-display);margin:0;letter-spacing:.03em;text-wrap:balance}
 .lede{color:var(--muted);margin:6px 0 0;max-width:64ch}
@@ -421,6 +430,7 @@ select.fi{width:auto}
 a.chip:hover{border-color:var(--k)}
 .chip .cd{font:700 10px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--k)}
 .chip .cv{font:600 13px var(--f-body);white-space:nowrap}
+@media (max-width:420px){.chip{max-width:100%}.chip .cv{white-space:normal;overflow-wrap:anywhere}}
 .arrow{color:var(--muted);font-size:14px}
 .empty{padding:18px 14px;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:10px}
@@ -504,6 +514,8 @@ a.chip:hover{border-color:var(--k)}
   .grab{display:block;position:absolute;left:50%;top:5px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--line-strong)}
   .dhead{padding-top:16px;cursor:grab;touch-action:none}
   body.kb .drawer{top:calc(62px + env(safe-area-inset-top,0px));bottom:8px;height:auto}
+  .drawer:not(.tall){max-height:calc(100% - 136px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+  body.kb .drawer{max-height:none}
 }
 body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 @keyframes sheet{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
@@ -530,6 +542,7 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
   .dbody table.t.wide td::before,.dbody table.alog td::before{content:attr(data-label);font:600 10.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
   .dbody table.t.wide td:not([data-label]),.dbody table.alog td:not([data-label]){display:block}
   .dbody table.t.wide td:empty{display:none}
+  .dbody table.t.wide td > .pill{justify-self:start}
   body.editing .dbody table.t td{display:block;padding:5px 0;border:0;width:auto;white-space:normal}
   body.editing .dbody table.t td[data-label]::before{content:attr(data-label);display:block;font:600 10.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
   body.editing .dbody table.t td.ch{font:600 14px var(--f-mono);color:var(--ink);padding-bottom:2px}
@@ -612,6 +625,8 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 .evbar{position:sticky;bottom:-28px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px -20px -28px;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:#0A1020;border-top:1px solid var(--line-strong);box-shadow:0 -10px 24px rgba(0,0,0,.35)}
 .evmsg{flex:1 1 auto;font-size:13.5px;color:var(--muted)}
 .evbar [data-evdel][aria-pressed="true"]{border-color:var(--warn);color:var(--warn)}
+body.kb .evbar{position:static;box-shadow:none}
+@media (max-width:400px){body.kb .dhead{padding-top:8px;padding-bottom:6px}body.kb .dbody{padding-top:10px}}
 @media (max-width:620px){.evform{grid-template-columns:minmax(0,1fr)}.evtimesin{grid-template-columns:repeat(2,minmax(0,1fr))}.evmsg{flex-basis:100%;font-size:12.5px}.evbar .btn{flex:1 1 0;padding-left:8px;padding-right:8px}.evrow{grid-template-columns:46px minmax(0,1fr);gap:12px}.evrow .evst{grid-column:2;justify-self:start}}
 .dgwrap{margin-top:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .dg{display:block;width:100%;min-width:540px;max-width:720px;height:auto;margin:0 auto}
@@ -664,7 +679,10 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 #printsheet .ps-none{color:#666;margin:0}
 #printsheet .dgwrap{overflow:visible;margin-top:2pt;break-inside:avoid}
 #printsheet .dg{min-width:0;max-width:none;width:100%}
-#printsheet .dghead{font:bold 9pt Arial,Helvetica,sans-serif;letter-spacing:.06em;color:#222;margin:6pt 0 0}
+#printsheet .dghead{font:bold 9pt Arial,Helvetica,sans-serif;letter-spacing:.06em;color:#222;margin:6pt 0 0;display:flex;justify-content:space-between;gap:10pt}
+#printsheet .dghead span:first-child{flex:none}
+#printsheet .dghead .dgev{font-weight:normal;letter-spacing:0;color:#666;text-align:right;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dghead .dgev{display:none}#printsheet .dghead .dgev{display:inline}
 #printsheet .dg .bx{fill:#fff;stroke:#777;stroke-width:.9}
 #printsheet .dg .k-ql .bx{fill:#FFF5EC}#printsheet .dg .k-rio .bx{fill:#EEF4FF}#printsheet .dg .k-gal .bx{fill:#EEF8EE}#printsheet .dg .k-spk .bx{fill:#F5EFFC}#printsheet .dg .src .bx{fill:#F2F2F2}
 #printsheet .dg .ac{stroke:#888}#printsheet .dg .k-ql .ac{stroke:#D9772B}#printsheet .dg .k-rio .ac{stroke:#2F6FD6}#printsheet .dg .k-gal .ac{stroke:#3A9A45}#printsheet .dg .k-spk .ac{stroke:#8C55D6}
@@ -678,12 +696,29 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 #printsheet footer{margin-top:8pt;padding-top:3pt;border-top:.75pt solid #bbb;font-size:7.5pt;color:#666}
 @media print{
   @page{size:A4;margin:12mm 12mm 12mm}
+  html:has(body.printing){color-scheme:light;background:#fff!important}
   html,body{height:auto!important;overflow:visible!important}
   body.printing{background:#fff!important}
   body.printing #app{display:none!important}
   body.printing #printsheet{display:block!important}
   #printsheet tr{break-inside:avoid}
 }
+@media (max-width:420px){   /* 4-column tables (IN / SIGNAL / FROM / TO) as cards on small phones */
+  .dbody table.t.c4 thead{display:none}
+  .dbody table.t.c4,.dbody table.t.c4 tbody,.dbody table.t.c4 tr{display:block;width:100%}
+  .dbody table.t.c4 tr{padding:10px 14px;border-bottom:1px solid var(--line);box-sizing:border-box}
+  .dbody table.t.c4 tr:last-child{border-bottom:0}
+  .dbody table.t.c4 td{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:3px 0;border:0;width:auto;white-space:normal}
+  .dbody table.t.c4 td::before{content:attr(data-label);font:600 10.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+  .dbody table.t.c4 td:not([data-label]){display:block}
+  .dbody table.t.c4 td:empty{display:none}
+}
+@media (pointer:coarse){
+  a.fnode,.rchip a,.rqmail{padding-top:9px;padding-bottom:9px;margin-top:-9px;margin-bottom:-9px}
+  .linkbtn{padding:9px 0;margin:-9px 0}
+  .dbody summary{padding-top:7px;padding-bottom:7px}
+}
+h1[tabindex="-1"]:focus:not(:focus-visible){outline:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app"></div>
@@ -703,6 +738,24 @@ var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: re
 var app = document.getElementById("app");
 
 function esc(s){return String(s == null ? "" : s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+// links typed into the data: only web links (never javascript: and the like)
+function safeUrl(u){ u = String(u == null ? "" : u).trim(); return /^https?:\/\//i.test(u) ? u : "#"; }
+// site data from the database or a file: keys and "kind" values become ids and classes, links become hrefs
+function cleanState(s){
+  if (!s || typeof s !== "object") return s;
+  (function walk(o, depth){
+    if (!o || typeof o !== "object" || depth > 14) return;
+    if (Array.isArray(o)){ for (var i = 0; i < o.length; i++) walk(o[i], depth + 1); return; }
+    Object.keys(o).forEach(function(k){
+      if (!/^[A-Za-z0-9_.\-]{1,80}$/.test(k)){ delete o[k]; return; }
+      var v = o[k];
+      if (k === "kind" && typeof v === "string") o[k] = v.replace(/[^A-Za-z0-9]/g, "").slice(0, 20);
+      else if (k === "link" && typeof v === "string" && v && safeUrl(v) === "#") o[k] = "";
+      else walk(v, depth + 1);
+    });
+  })(s, 0);
+  return s;
+}
 function cur(){return editing ? draft : state;}
 function get(o,p){return p.split(".").reduce(function(a,k){return a == null ? a : a[k];},o);}
 function setp(o,p,v){var ks=p.split("."),x=o;for(var i=0;i<ks.length-1;i++)x=x[ks[i]];x[ks[ks.length-1]]=v;}
@@ -715,9 +768,9 @@ function F(path, o){
   o = o || {};
   var v = get(cur(), path); if (v == null) v = "";
   if (editing && !o.ro){
-    if (o.options) return '<select class="fi" id="'+fid(path)+'" data-path="'+path+'" aria-label="'+esc(o.label||"")+'">'+o.options.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>';}).join("")+'</select>';
-    if (o.area) return '<textarea class="fi" id="'+fid(path)+'" data-path="'+path+'" aria-label="'+esc(o.label||"")+'">'+esc(v)+'</textarea>';
-    return '<input class="fi'+(o.num?' n':'')+'" id="'+fid(path)+'" data-path="'+path+'"'+(o.num?' data-num="1" inputmode="numeric"':'')+' value="'+esc(v)+'" aria-label="'+esc(o.label||"")+'" placeholder="'+esc(o.ph||"")+'">';
+    if (o.options) return '<select class="fi" id="'+fid(path)+'" data-path="'+esc(path)+'" aria-label="'+esc(o.label||"")+'">'+o.options.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>';}).join("")+'</select>';
+    if (o.area) return '<textarea class="fi" id="'+fid(path)+'" data-path="'+esc(path)+'" aria-label="'+esc(o.label||"")+'">'+esc(v)+'</textarea>';
+    return '<input class="fi'+(o.num?' n':'')+'" id="'+fid(path)+'" data-path="'+esc(path)+'"'+(o.num?' data-num="1" inputmode="numeric"':'')+' value="'+esc(v)+'" aria-label="'+esc(o.label||"")+'" placeholder="'+esc(o.ph||"")+'">';
   }
   return o.show ? o.show(v) : esc(v);
 }
@@ -929,7 +982,7 @@ function used(rows){return rows.filter(function(r){return r.sig;}).length+" of "
 function devHeader(key, d){
   var kindName = {ql:"Yamaha desk",rio:"Yamaha I/O",gal:"Meyer processing",dante:"Network",room:"Outside source"}[d.kind] || "";
   var base = "devices."+key;
-  var h = '<header class="card devhead k-'+d.kind+'"><div class="tag">'+esc(kindName)+' · '+F(base+".where",{label:"Where"})+'</div>';
+  var h = '<header class="card devhead k-'+esc(d.kind)+'"><div class="tag">'+esc(kindName)+' · '+F(base+".where",{label:"Where"})+'</div>';
   h += '<h1>'+esc(d.name)+'</h1>';
   h += '<p class="model">'+F(base+".model",{label:"Model"})+(d.modelNote && !editing?' <span class="assumed" style="font-weight:400">'+esc(d.modelNote)+'</span>':'')+'</p>';
   if (editing) h += '<p class="model">'+F(base+".modelNote",{label:"Model note",ph:"Note about the model"})+'</p>';
@@ -937,7 +990,7 @@ function devHeader(key, d){
   h += '<dl class="facts"><div><dt>Status</dt><dd>'+F(base+".status",{show:statusPill,label:"Status"})+'</dd></div>';
   if (d.ip || editing) h += '<div><dt>IP address</dt><dd>'+F(base+".ip",{label:"IP address",ph:"192.168.0.x",show:function(v){return v ? '<span class="mono">'+esc(v)+'</span>' : '<span class="dim">—</span>';}})+'</dd></div>';
   if (d.specs || editing) h += '<div style="grid-column:1/-1"><dt>Key specs</dt><dd>'+F(base+".specs",{label:"Key specs"})+'</dd></div>';
-  if (d.link) h += '<div><dt>More</dt><dd><a href="'+esc(d.link)+'" target="_blank" rel="noopener">Datasheet / product page ↗</a></dd></div>';
+  if (d.link) h += '<div><dt>More</dt><dd><a href="'+esc(safeUrl(d.link))+'" target="_blank" rel="noopener">Datasheet / product page ↗</a></dd></div>';
   h += '</dl>';
   if (d.connects && d.connects.length) h += '<div class="conn">Connected to '+d.connects.map(function(c){var m=NODES[c]; return m?'<a class="k-'+m.kind+'" href="#'+m.go+'"><i class="dot"></i>'+esc(m.label)+'</a>':'';}).join("")+'</div>';
   return h + '</header>';
@@ -1021,15 +1074,15 @@ function viewSpeakers(){
 var ROOMNUM = {prince:1, monarch:2, marquis:3};
 var ROOMNAME = {prince:"Prince", monarch:"Monarch", marquis:"Marquis"};
 var KINDNAME = {sub:"Subs", mains:"Mains", lec:"Lectern", pc:"Stage PC", foyer:"Foyer", ext:"External", spare:"Spare", fill:"Fill", rf:"Wireless mic", bgm:"BGM", opa:"OPS A", opb:"OPS B", opc:"OPS C"};
-var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk", sr1:"Stage rack A", sr2:"Stage rack B", stage:"Stage racks"};
+var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk", sr1:"Stage rack A", sr2:"Stage rack B", sr3:"Stage rack C", stage:"Stage racks"};
 var PORTNAME = {"in":"In", out:"Out", omni:"Omni", dante:"Dante", mt:"Matrix", mix:"Mix"};
-var VOCAB = {}, VKEYS = [], LCACHE = {};
+var VOCAB = Object.create(null), VKEYS = [], LCACHE = Object.create(null);   // no prototype: typed words like "constructor" are just words
 function vocab(words, f, v, w){ words.split(" ").forEach(function(x){ if (!VOCAB[x]){ VOCAB[x] = {f:f, v:v, w:w||6}; VKEYS.push(x); } }); }
 vocab("prince princes princess room1","room","prince");
 vocab("monarch monarchs room2 middle","room","monarch");
 vocab("marquis marquee marque markee marquise room3","room","marquis");
 vocab("sub subs subwoofer subwoofers woofer woofers bass lfc lfcs endfire lowend 750","kind","sub");
-vocab("main mains pa tops top upq upqs x20 lr stereo foh","kind","mains");
+vocab("main mains pa tops top upq upqs x20 lr stereo foh downfill downfills","kind","mains");
 vocab("speaker speakers centre center","kind","mains",4);
 vocab("wireless radio handheld handhelds lapel lapels lav lavs lavalier headset headsets beltpack bodypack receiver receivers transmitter rf rx tx","kind","rf");
 vocab("lectern lecterns lec lecs lecturn lecturns podium mic mics microphone mike","kind","lec");
@@ -1040,17 +1093,17 @@ vocab("foyer foyers lobby prefunction","kind","foyer");
 vocab("external ext visiting outside hire","kind","ext");
 vocab("team teams","kind","ext",4);
 vocab("spare spares","kind","spare");
-vocab("fill fills","kind","fill");
+vocab("fill fills ff","kind","fill");
 vocab("bgm background","kind","bgm");
 vocab("opa opsa","dev","dm7f"); vocab("opb opsb","kind","opb"); vocab("opc opsc","kind","opc");
 vocab("left l","side","L"); vocab("right r","side","R");
 vocab("ql5 ql router","dev","ql5"); vocab("rio","dev","rio"); vocab("galaxy galaxies gal","dev","gal");
 vocab("galaxy1 gal1 g1","dev","gal1"); vocab("galaxy2 gal2 g2","dev","gal2");
-vocab("wallpatch patch","dev","wall"); vocab("loom looms","dev","loom"); vocab("dm7f","dev","dm7f");
+vocab("wallpatch patch wall","dev","wall"); vocab("loom looms","dev","loom"); vocab("dm7f","dev","dm7f");
 vocab("desk desks dm7 dm7c dm3 dm3s console","dev","desks");
 vocab("omni omnis","port","omni"); vocab("dante","port","dante");
 vocab("matrix matrices mtx mt","port","mt"); vocab("mix mixes aux auxes","port","mix");
-vocab("sr1","dev","sr1"); vocab("sr2","dev","sr2"); vocab("stagerack","dev","stage");
+vocab("sr1","dev","sr1"); vocab("sr2","dev","sr2"); vocab("sr3","dev","sr3"); vocab("stagerack","dev","stage");
 vocab("in input inputs ch chan channel channels","port","in"); vocab("out output outputs","port","out");
 vocab("room rooms rm","roomword","");
 vocab("buzz buzzing buzzy hum humming hummy noise noisy hiss hissing static","trouble","hum");
@@ -1099,11 +1152,11 @@ function normQ(q){
     .replace(/[’'`]/g,"")
     .replace(/\bend[\s-]*fire\b/g,"endfire").replace(/\blow[\s-]*end\b/g,"lowend").replace(/\bhand[\s-]*held/g,"handheld")
     .replace(/\b(radio|wireless|handheld|lapel|headset)[\s-]*(mics?|microphones?)\b/g,"$1")
-    .replace(/\b(stage|stg)[\s-]*pc\b/g,"stgpc").replace(/\bbackground[\s-]*music\b/g,"bgm").replace(/\bfront[\s-]*fills?\b/g,"fill").replace(/\b(op|ops|operator)[\s-]*([abc])\b/g,"op$2")
-    .replace(/\b(room|rm|lectern|lecturn|lec|pc|stgpc|loom|in|out|input|output|omni|dante|ch|channel|galaxy|gal)\s+(one|two|three)\b/g,function(m,a,b){return a+" "+({one:1,two:2,three:3})[b];}).replace(/\bwall[\s-]*patch\b/g,"wallpatch").replace(/\bpre[\s-]*function\b/g,"prefunction")
+    .replace(/\bin[\s-]+ears?\b/g,"inear").replace(/\bdown[\s-]+fills?\b/g,"downfill").replace(/\b(stage|stg)[\s-]*pc\b/g,"stgpc").replace(/\bbackground[\s-]*music\b/g,"bgm").replace(/\bfront[\s-]*fills?\b/g,"fill").replace(/\b(op|ops|operator)[\s-]*([abc])\b/g,"op$2")
+    .replace(/\b(room|rm|lectern|lecturn|lec|pc|stgpc|loom|in|out|input|output|omni|dante|ch|channel|galaxy|gal)\s+(one|two|three)\b/g,function(m,a,b){return a+" "+({one:1,two:2,three:3})[b];}).replace(/\bwall[\s-]*patch\b/g,"wallpatch").replace(/\bwall[\s-]*(point|port|plate|socket|box)s?\b/g," networkpoint ").replace(/\bpre[\s-]*function\b/g,"prefunction")
     .replace(/\bql[\s-]*5\b/g,"ql5").replace(/\bl\s*\/\s*r\b/g," lr ").replace(/\bx[\s-]*20s?\b/g,"x20").replace(/\bdm[\s-]*7\b/g,"dm7")
     .replace(/\b(galaxy|gal|g)[\s-]*([12])\b/g,"$1$2").replace(/\b(room|rm|r)[\s-]*([123])\b/g,"room$2")
-    .replace(/\b(?:stage[\s-]*)?racks?[\s-]*(1|a|one)\b/g," sr1 ").replace(/\b(?:stage[\s-]*)?racks?[\s-]*(2|b|two)\b/g," sr2 ").replace(/\bsr[\s-]*([12])\b/g,"sr$1").replace(/\bstage[\s-]*racks?\b/g," stagerack ")
+    .replace(/\b(?:stage[\s-]*)?racks?[\s-]*(1|a|one)\b/g," sr1 ").replace(/\b(?:stage[\s-]*)?racks?[\s-]*(2|b|two)\b/g," sr2 ").replace(/\b(?:stage[\s-]*)?racks?[\s-]*(3|c|three)\b/g," sr3 ").replace(/\bsr[\s-]*([123])\b/g,"sr$1").replace(/\bstage[\s-]*racks?\b/g," stagerack ")
     .replace(/\bmain[\s-]*(desk|console|mixer)\b/g," dm7f ").replace(/\bstage[\s-]*box(es)?\b/g," sr1 ").replace(/\b(?:can ?not|cant|can t|unable to)\s+hear\b/g," cant ");
 }
 function parseQ(q){
@@ -1114,16 +1167,23 @@ function parseQ(q){
   var P = {rooms:{}, kinds:{}, side:null, sides:{}, nums:[], ports:[], devs:[], trouble:!!okSide, sym:{}, read:[], unknown:[], notes:[], core:""};
   if (okSide) P.notes.push(okSide+" works");
   function said(t){ if (P.read.indexOf(t) < 0) P.read.push(t); }
+  var anyDev = toks.some(function(x){ var y = lookup(x); return !!y && y.f==="dev"; });
   for (var i=0;i<toks.length;i++){
     var w = toks[i], e = lookup(w);
     if (!e){ P.unknown.push(w); continue; }
+    if (w==="in" && !anyDev && /^[123]$/.test(toks[i+1]||"")){   // "nothing in 2" = Room 2
+      var rk = Object.keys(ROOMNUM).filter(function(k){ return ROOMNUM[k] === Number(toks[i+1]); })[0];
+      if (rk){ P.rooms[rk] = 1; P.inRoom = true; said(ROOMNAME[rk]); i++; continue; }
+    }
     if (e.f==="stop" || e.f==="roomword") continue;
     if (e.f==="trouble"){ P.trouble = true; if (e.v) P.sym[e.v] = 1; continue; }
     if (e.f==="room"){ P.rooms[e.v] = 1; said(ROOMNAME[e.v]); continue; }
     if (e.f==="kind"){ P.kinds[e.v] = Math.max(P.kinds[e.v]||0, e.w); said(KINDNAME[e.v]); continue; }
     if (e.f==="side"){ P.sides[e.v] = 1; said(e.v==="L"?"Left":"Right"); continue; }
     if (e.f==="dev" || e.f==="port"){
-      var dev = e.f==="dev" ? e.v : null, port = e.f==="port" ? e.v : null, j = i+1, nx = toks[j] && lookup(toks[j]);
+      var dev = e.f==="dev" ? e.v : null, port = e.f==="port" ? e.v : null;
+      if (dev==="gal" && /^[12]$/.test(toks[i+1]||"")){ dev = "gal" + toks[i+1]; i++; }   // typo'd "galxy 2" = Galaxy 2, like "galaxy 2"
+      var j = i+1, nx = toks[j] && lookup(toks[j]);
       if (dev && nx && nx.f==="port"){ port = nx.v; j++; }
       if (toks[j] && /^\d+$/.test(toks[j])){ P.ports.push({dev:dev, port:port, n:Number(toks[j])}); i = j; }
       else if (dev) P.devs.push(dev);
@@ -1142,9 +1202,10 @@ function parseQ(q){
   P.devs.forEach(function(d){ said(DEVNAME[d]); });
   P.nums.forEach(function(n){ if (n>=1 && n<=3) said("Room "+n); else { P.ports.push({dev:null, port:null, n:n, w:5}); said("Ch "+n); } });
   P.core = String(q||"").toLowerCase().split(/\s+/).filter(function(w){ var e = lookup(w.replace(/[^a-z0-9]/g,"")); return w && !(e && (e.f==="stop"||e.f==="trouble")); }).join(" ");
+  if (P.inRoom) P.core = P.core.replace(/\bin\s+[123]\b/g, " ").replace(/\s+/g, " ").trim();   // "in 2" was the room, not a port name
   return P;
 }
-var PORTRE = {"in":/\bin\s+([\d\s+()]+)/i, out:/\bout\s+([\d\s+()]+)/i, omni:/\bomni\s+([\d\s+()]+)/i, dante:/\bdante\s+([\d\s+()]+)/i, mt:/\bmt\s+([\d\s+()]+)/i, mix:/\bmix\s+([\d\s+()]+)/i};
+var PORTRE = {ch:/\bch\s+([\d\s+()]+)/i, "in":/\bin\s+([\d\s+()]+)/i, out:/\bout\s+([\d\s+()]+)/i, omni:/\bomni\s+([\d\s+()]+)/i, dante:/\bdante\s+([\d\s+()]+)/i, mt:/\bmt\s+([\d\s+()]+)/i, mix:/\bmix\s+([\d\s+()]+)/i};
 function stepPortMatch(s, p){
   var k = s[0], t = s[1];
   if (p.dev){
@@ -1153,7 +1214,7 @@ function stepPortMatch(s, p){
     else if (p.dev==="loom"){ if (k!=="loom") return false; }
     else if (k!==p.dev) return false;
   }
-  var pats = p.dev==="loom" ? [/loom\s+([\d\s+()]+)/i] : (p.port ? [PORTRE[p.port]] : [PORTRE["in"], PORTRE.out, PORTRE.omni, PORTRE.dante]);
+  var pats = p.dev==="loom" ? [/loom\s+([\d\s+()]+)/i] : (p.port ? (p.port==="in" && k==="dm7f" ? [PORTRE["in"], PORTRE.ch] : [PORTRE[p.port]]) : [PORTRE["in"], PORTRE.out, PORTRE.omni, PORTRE.dante].concat(k==="dm7f" ? [PORTRE.ch] : []));
   return pats.some(function(re){ var m = re.exec(t); return !!m && (m[1].match(/\d+/g)||[]).map(Number).indexOf(p.n) >= 0; });
 }
 function devIn(r, d){
@@ -1198,7 +1259,7 @@ function scoreRoute(r, P){
   P.ports.forEach(function(p){ if (r.steps.some(function(s){return stepPortMatch(s,p);})) sc += p.w || 7; });
   P.devs.forEach(function(d){ if (devIn(r, d)) sc += 4; });
   if (!ks.length && !wantExt && !P.devs.length && !P.ports.length && r.type==="out") sc += 1;
-  if (P.core.length >= 3){
+  if (P.core.length >= 3 && !(isBackupSrc(r) && P.devs.indexOf("wall") < 0 && P.devs.indexOf("rio") < 0 && P.devs.indexOf("loom") < 0)){
     var hay = (r.sig+" | "+r.steps.map(function(s){return (NODES[s[0]]?NODES[s[0]].label:"")+" "+s[1];}).join(" | ")).toLowerCase();
     if (hay.indexOf(P.core) >= 0) sc += 3;
   }
@@ -1232,7 +1293,7 @@ function findSignals(q){
 }
 
 /* console channel search: find names that are on the desks (kick, RX 3, IEM 2, Zoom…) and direct "dm7f ch 97" lookups */
-var CH_ALIAS = {wedge:"fb", wedges:"fb", monitor:"fb", monitors:"fb", foldback:"fb", foldbacks:"fb", inear:"iem", inears:"iem", ears:"iem", iems:"iem",
+var CH_ALIAS = {wedge:"fb", wedges:"fb", monitor:"fb", monitors:"fb", foldback:"fb", foldbacks:"fb", inear:"iem", inears:"iem", ear:"iem", ears:"iem", iems:"iem",
   handheld:"rx", handhelds:"rx", lapel:"rx", lapels:"rx", lav:"rx", lavalier:"rx", headset:"rx", radio:"rx", wireless:"rx", receiver:"rx", receivers:"rx",
   hihat:"hh", hats:"hh", hat:"hh", overhead:"oh", overheads:"oh", guitar:"guit", guitars:"guit", gtr:"guit", acoustic:"a guit", keyboard:"keys", keyboards:"keys", key:"keys",
   vocal:"vox", vocals:"vox", voice:"vox", tracks:"track", backing:"track", strings:"string", horn:"brass", horns:"brass", trumpet:"brass", sax:"brass",
@@ -1240,11 +1301,12 @@ var CH_ALIAS = {wedge:"fb", wedges:"fb", monitor:"fb", monitors:"fb", foldback:"
   lectern:"lec", lecterns:"lec", lecturn:"lec", podium:"lec", texttospeech:"tts", bgm:"bgm", music:"bgm"};
 var CH_SKIP = {dm7f:1, ql5:1, desk:1, desks:1, console:1, consoles:1, mixer:1, channel:1, channels:1, chan:1, ch:1, input:1, inputs:1, "in":1, out:1, output:1, outputs:1, mix:1, mixes:1,
   matrix:1, mt:1, stage:1, rack:1, racks:1, sr:1, drum:1, drums:1, kit:1, coming:1, through:1, audio:1, sound:1, call:1, calls:1, feed:1, feeds:1, video:1, meeting:1, line:1, lines:1};
+Object.setPrototypeOf(CH_ALIAS, null); Object.setPrototypeOf(CH_SKIP, null);
 var DRUMS_RE = /^(KICK|SNARE|HH\b|R[123]\b|FT\b|OH |DRUM |TOM)/i;
 var CHW = null;
 function chTok(s){ return String(s||"").toLowerCase().replace(/[’'`]/g,"").replace(/([a-z])(\d)/g,"$1 $2").replace(/(\d)([a-z])/g,"$1 $2").split(/[^a-z0-9]+/).filter(Boolean); }
 function chWords(){
-  if (CHW) return CHW; CHW = {};
+  if (CHW) return CHW; CHW = Object.create(null);
   var D = (state && state.devices) || {};
   Object.keys(D).forEach(function(k){ ["ins","outs"].forEach(function(s){ (D[k][s]||[]).forEach(function(r){ chTok(r.sig).forEach(function(w){ if (w.length >= 3 && !/^\d+$/.test(w)) CHW[w] = 1; }); }); }); });
   Object.keys(CH_ALIAS).forEach(function(w){ if (!VOCAB[w]) CHW[w] = 1; });
@@ -1275,6 +1337,7 @@ function chanSearch(q, P, res){
   var toks = [];
   chTok(q).forEach(function(w){ (CH_ALIAS[w] ? CH_ALIAS[w].split(" ") : [w]).forEach(function(x){ var e = VOCAB[x]; if (CH_SKIP[x] || (e && (e.f==="stop" || e.f==="trouble" || e.f==="roomword"))) return; if (toks.indexOf(x) < 0) toks.push(x); }); });
   if (toks.indexOf("rx") >= 0) toks = toks.filter(function(w){ return !/^(mic|mics|microphone|microphones|mike)$/.test(w); });
+  if (P.devs.some(function(d){ return /^(stage|sr1|sr2|sr3)$/.test(d); })) toks = toks.filter(function(w){ return !/^[abc]$/.test(w); });   // "rack c" is the rack, not OP C
   var named = [], stageQ = P.devs.some(function(d){ return /^(stage|sr1|sr2)$/.test(d); });
   var devs = CH_DEVS.concat(stageQ ? ["sr1","sr2"] : []).concat(P.devs.filter(function(d){ return D[d] && CH_DEVS.indexOf(d) < 0 && !/^(sr1|sr2)$/.test(d); }));
   function scan(test){ var hits = []; devs.forEach(function(key){ ["ins","outs"].forEach(function(side){ ((D[key]||{})[side]||[]).forEach(function(r){
@@ -1490,13 +1553,13 @@ function checksFor(rs){
       {b:"AV2 Rio", t:N("rio",0)+" metering. Check the gain"+(lec ? ", and +48V if the mic needs it." : ".")},
       V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:N("dm7f",0)+", from Rio "+V("rio",0)+" over Dante: ON key lit, fader up. If another desk is running the room, check its channel instead."}
       : V("ql5",0) ? {b:"QL5", t:N("ql5",0)+", from Rio "+V("rio",0)+" over Dante, has signal and its ON key is lit. If an OPS desk is mixing the room, check its channel too."}
-      : {b:"Desk", k:"desks", t:"Spare inputs aren’t patched by default. Patch Rio "+V("rio",0)+" over Dante on the desk you’re using."}
+      : {b:"Desk", k:"desks", sk:"sparedesk", t:"Spare inputs aren’t patched by default. Patch Rio "+V("rio",0)+" over Dante on the desk you’re using."}
     ];
     tip = lec ? "Swap the mic lead into another wall patch input. If the fault moves with it, it’s the lead or the mic." : (pc ? "Try another cable or device at the wall patch to rule out the PC." : "");
   } else if (f.ext){
     var viaRio = V("rio",0), viaRioN = N("rio",0);
     items = [
-      {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRioN+"." : "Sending to QL5 "+N("ql5",0)+" (how it gets there isn’t documented yet)."},
+      {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRioN+"." : "Sending to QL5 "+N("ql5",0)+". How it gets there isn’t documented yet."},
       viaRio ? {b:"AV2 Rio", t:viaRioN+" metering. It reaches QL5 "+N("ql5",0)+" over Dante."} : null,
       {b:"iPad", sk:"ipad", t:"TD hasn’t muted it.", x:{why:"The TD can mute the external feeds on the QL5 from their iPad, so rule that out before chasing cables.", look:["Ask the TD whether the external feeds are muted.", "Unmuted and still nothing on the QL5? Go back to the AV2 Rio."]}},
       {b:"QL5", t:N("ql5",0)+" has signal, its ON key is lit, and it’s routed to the right outputs (their ON keys lit too)."}
@@ -1657,6 +1720,7 @@ function stuckWhy(sk, kind, rs){
     case "source": return "Normal setup: the lectern and stage PC plug into the stage box side stage, not the wall patch.";
     case "external": return "A visiting production team’s desk plugs into AV2 Rio In 13–16 (L, R, Sub, Fill). EXT Foyer arrives on QL5 In 5.";
     case "desks": return "OPB and OPC are the portable DM3s, brought in for breakouts. Each sends L, R and Sub to the QL5 over Dante.";
+    case "sparedesk": return "Spare wall patch inputs aren’t patched on any desk by default. The wall patch runs on the room loom to the AV2 Rio, which puts it on Dante, so whichever desk you’re using has to patch that Rio input to a channel.";
     case "bgm": return "Sometimes a BGM player goes straight into the QL5 and out to the foyer, without a desk.";
     case "foyer": return "The foyer is normally fed from OPA’s foyer matrix, or sometimes from a BGM player straight into the QL5, and goes out through Galaxy 1.";
     case "fill": return "Front fill is only used for bigger events and bands.";
@@ -1706,6 +1770,7 @@ function stuckLook(sk, kind, H, rs){
       if (f.kinds.indexOf("pc") >= 0) return ["PC audio playing, not muted, and going out the right output.", "Its lead is in Stage Rack A " + inN + ".", "Try another lead or device to rule out the PC."];
       return ["Source on, and its lead in Stage Rack A " + inN + "."];
     case "external": return ["Their output meters are moving.", "L, R, Sub and Fill go into AV2 Rio In 13, 14, 15 and 16, in that order."];
+    case "sparedesk": return ["On the desk you’re using, AV2 Rio " + V("rio",0) + " (Dante) is patched to a free channel.", "That channel’s ON key is lit, the fader is up and it’s assigned to the room mix. A muted channel can still meter, so check the ON key.", "No meter on the channel at all? Go back a stop: is " + N("rio",0) + " metering on the Rio?"];
     case "desks": return ["The DM3 is on the Dante network.", "Its L, R and Sub outputs are ON (not muted) and patched to Dante. A muted output can still meter, so check the ON keys.", "The QL5 shows signal on " + N("ql5",0) + "."];
     case "bgm": return ["The player is on, playing, and its volume is up.", "Its lead is into the QL5."];
     case "foyer": return ["Speakers powered and cabled.", "If the foyer should be on BGM rather than OPA, check the BGM player instead."];
@@ -1718,7 +1783,7 @@ function itemSk(it){ return it.sk || it.k || kOf(it.b); }
 function stuckFor(rs, it, items, idx){
   if (it.x) return it.x;
   if (!rs) return null;
-  var sk = itemSk(it), kind = ckKind(rs), H = ckH(rs), lanes = laneNames(rs), L = [], lk = sk === "ql5out" ? "ql5" : sk;
+  var sk = itemSk(it), kind = ckKind(rs), H = ckH(rs), lanes = laneNames(rs), L = [], lk = sk === "ql5out" ? "ql5" : (sk === "sparedesk" ? "rio" : sk);
   var hasOut = (items || []).some(function(o){ return itemSk(o) === "ql5out"; });
   rs.forEach(function(r, i){ var s = laneStops(r, lk); if (s){ s.lane = lanes[i]; L.push(s); } });
   var x = {path:[], why:stuckWhy(sk, kind, rs), look:stuckLook(sk, kind, H, rs)}, hop = null, prevk = "", prevLabel = "";
@@ -1944,6 +2009,13 @@ function signalResults(){
   }
   if (res.rf) return h + rfCard(res.P);
   if (res.none && ch.rows.length) return h + chanBlock(ch, true);
+  var rack = res.P.devs.concat(res.P.ports.map(function(p){ return p.dev; })).filter(function(d){ return /^(sr1|sr2|sr3|stage)$/.test(d || ""); })[0];
+  if (res.none && rack){
+    var rgo = {sr1:"dev-sr1", sr2:"dev-sr2", stage:"stage"}[rack];
+    return h + (rack === "sr3"
+      ? '<div class="card empty" style="margin-top:14px">Stage Rack C isn’t documented in the site yet, so there’s no signal path for it here. Its inputs are patched on the desk the same way as Stage Rack A’s.</div><p style="margin:12px 0 0"><a class="btn" href="#stage" style="text-decoration:none">Open the stage racks page</a></p>'
+      : '<div class="card empty" style="margin-top:14px">No signal path matches that on ' + esc(DEVNAME[rack]) + '. Its inputs and patching are on its page.</div><p style="margin:12px 0 0"><a class="btn" href="#' + rgo + '" style="text-decoration:none">Open the ' + esc(DEVNAME[rack]) + ' page</a></p>');
+  }
   if (res.none){
     return h + '<div class="card empty" style="margin-top:14px">Not sure which signal that is. Try naming the room and what’s affected, like <b>Monarch subs</b> or <b>lectern 2</b>.</div>'+
       '<div class="qchips">'+(res.P.trouble ? ["Prince","Monarch","Marquis","Foyer"].map(function(r){return qChip(r, q+" "+r.toLowerCase());}).join("") : EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join(""))+'</div>';
@@ -1952,7 +2024,8 @@ function signalResults(){
     var dgo = res.P.devs.length===1 ? {ql5:"dev-ql5", rio:"dev-rio", gal1:"dev-gal1", gal2:"dev-gal2", gal:"dev-gal1", desks:"dev-desks", dm7f:"dev-dm7f", sr1:"dev-sr1", sr2:"dev-sr2", stage:"stage"}[res.P.devs[0]] : null;
     if (dgo) h += '<p style="margin:12px 0 0"><a class="btn" href="#'+dgo+'" style="text-decoration:none">Open the '+esc(DEVNAME[res.P.devs[0]])+' page</a></p>';
     return h + '<div class="card empty" style="margin-top:14px">'+res.many.length+' signals fit that. Add a room or say what’s affected to narrow it down.</div>'+refineChips(res.many, res.P, q)+
-      '<div class="card routes" style="margin-top:12px">'+res.many.slice(0,12).map(routeRow).join("")+'</div>'+(res.many.length>12?'<p class="note">And '+(res.many.length-12)+' more.</p>':'');
+      '<div class="card routes" style="margin-top:12px">'+res.many.slice(0,12).map(routeRow).join("")+'</div>'+(res.many.length>12?'<p class="note">And '+(res.many.length-12)+' more.</p>':'')+
+      (ch.rows.length ? chanBlock(ch, false) : '');
   }
   res.groups.forEach(function(rs, gi){
     h += '<section class="card best"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">'+(gi===0?(res.top.length>1?"Best matches":"Best match"):"Also matches")+'</span><h2 class="btitle">'+esc(groupTitle(rs))+'</h2><div class="bsub">'+esc(groupSub(rs))+'</div></div>'+
@@ -2514,7 +2587,7 @@ function plDiagrams(p, o){
   o = o || {};
   var P = plBuild(p);
   return P.events.map(function(ev, i){
-    return '<div class="dgwrap">' + (P.events.length > 1 || o.heads ? '<p class="dghead">' + esc(ev.D.name + " · " + ev.D.desk + " · " + plRoomList(ev.rooms)) + '</p>' : '') + plDiagram(p, ev, {first:i === 0, qty:o.qty}) + '</div>';
+    return '<div class="dgwrap">' + (P.events.length > 1 || o.heads ? '<p class="dghead"><span>' + esc(ev.D.name + " · " + ev.D.desk + " · " + plRoomList(ev.rooms)) + '</span>' + (o.ev ? '<span class="dgev">' + esc(o.ev) + '</span>' : '') + '</p>' : '') + plDiagram(p, ev, {first:i === 0, qty:o.qty}) + '</div>';
   }).join("") + (o.nokey ? "" : DG_KEY);
 }
 
@@ -2726,7 +2799,7 @@ function evCommit(id, ev, summary){
   return evPush(id, ev, summary, false).then(function(r){ EVSAVING = false; return r; }, function(err){
     EVSAVING = false; evBar();
     if (err && err.status === 403) toast("You don’t have permission to edit.");
-    else if (!err || err.status !== 401) toast("Couldn’t save the event just now. Try again in a moment.");
+    else if (!err || err.status !== 401) toast(saveErr(err, "Couldn’t save the event just now. Try again in a moment."));
     throw err;
   });
 }
@@ -2763,13 +2836,36 @@ function evPrintHTML(e){
   h += '<section class="ps-sec"><h2>Timings</h2>' + (tm.length ? '<div class="ps-times">' + tm.map(function(x){ return '<div><small>' + x[1] + '</small><b>' + evTime(t[x[0]]) + '</b></div>'; }).join("") + '</div>' : '<p class="ps-none">No times set.</p>') + '</section>';
   h += '<section class="ps-sec"><h2>Gear</h2>' + (gear.length ? '<table class="ps-gear"><thead><tr><th class="q">Qty</th><th>Item</th><th>Where / notes</th></tr></thead><tbody>' +
     gear.map(function(r){ return '<tr><td class="q">' + r.qty + '</td><td><b>' + esc(r.item) + '</b></td><td>' + esc(r.det) + '</td></tr>'; }).join("") + '</tbody></table>' : '<p class="ps-none">No gear listed.</p>') + '</section>';
-  h += '<section class="ps-sec ps-path"><h2><span>Signal path</span>' + DG_KEY + '</h2>' + plDiagrams(e.plan, {qty:evQty(e), heads:1, nokey:1}) + '</section>';
+  h += '<section class="ps-sec ps-path"><h2><span>Signal path</span>' + DG_KEY + '</h2>' + plDiagrams(e.plan, {qty:evQty(e), heads:1, nokey:1, ev:[e.name || "Untitled event", evDate(e.date)].filter(Boolean).join(" · ")}) + '</section>';
   return h;
+}
+// Fit the diagrams to the A4 pages: shrink them a little (never below 75%) when that saves a page,
+// and start the signal path on a fresh page when its first diagram won't fit under the gear list.
+function evPrintFit(el){
+  var MM = 96 / 25.4, PAGE = 268 * MM, prev = el.style.cssText;
+  el.style.cssText = "display:block;position:absolute;left:-12000px;top:0;width:" + (186 * MM) + "px";
+  var sec = el.querySelector(".ps-path"), ws = [].slice.call(el.querySelectorAll(".ps-path .dgwrap"));
+  if (sec && ws.length){
+    sec.style.breakBefore = ""; ws.forEach(function(w){ var g = w.querySelector("svg.dg"); if (g) g.style.width = ""; });
+    var base = el.getBoundingClientRect().top, h2 = sec.querySelector("h2"), sr = sec.getBoundingClientRect();
+    var head = (h2 ? h2.getBoundingClientRect().bottom : sr.top) - sr.top + 4, used = (sr.top - base) % PAGE;
+    var items = ws.map(function(w){ var g = w.querySelector("svg.dg"), wh = w.getBoundingClientRect().height, gh = g ? g.getBoundingClientRect().height : 0; return {fixed: wh - gh + 8, svg: gh}; });
+    var plan = function(s){
+      var n = 0, left = PAGE - used - head, fresh = false;
+      items.forEach(function(it, i){ var hh = it.fixed + it.svg * s; if (hh > left){ n++; if (i === 0) fresh = true; left = PAGE - hh - (i === 0 ? head : 0); } else left -= hh; });
+      return {n: n, fresh: fresh};
+    };
+    var best = 1, bp = plan(1);
+    for (var s = 0.95; s >= 0.749; s -= 0.05){ var r = plan(s); if (r.n < bp.n){ bp = r; best = s; } }
+    ws.forEach(function(w){ var g = w.querySelector("svg.dg"); if (g && best < 1) g.style.width = Math.round(best * 100) + "%"; });
+    if (bp.fresh) sec.style.breakBefore = "page";
+  }
+  el.style.cssText = prev;
 }
 function evPrintPrep(e){
   var el = $("printsheet");
   if (!el){ el = document.createElement("div"); el.id = "printsheet"; document.body.appendChild(el); }
-  el.innerHTML = evPrintHTML(e); document.body.classList.add("printing");
+  el.innerHTML = evPrintHTML(e); evPrintFit(el); document.body.classList.add("printing");
 }
 function evPrint(id){ var e = evGet(id); if (!e) return; evPrintPrep(e); setTimeout(function(){ try{ window.print(); }catch(x){} }, 60); }
 window.addEventListener("beforeprint", function(){   // the browser's own Print on an event page gets the clean sheet too
@@ -2992,10 +3088,10 @@ function viewKit(){
     h += '<article class="card spec k-spk"><span class="tag">'+esc(sp.role)+'</span><h3>'+esc(sp.model)+'</h3><dl>'+
       '<dt>Coverage</dt><dd>'+esc(sp.coverage)+'</dd><dt>Range</dt><dd>'+esc(sp.freq)+'</dd><dt>Peak SPL</dt><dd>'+esc(sp.spl)+'</dd>'+
       '<dt>Drivers</dt><dd>'+esc(sp.drivers)+'</dd><dt>Weight</dt><dd>'+esc(sp.weight)+'</dd><dt>Power</dt><dd>'+esc(sp.amps)+'</dd></dl>'+
-      '<p class="note" style="margin:0">'+esc(sp.note)+'</p><a href="'+esc(sp.link)+'" target="_blank" rel="noopener">Datasheet ↗</a></article>';
+      '<p class="note" style="margin:0">'+esc(sp.note)+'</p><a href="'+esc(safeUrl(sp.link))+'" target="_blank" rel="noopener">Datasheet ↗</a></article>';
   });
   h += '</div><h2 class="sec">Manuals and software</h2><ul class="links">';
-  s.links.forEach(function(l){h += '<li><small>'+esc(l[0])+'</small><a href="'+esc(l[2])+'" target="_blank" rel="noopener">'+esc(l[1])+' ↗</a></li>';});
+  s.links.forEach(function(l){h += '<li><small>'+esc(l[0])+'</small><a href="'+esc(safeUrl(l[2]))+'" target="_blank" rel="noopener">'+esc(l[1])+' ↗</a></li>';});
   return h + '</ul>';
 }
 function viewDirectory(){
@@ -3012,9 +3108,13 @@ function viewDirectory(){
 
 /* ---------- routing ---------- */
 function route(){return (location.hash||"").replace(/^#/,"") || "map";}
+function decodeLoose(s){
+  try{ return decodeURIComponent(s); }catch(e){}
+  return String(s).replace(/(%[0-9a-f]{2})+/gi, function(m){ try{ return decodeURIComponent(m); }catch(e2){ return ""; } }).replace(/%/g, "");
+}
 function routeParts(){
   var h = route(), i = h.indexOf("?"), o = {};
-  (i < 0 ? "" : h.slice(i+1)).split("&").forEach(function(kv){ if (!kv) return; var j = kv.indexOf("="); try{ o[decodeURIComponent(j<0?kv:kv.slice(0,j))] = decodeURIComponent((j<0?"":kv.slice(j+1)).replace(/\+/g," ")); }catch(e){} });
+  (i < 0 ? "" : h.slice(i+1)).split("&").forEach(function(kv){ if (!kv) return; var j = kv.indexOf("="); o[decodeLoose(j<0?kv:kv.slice(0,j))] = decodeLoose((j<0?"":kv.slice(j+1)).replace(/\+/g," ")); });
   return {base: i < 0 ? h : h.slice(0,i), q: o};
 }
 function baseRoute(){ return routeParts().base; }
@@ -3132,6 +3232,7 @@ function renderHud(){
   layoutDock(r.dock);
 }
 var DOCKITEMS = [];
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ try{ layoutDock(); }catch(x){} });   // re-fit the dock once the web fonts have loaded
 // Show as many sections as fit; the rest go under "More" (phones, small tablets).
 function layoutDock(cur){
   var dk = $("dock"); if (!dk) return;
@@ -3157,6 +3258,7 @@ function smallScreen(){ return window.innerWidth <= 1024; }
 function fbFootOK(){ var rp = routeParts(); return !/^(feedback|admin|account)$/.test(rp.base) && !(rp.base === "plan" && rp.q.e); }
 function renderDrawer(r){
   var d = $("drawer");
+  document.body.classList.toggle("dopen", !!r.view);
   if (!r.view){ d.hidden = true; d.classList.remove("tall"); d.style.transform = ""; return; }
   var wasHidden = d.hidden;
   d.hidden = false; $("dlabel").textContent = r.label || "";
@@ -3180,6 +3282,9 @@ function onRoute(){
   closeMore();
   applyRowHL();
   if (baseChanged) logView();
+  if (baseChanged && r.view && (!document.activeElement || document.activeElement === document.body)){   // keyboard users land in the panel that just opened
+    var h1 = $("dbody").querySelector("h1"); if (h1){ h1.setAttribute("tabindex", "-1"); try{ h1.focus({preventScroll:true}); }catch(x){} }
+  }
   if (baseChanged && rp.base==="signals" && !COARSE && !sheetMode() && lastRoute !== null){ var qi = $("q"); if (qi) try{ qi.focus({preventScroll:true}); }catch(x){} }
   skipFly = false; lastRoute = route();
 }
@@ -3302,7 +3407,12 @@ app.addEventListener("click", function(e){
 app.addEventListener("keydown", function(e){
   var t = e.target;
   if ((e.key==="Enter"||e.key===" ") && t.matches && t.matches("[data-go]") && t.tagName!=="BUTTON") { e.preventDefault(); location.hash = t.getAttribute("data-go"); }
-  if (e.key==="Escape" && !$("drawer").hidden){ skipFly = true; location.hash = "map"; }
+  if (e.key==="Escape" && $("dmore") && !$("dmore").hidden){ closeMore(); var mb0 = $("dkmore"); if (mb0) mb0.focus(); return; }   // Escape closes the More menu first
+  if (e.key==="Escape" && !$("drawer").hidden){
+    var back = (document.querySelector('.dk[aria-current="true"]') || {}).getAttribute ? document.querySelector('.dk[aria-current="true"]').getAttribute("data-go") : "";
+    skipFly = true; location.hash = "map";
+    setTimeout(function(){ var b = back && document.querySelector('.dk[data-go="' + back + '"]'); if (b && b.offsetParent) b.focus(); }, 60);
+  }
   if (e.key==="Enter" && t.id==="q"){ e.preventDefault(); recordRecent(); logSearch(); if (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) t.blur(); }
 });
 var plT = null;
@@ -3401,7 +3511,7 @@ document.addEventListener("gesturestart", function(e){ e.preventDefault(); }, {p
 function labelTables(){
   document.querySelectorAll("#dbody table.t").forEach(function(tb){
     var hs = [].map.call(tb.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
-    if (hs.length >= 5) tb.classList.add("wide");
+    if (hs.length >= 5) tb.classList.add("wide"); else if (hs.length === 4) tb.classList.add("c4");
     tb.querySelectorAll("tbody tr").forEach(function(tr){ [].forEach.call(tr.children, function(td, i){ if (hs[i] && !td.hasAttribute("data-label")) td.setAttribute("data-label", hs[i]); }); });
   });
 }
@@ -3413,6 +3523,12 @@ document.addEventListener("click", function(e){ var p = $("dmore"); if (p && !p.
 var CFG = window.BALLROOM_CONFIG || null, me = null, started = false, SESSION_KEY = "ballroomAudioSession";
 function canEdit(){ return CLOUD ? !!(me && (me.role==="editor" || me.role==="admin")) : !!(api && !readOnly); }
 function isAdmin(){ return !!(CLOUD && me && me.role==="admin"); }
+function cfgSecret(){
+  var k = String((CFG && CFG.key) || "");
+  if (/^sb_secret_/i.test(k)) return true;
+  if (/^eyJ/.test(k)){ try{ return JSON.parse(atob(k.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).role === "service_role"; }catch(e){} }
+  return false;
+}
 function cfgOk(){ return !!(CFG && /^https:\/\/[^\s"]+$/.test(CFG.url||"") && CFG.key && !/PASTE|YOUR-/i.test(String(CFG.url)+String(CFG.key))); }
 var sb = {
   session: null, refreshing: null,
@@ -3464,6 +3580,8 @@ var sb = {
     if (s) fetch(sb.base() + "/auth/v1/logout", {method: "POST", headers: {"apikey": CFG.key, "Authorization": "Bearer " + s.access_token}}).catch(function(){});
   }
 };
+// the database's own reason when it refuses a save (too big, not site data), otherwise a friendly fallback
+function saveErr(e, fallback){ var m = e && e.message || ""; return /too big|doesn.t look like the site data/i.test(m) ? m : fallback; }
 function logEvent(action, target, detail){
   if (!CLOUD || !sb.session) return;
   sb.rpc("log_event", {p_action: action, p_target: target == null ? null : String(target).slice(0,300), p_detail: detail || null}).catch(function(){});
@@ -3488,7 +3606,7 @@ function logSearch(){
   logEvent("search", q, {match: match});
 }
 function applyRow(row){
-  state = row.state; state.version = row.version; state.savedAt = row.updated_at; state.updatedBy = row.updated_by_name;
+  state = cleanState(row.state); state.version = row.version; state.savedAt = row.updated_at; state.updatedBy = row.updated_by_name;
 }
 function loadAll(){
   var uid = sb.session.user.id;
@@ -3560,6 +3678,7 @@ function doSignOut(){
 }
 function cloudBoot(){
   if (!cfgOk()) return gate("setup");
+  if (cfgSecret()) return gate("error", "config.js has the Supabase SECRET key in it, which gives full control of the database to anyone who opens this page. Put the publishable key in config.js instead, then in Supabase (Project Settings → API Keys) delete or roll the secret key.");
   sb.load();
   if (!sb.session) return gate("signin");
   gate("loading");
@@ -3661,7 +3780,7 @@ function saveCloud(){
       return;
     }
     if (e.status === 403) toast("You don’t have permission to edit.");
-    else if (e.status !== 401) toast("Couldn’t save just now. Try again in a moment.");
+    else if (e.status !== 401) toast(saveErr(e, "Couldn’t save just now. Try again in a moment."));
     updatePill();
   });
 }
@@ -3990,7 +4109,7 @@ function readImport(input){
     var j; try{ j = JSON.parse(String(r.result)); }catch(e){ return renderImport("That file isn’t valid site data (it couldn’t be read as JSON)."); }
     var st = (j && j.app === "ballroom-audio" && j.state) ? j.state : j, err = checkData(st);
     if (err) return renderImport(err);
-    st = bare(st);
+    st = cleanState(bare(st));
     var kept = 0, have = (state && state.events && typeof state.events === "object") ? state.events : {};
     if (!st.events || typeof st.events !== "object" || Array.isArray(st.events)) st.events = {};
     Object.keys(have).forEach(function(k){ if (!(k in st.events)){ st.events[k] = clone(have[k]); kept++; } });   // events on the site stay, unless the file has a newer copy of the same one
@@ -4011,13 +4130,13 @@ function doImport(btn){
     importPending = null; adminCache = {}; refreshAll(); toast("Imported. The site is now on version " + res.version + ".");
   }).catch(function(e){
     if (e.status === 409 || /conflict/i.test(e.message)){ refetchSite().then(function(){ refreshAll(); toast("Someone saved just now. Check the changes again, then import."); }); return; }
-    btn.disabled = false; toast(e.status === 403 ? "You don’t have permission to import." : "Couldn’t import just now. Try again in a moment.");
+    btn.disabled = false; toast(e.status === 403 ? "You don’t have permission to import." : saveErr(e, "Couldn’t import just now. Try again in a moment."));
   });
 }
 function activityCSV(){
   var c = adminCache.activity; if (!c) return;
   var lines = [["When","Who","What","Target","Details"]].concat(c.rows.map(function(r){ return [r.at, r.user_name||"", ACTS[r.action]||r.action, r.target||"", r.detail ? JSON.stringify(r.detail) : ""]; }));
-  var csv = lines.map(function(l){ return l.map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(","); }).join("\r\n");
+  var csv = lines.map(function(l){ return l.map(function(v){ v = String(v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g,'""') + '"'; }).join(","); }).join("\r\n");
   try{
     var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = "ballroom-audio-activity.csv";
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
