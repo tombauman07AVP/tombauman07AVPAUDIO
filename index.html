@@ -697,8 +697,8 @@ var NODES = {
   ql5:{label:"QL5",kind:"ql",go:"dev-ql5",desc:"Output router in AV2"},
   dante:{label:"Dante network",kind:"dante",go:"dev-dante",desc:"Links the Rio, QL5, desks and stage racks"},
   external:{label:"External teams",kind:"room",go:"dev-external",desc:"Into AV2 Rio in 13–16, then QL5 in 1–5. TD mutes on iPad"},
-  stage:{label:"Stage racks",kind:"rio",go:"stage",desc:"Rack 1 and 2 · band I/O for the DM7F"},
-  sr1:{label:"Stage Rack 1",kind:"rio",go:"stage"},sr2:{label:"Stage Rack 2",kind:"rio",go:"stage"},
+  stage:{label:"Stage racks",kind:"rio",go:"stage",desc:"Rack A and B · band I/O for the DM7F"},
+  sr1:{label:"Stage Rack A",kind:"rio",go:"stage"},sr2:{label:"Stage Rack B",kind:"rio",go:"stage"},
   gal1:{label:"Galaxy 1",kind:"gal",go:"dev-gal1",desc:"Mains and foyer processing"},
   gal2:{label:"Galaxy 2",kind:"gal",go:"dev-gal2",desc:"End-fire subs and front fill"},
   speakers:{label:"Speakers",kind:"spk",go:"speakers",desc:"UPQs and X20s in each room"},
@@ -752,7 +752,7 @@ var GEO = {}, EDGES = [], ZONES = {}, DRAW = [];
   box("rio", GEO.rio, "rio", "dev-rio", "AV2 RIO", "16 in / 8 out");
   box("gal1", GEO.gal1, "gal", "dev-gal1", "GALAXY 1", "mains + foyer");
   box("external", GEO.external, "room", "dev-external", "EXTERNAL", "via Rio in 13–16");
-  box("stage", GEO.stage, "rio", "stage", "STAGE RACKS", "Rack 1 & 2 · band I/O");
+  box("stage", GEO.stage, "rio", "stage", "STAGE RACKS", "Rack A & B · band I/O");
   box("foyer", GEO.foyer, "spk", "foyer", "FOYER", "speakers");
   EDGES.push(["ql5", "gal2", "M492 580 L430 580", ""]);
   EDGES.push(["rio", "gal1", "M782 580 L830 580", ""]);
@@ -923,7 +923,7 @@ function viewDevice(key){
   return h;
 }
 function viewStage(){
-  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack 1 and Rack 2 are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F show file.</p>';
+  var h = crumbs([["Stage racks"]]) + '<h1>Stage racks</h1><p class="lede">Rack A and Rack B are Rio3224-Ds on stage: band inputs into the DM7F, and foldback and in-ear mixes back out. The patch below comes from the DM7F show file.</p>';
   ["sr1","sr2"].forEach(function(k){
     var d = cur().devices[k];
     h += '<h2 class="sec">'+esc(d.name)+'<small>'+esc(d.model)+'</small></h2><div class="io" style="margin-top:0">'+
@@ -983,7 +983,7 @@ function viewSpeakers(){
 var ROOMNUM = {prince:1, monarch:2, marquis:3};
 var ROOMNAME = {prince:"Prince", monarch:"Monarch", marquis:"Marquis"};
 var KINDNAME = {sub:"Subs", mains:"Mains", lec:"Lectern", pc:"Stage PC", foyer:"Foyer", ext:"External", spare:"Spare", fill:"Fill", rf:"Wireless mic", bgm:"BGM", opa:"OPS A", opb:"OPS B", opc:"OPS C"};
-var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk", sr1:"Stage rack 1", sr2:"Stage rack 2", stage:"Stage racks"};
+var DEVNAME = {dm7f:"DM7F", ql5:"QL5", rio:"AV2 Rio", gal:"Galaxy", gal1:"Galaxy 1", gal2:"Galaxy 2", wall:"Wall patch", loom:"Loom", desks:"Desk", sr1:"Stage rack A", sr2:"Stage rack B", stage:"Stage racks"};
 var PORTNAME = {"in":"In", out:"Out", omni:"Omni", dante:"Dante", mt:"Matrix", mix:"Mix"};
 var VOCAB = {}, VKEYS = [], LCACHE = {};
 function vocab(words, f, v, w){ words.split(" ").forEach(function(x){ if (!VOCAB[x]){ VOCAB[x] = {f:f, v:v, w:w||6}; VKEYS.push(x); } }); }
@@ -1167,7 +1167,7 @@ function scoreRoute(r, P){
   return sc;
 }
 function nk(k){ return ROOMNUM[k] ? "room" : k; }
-/* Stage box routes, built from the DM7F show file: Stage Rack 1 inputs 1–4 → Dante → DM7F.
+/* Stage box routes, built from the DM7F show file: Stage Rack A inputs 1–4 → Dante → DM7F.
    This is the normal way in for the lectern and stage PC; the room wall patch routes are only for specific setups. */
 function stageRoutes(){
   var d = cur().devices && cur().devices.dm7f, out = [];
@@ -1225,7 +1225,7 @@ function tokMatch(q, s, fuzzy){
 function chanSearch(q, P, res){
   var D = cur().devices, out = [], seen = {}, prio = false;
   function add(key, side, r, why){ var id = key+"|"+side+"|"+r.ch; if (seen[id]) return; seen[id] = 1; out.push({key:key, side:side, r:r, why:why}); }
-  // 1) direct lookups like "dm7f ch 97", "stage rack 1 input 3", "ql5 in 7"
+  // 1) direct lookups like "dm7f ch 97", "stage rack a input 3", "ql5 in 7"
   P.ports.forEach(function(p){
     var key = p.dev, d = key && D[key]; if (!d || !p.n) return;
     var side = (p.port==="out" || p.port==="omni" || p.port==="mt" || p.port==="mix") ? "outs" : "ins";
@@ -1435,7 +1435,7 @@ function checksFor(rs){
     items = [
       lecS ? {b:"Lectern mic", sk:"source", t:"Switched on and plugged into the stage box, "+N("sr1",0)+"."} :
       pcS ? {b:"Stage PC", sk:"source", t:"Audio not muted, plugged into the stage box, "+N("sr1",0)+"."} : {b:"Source", sk:"source", t:"Plugged into the stage box, "+N("sr1",0)+"."},
-      {b:"Stage box", k:"sr1", t:"Stage Rack 1 powered and on the Dante network (its channels show up on the DM7F)."},
+      {b:"Stage box", k:"sr1", t:"Stage Rack A powered and on the Dante network (its channels show up on the DM7F)."},
       {b:"DM7F", k:"dm7f", t:N("dm7f",0)+" metering, ON key lit, fader up and assigned to the room mix."},
       {b:"Room", sk:"roommains", t:"Meters fine on the desk but nothing in the room? Check that room’s mains next.", x:{
         why:"The stage box only gets the signal as far as the DM7F. If the DM7F meters but there’s nothing in the room, the problem is on the way out to the speakers, so follow that room’s mains.",
@@ -1530,8 +1530,8 @@ function laneJoin(list){   // "Prince wall patch / Monarch wall patch" -> "each 
   if (m.every(function(x){ return x && x[2] === m[0][2]; })) return "each room’s " + m[0][2];
   return u.join(" / ");
 }
-function herePhrase(b){ return /^(DM7F|QL5|AV2 Rio|Galaxy \d|DM3|Stage Rack \d|OPS?|BGM|iPad)\b/.test(b) ? b : lc(b); }
-function theName(b){ b = herePhrase(b); return /^(Galaxy \d|DM3\b|Stage Rack \d|each )/.test(b) ? b : "the " + b; }
+function herePhrase(b){ return /^(DM7F|QL5|AV2 Rio|Galaxy \d|DM3|Stage Rack [A-C\d]|OPS?|BGM|iPad)\b/.test(b) ? b : lc(b); }
+function theName(b){ b = herePhrase(b); return /^(Galaxy \d|DM3\b|Stage Rack [A-C\d]|each )/.test(b) ? b : "the " + b; }
 function shownVal(k, v){
   v = ROOMNUM[k] ? wpStrip(v) : v;
   return hasTable(k) && chNames(k, firstPart(v)).length ? '<span class="cval">'+withNames(k, v)+'</span>' : '<span class="wv">'+esc(v)+'</span>';
@@ -1585,7 +1585,7 @@ function stuckWhy(sk, kind, rs){
   var sch = stageRoutes().map(function(r){ return r.steps[r.steps.length-1][1].replace(/^Ch\s*/i, ""); });
   switch (sk){
     case "dm7f":
-      if (kind === "stage") return "The DM7F show file has the stage box on " + (sch.length ? "Ch " + plRange(sch) : "its stage box channels") + " (Stage Rack 1 In 1–" + (sch.length || 4) + "). The stage box is on Dante, so these channels work the same whichever room the stage is in.";
+      if (kind === "stage") return "The DM7F show file has the stage box on " + (sch.length ? "Ch " + plRange(sch) : "its stage box channels") + " (Stage Rack A In 1–" + (sch.length || 4) + "). The stage box is on Dante, so these channels work the same whichever room the stage is in.";
       return "OPA (the DM7F) is the main desk. It mixes into a matrix for each room and side (Room 1–3 L, R and Sub, plus Fill and Foyer), so it can run one room or all three at the same level. The matrices go over Dante to the QL5 in AV2." +
         ({sub:" The sub has its own matrix, so its level is set separately from the mains.", foyer:" Sometimes a BGM player feeds the foyer straight into the QL5 instead.", fill:" Front fill is only used for bigger events and bands."}[kind] || "");
     case "ql5":
@@ -1629,7 +1629,7 @@ function stuckLook(sk, kind, H, rs){
   var V = H.V, N = H.N, part = H.part, R = H.rooms, f = feat(rs[0]), a;
   switch (sk){
     case "dm7f":
-      if (kind === "stage") return ["Input patch: " + N("dm7f",0) + " comes from Stage Rack 1 " + V("sr1",0) + " over Dante.", "Gain set, channel ON key lit, fader up, and not in a muted mute group or DCA.", "The channel is in the mix that feeds the room matrices, and those matrices are ON."];
+      if (kind === "stage") return ["Input patch: " + N("dm7f",0) + " comes from Stage Rack A " + V("sr1",0) + " over Dante.", "Gain set, channel ON key lit, fader up, and not in a muted mute group or DCA.", "The channel is in the mix that feeds the room matrices, and those matrices are ON."];
       a = [H.MX() + ": ON key lit and level up. A muted matrix can still meter, so check the ON key itself.", "Not in a muted mute group or DCA.", "The mix is sent to it (check the matrix sends).", "Output patch: matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "?") + " goes to " + (part("dm7f",1) || "Dante") + "."];
       if (kind === "mains" || kind === "sub") a.push("If OPB or OPC is running this room, its feed comes into the QL5 on In 49–55 instead, so check that desk.");
       return a;
@@ -1661,12 +1661,12 @@ function stuckLook(sk, kind, H, rs){
       return [];
     case "subs": return ["Each sub is powered and its LED is green.", "Some subs out and others fine? Check that sub’s power and the lead feeding it.", "All of them out? Go back to the wall patch and Galaxy 2."];
     case "loom": return [V("loom",0) + " is plugged in at the wall patch and in AV2.", "Try another input on the same loom. If that works, it’s that channel or the lead."];
-    case "sr1": return ["Stage Rack 1 is powered.", "Its network lead is in a live Dante wall point. Try another wall point or a known good lead.", "It shows up on the DM7F and its channels meter.", "Using Stage Rack 2 or 3 instead? The DM7F input patch needs changing, as the show file expects Stage Rack 1."];
+    case "sr1": return ["Stage Rack A is powered.", "Its network lead is in a live Dante wall point. Try another wall point or a known good lead.", "It shows up on the DM7F and its channels meter.", "Using Stage Rack B or C instead? The DM7F input patch needs changing, as the show file expects Stage Rack A."];
     case "source":
       var inN = V("sr1",0);
-      if (f.kinds.indexOf("lec") >= 0) return ["Mic switched on and not muted.", "Its lead is in Stage Rack 1 " + inN + ".", "Swap the lead into the spare input. If the fault moves with it, it’s the lead or the mic."];
-      if (f.kinds.indexOf("pc") >= 0) return ["PC audio playing, not muted, and going out the right output.", "Its lead is in Stage Rack 1 " + inN + ".", "Try another lead or device to rule out the PC."];
-      return ["Source on, and its lead in Stage Rack 1 " + inN + "."];
+      if (f.kinds.indexOf("lec") >= 0) return ["Mic switched on and not muted.", "Its lead is in Stage Rack A " + inN + ".", "Swap the lead into the spare input. If the fault moves with it, it’s the lead or the mic."];
+      if (f.kinds.indexOf("pc") >= 0) return ["PC audio playing, not muted, and going out the right output.", "Its lead is in Stage Rack A " + inN + ".", "Try another lead or device to rule out the PC."];
+      return ["Source on, and its lead in Stage Rack A " + inN + "."];
     case "external": return ["Their output meters are moving.", "L, R, Sub and Fill go into AV2 Rio In 13, 14, 15 and 16, in that order."];
     case "desks": return ["The DM3 is on the Dante network.", "Its L, R and Sub outputs are ON (not muted) and patched to Dante. A muted output can still meter, so check the ON keys.", "The QL5 shows signal on " + N("ql5",0) + "."];
     case "bgm": return ["The player is on, playing, and its volume is up.", "Its lead is into the QL5."];
@@ -1704,11 +1704,11 @@ function stuckFor(rs, it, items, idx){
   }
   if (kind === "stage" && sk === "source"){
     var s1 = laneStops(rs[0], "sr1");
-    x.path = [["Here", '<b>'+esc(cap(srcName))+'</b>'], ["Goes to", '<b>Stage Rack 1</b> '+shownVal("sr1", s1 ? s1.vals[0] : "In 1")+'<small>lead</small>']];
+    x.path = [["Here", '<b>'+esc(cap(srcName))+'</b>'], ["Goes to", '<b>Stage Rack A</b> '+shownVal("sr1", s1 ? s1.vals[0] : "In 1")+'<small>lead</small>']];
   }
   if (kind === "stage" && sk === "sr1"){
     x.path.unshift(["Comes from", '<b>'+esc(cap(srcName))+'</b><small>lead</small>']);
-    hop = {what:"the lead", detail:"From the " + srcName + " into Stage Rack 1 " + H.V("sr1",0) + "."}; prevk = "source"; prevLabel = srcName;
+    hop = {what:"the lead", detail:"From the " + srcName + " into Stage Rack A " + H.V("sr1",0) + "."}; prevk = "source"; prevLabel = srcName;
   }
   if (hop){
     var pi = null; (items || []).forEach(function(o, j){ if (j < idx && itemSk(o) === prevk) pi = o; });
@@ -1901,7 +1901,7 @@ function signalResults(){
 /* ---------- event planner: rooms + desks + sources -> signal plan, patch list, desk settings, checklist ---------- */
 var PL_ROOMS = ["prince","monarch","marquis"];
 var PL_DESKS = {opa:{name:"OPA", desk:"DM7F", dev:"dm7f", rf:"OPA"}, opb:{name:"OPB", desk:"DM3", dev:"desks", rf:"OPB"}, opc:{name:"OPC", desk:"DM3", dev:"desks", rf:"OPC"}};
-var PL_SRC = {sr1:"Stage Rack 1", sr2:"Stage Rack 2", sr3:"Stage Rack 3", wall:"Room wall patch (via AV2 Rio)"};
+var PL_SRC = {sr1:"Stage Rack A", sr2:"Stage Rack B", sr3:"Stage Rack C", wall:"Room wall patch (via AV2 Rio)"};
 function plEv(o){ return Object.assign({stage:"", src:"sr1", lec:2, pc:1, spare:1, band:0, play:0, subs:1, ff:0, pos:"", wpBox:"", deskIn:"", subsFrom:""}, o || {}); }
 var PL_TEMPLATES = [
   ["conf", "Conference · two-thirds", function(){ return {t:"conf", name:"", rooms:{prince:"opa", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"prince"})}, foyer:"opa", ext:0}; }],
@@ -1958,7 +1958,7 @@ function plRoomRoutes(k){ var n = ROOMNUM[k]; return {L:plRoute("Room "+n+" L"),
 function plMT(v){ var m = /\bMT\s*(\d+)/i.exec(v||""); return m ? "MT " + m[1] : ""; }
 function plDante(v){ var m = /Dante\s*(\d+)/i.exec(v||""); return m ? "Dante " + m[1] : ""; }
 function plCh(dev, ch){ var d = cur().devices[dev]; if (!d) return null; for (var i=0;i<(d.ins||[]).length;i++) if (String(d.ins[i].ch)===String(ch)) return d.ins[i]; return null; }
-function plRackInputs(){   // what the DM7F show file has on Stage Rack 1 inputs 1-4
+function plRackInputs(){   // what the DM7F show file has on Stage Rack A inputs 1-4
   var d = cur().devices.dm7f, out = {};
   ((d && d.ins) || []).forEach(function(r){ var m = /Stage rack (?:A|1)\.(\d+)\b/i.exec(r.from||""); if (m && Number(m[1]) <= 4 && r.sig) out[Number(m[1])] = {ch:r.ch, sig:r.sig}; });
   return out;
@@ -1990,14 +1990,14 @@ function plBuild(p){
         ev.flow.push(["Sources", "room", used.map(function(u){ return u[1].sig; }).join(" · ") || "None on the stage box"]);
         ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", (used.length ? used.map(function(u){ return u[1].sig + " (In " + u[0] + ")"; }).join(", ") + " → " : "→ ") + link]);
         ev.patch.push([box, "Side-stage, " + ROOMNAME[st], used.map(function(u){ return u[1].sig + " into In " + u[0]; }).join(", ") + (used.length ? ". " : "") + (e.deskIn === "out" ? "Plug into wall point " + (e.wpBox || "(pick one)") + ", as there’s no desk in the room." : "Networked to OPA over Dante, no wall point needed.")]);
-        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack 1 inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
+        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack A inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
         ev.desk.push(["DM7F channels", (used.length ? used.map(function(u){ return u[1].sig + " (Ch " + u[1].ch + ")"; }).join(", ") : "No stage box inputs")]);
       } else {
         ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
         ev.flow.push([ROOMNAME[st] + " wall patch", "room", "In 1–4 → loom → AV2 Rio → Dante"]);
         out.warn.push("The DM7F show file doesn’t patch the AV2 Rio room inputs. Patch them on the DM7F if OPA takes sources from the wall patch.");
       }
-      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks 1 and 2. Foldback FB 1–8 out of Stage Rack 1, in-ears IEM 1–8 out of Stage Rack 2."]); ev.patch.push(["Stage Racks 1 and 2", "On stage", "Band inputs per the DM7F show file. Foldback from Stage Rack 1 outs 1–8, in-ears from Stage Rack 2 outs 1–8."]); }
+      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks A and B. Foldback FB 1–8 out of Stage Rack A, in-ears IEM 1–8 out of Stage Rack B."]); ev.patch.push(["Stage Racks A and B", "On stage", "Band inputs per the DM7F show file. Foldback from Stage Rack A outs 1–8, in-ears from Stage Rack B outs 1–8."]); }
       if (e.play) ev.desk.push(["OPA playback", "PC 1–4, PVP 1–2 and Zoom on Ch 73–86 (Omni 1–14 as backup), audio Mac on Ch 88–96"]);
       // where the mix goes
       var feeds = [];
@@ -2101,7 +2101,7 @@ function plChecks(p, out){
     if (e.subs) add("Set up", d+"-subs", tag + "Put 4 subs under the stage in end-fire and patch them to the " + ROOMNAME[e.subsFrom || e.stage] + " wall patch sub outputs. Power on.");
     if (e.ff) add("Set up", d+"-ff", tag + "Place the front fills on the stage lip and patch them (Galaxy 2 Out 7).");
     add("Set up", d+"-desk", tag + (e.deskIn === "out" ? "Bring up the " + D.desk + " (" + D.name + ") on the Dante network" : "Set up " + D.name + (e.pos ? " at " + e.pos : " at a pillar in " + ROOMNAME[e.deskIn] + ", opposite end to the speakers") + " and power on the " + D.desk) + (d==="opa" ? ". Recall the base show file." : "."));
-    if (e.band) add("Set up", d+"-band", tag + "Stage Racks 1 and 2 on stage for the band; foldback and in-ear lines run.");
+    if (e.band) add("Set up", d+"-band", tag + "Stage Racks A and B on stage for the band; foldback and in-ear lines run.");
   });
   if (p.foyer==="bgm") add("Set up", "bgm", "BGM player plugged into the QL5 in AV2 (Omni in 1).");
   if (p.ext) add("Set up", "ext", "External team patched into AV2 Rio In 13–16.");
@@ -2316,7 +2316,7 @@ function plDiagData(p, ev, o){
   var rk = plRackInputs(), ins = [], chs = [];
   if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4);
   ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); });
-  if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks 1 + 2" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st], ins.length ? dgNamed(e.src, "In", ins) : ""]);
+  if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks A + B" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st], ins.length ? dgNamed(e.src, "In", ins) : ""]);
   else N("in", 1, "room", ROOMNAME[st] + " wall patch", [ins.length ? dgNamed(st, "In", ins) : "", "Room loom → AV2 Rio"]);
   // the desk
   var dsub = [];
