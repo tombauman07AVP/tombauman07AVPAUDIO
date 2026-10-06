@@ -204,6 +204,34 @@ a.fnode:hover{text-decoration:underline}
 .usage li span{display:grid;min-width:0;overflow-wrap:anywhere}
 .usage li small{color:var(--muted);font-size:12px}
 .usage .un{font:700 15px var(--f-display);color:var(--ink);flex:none}
+.fbfoot{margin:26px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--accent);cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.fbform{margin-top:14px;padding:14px 16px 16px;display:grid;gap:12px}
+.fbform textarea.fi{min-height:130px;resize:vertical;line-height:1.45}
+.fbact{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.fbmsg{font-size:13.5px;color:var(--warn)}
+.fbmsg.ok{color:var(--ok)}.fbmsg.bad{color:var(--warn)}
+.fbsent{margin-top:14px}
+.rqlist{padding:4px 0}
+.rqrow{padding:12px 14px;border-bottom:1px solid var(--line)}
+.rqrow:last-child{border-bottom:0}
+.rqrow.isdone .rqmsg{color:var(--muted)}
+.rqhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:13.5px}
+.rqkind{font:700 11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rqst{font:700 10.5px var(--f-display);letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted)}
+.rqst.rq-new{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent);background:var(--warn-bg)}
+.rqst.rq-doing{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.rqst.rq-done{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent);background:var(--ok-bg)}
+.rqabout{margin:6px 0 0;font-size:13px;color:var(--muted)}
+.rqmsg{margin:6px 0 0;white-space:pre-wrap;line-height:1.5}
+.rqreplyv{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:var(--glass-3);font-size:14px}
+.rqadmin{display:grid;gap:8px;margin-top:10px}
+.rqreply{display:flex;gap:8px}
+.rqreply .fi{flex:1;min-width:0}
+.rqmail{font-size:13px}
+.rqsteps{margin:8px 0 12px;padding-left:20px;display:grid;gap:4px}
+.rqform{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin-bottom:10px}
+@media (max-width:560px){.rqreply{flex-wrap:wrap}.rqreply .btn{flex:1}}
 .crow{display:flex;align-items:flex-start;gap:6px}
 .crow label{flex:1;min-width:0}
 .stk{flex:none;margin-top:5px;font:600 12px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line-strong);border-radius:999px;padding:3px 11px;cursor:pointer;white-space:nowrap}
@@ -1729,14 +1757,14 @@ function stuckFor(rs, it, items, idx){
   }
   return (x.path.length || x.why || x.look.length) ? x : null;
 }
-function stuckPanel(x, id, wid, on){
+function stuckPanel(x, id, wid, on, lab){
   var h = '<div class="why" id="'+wid+'"'+(on ? '' : ' hidden')+'>';
   if (x.path && x.path.length) h += '<p class="wh">How it should be routed</p><dl class="wpath">' + x.path.map(function(p){ return '<dt>'+esc(p[0])+'</dt><dd>'+p[1]+'</dd>'; }).join("") + '</dl>';
   if (x.brk) h += x.brk;
   if (x.why) h += '<p class="wwhy"><b>Why it’s set up like this.</b> '+esc(x.why)+'</p>';
   if (x.look && x.look.length) h += '<p class="wh">Look at</p><ul class="wlook">'+x.look.map(function(l){ return '<li>'+esc(l)+'</li>'; }).join("")+'</ul>';
   if (x.chips) h += '<div class="qchips wchips">'+x.chips+'</div>';
-  h += '<div class="wact">'+(x.link ? '<a class="btn" href="#'+esc(x.link[0])+'">'+esc(x.link[1])+'</a>' : '')+'<button class="btn" type="button" data-fixed="'+esc(id)+'">Working now</button></div>';
+  h += '<div class="wact">'+(x.link ? '<a class="btn" href="#'+esc(x.link[0])+'">'+esc(x.link[1])+'</a>' : '')+'<button class="btn" type="button" data-fixed="'+esc(id)+'">Working now</button>'+(CLOUD && me ? '<button class="btn" type="button" data-fb="'+esc(lab || "")+'">Still stuck? Send a fix request</button>' : '')+'</div>';
   return h + '</div>';
 }
 function setStuck(li, on){
@@ -1763,7 +1791,7 @@ function checksBlock(c, gk, open, P, first, rs){
     var id = gk+"#"+i, x = stuckFor(rs, it, c.items, i), on = !!(x && STUCK[id] && !CHECKED[id]), wid = "why" + (++WHYN);
     if (on) open = true;
     return '<li data-k="'+esc(it.k || kOf(it.b))+'" data-sk="'+esc(itemSk(it))+'" data-id="'+esc(id)+'"'+(on ? ' class="stuck"' : '')+'><div class="crow"><label><input type="checkbox" data-ck="'+esc(id)+'"'+(CHECKED[id]?' checked':'')+'><span><b>'+esc(it.b)+'</b> · '+esc(it.t)+'</span></label>'+
-      (x ? '<button class="stk" type="button" data-stk="'+esc(id)+'" aria-expanded="'+on+'" aria-controls="'+wid+'">'+(on ? 'Close' : 'Stuck?')+'</button>' : '')+'</div>'+(x ? stuckPanel(x, id, wid, on) : '')+'</li>';
+      (x ? '<button class="stk" type="button" data-stk="'+esc(id)+'" aria-expanded="'+on+'" aria-controls="'+wid+'">'+(on ? 'Close' : 'Stuck?')+'</button>' : '')+'</div>'+(x ? stuckPanel(x, id, wid, on, it.b) : '')+'</li>';
   }).join("");
   var h = '<details class="checks"'+(open?' open':'')+'><summary>Quick checks <small>'+c.items.length+', in signal order</small></summary>';
   if (sym) h += '<p class="tip warn">'+esc(SYMTIP[sym])+'</p>';
@@ -2256,7 +2284,7 @@ function planSync(){
 }
 function planRefresh(full){
   plNormalise(PLAN); planSync();
-  if (full){ var db = $("dbody"), y = db.scrollTop; db.innerHTML = viewPlan(); db.scrollTop = y; }
+  if (full){ var db = $("dbody"), y = db.scrollTop; db.innerHTML = viewPlan() + (fbFootOK() ? fbFoot() : ""); db.scrollTop = y; }
   else { var o = $("planout"); if (o) o.innerHTML = planOutput(); }
 }
 function planSet(path, v){
@@ -3004,6 +3032,7 @@ function resolve(v){
   if (v==="all") return {view:viewDirectory, rect:null, dock:"all", label:"Everything"};
   if (v==="admin" && CLOUD) return {view:viewAdmin, rect:null, dock:"admin", label:"Admin"};
   if (v==="account" && CLOUD) return {view:viewAccount, rect:null, dock:"", label:"Your account"};
+  if (v==="feedback") return {view:viewFeedback, rect:null, dock:"feedback", label:"Fix requests"};
   if (v==="rooms") return {view:viewRooms, rect:pad([20,40,1160,400],520,420), dock:"map", label:"Rooms"};
   if (v==="speakers") return {view:viewSpeakers, rect:pad(GEO.speakers,560,300), dock:"map", label:"Speakers"};
   if (v==="foyer") return {view:viewFoyer, rect:pad(GEO.foyer,560,420), dock:"map", label:"Foyer"};
@@ -3097,7 +3126,7 @@ function renderHud(){
   if (pending && !editing) b.innerHTML = '<span>Your last changes weren’t saved because someone else saved first.</span><button class="btn primary" id="reapply">Put them back</button><button class="btn" id="dropdraft">Throw away</button>';
   var r = resolve(route());
   document.body.classList.toggle("editing", !!editing);
-  DOCKITEMS = DOCK.concat(isAdmin() ? [["admin","Admin","var(--warn)"]] : []);
+  DOCKITEMS = DOCK.concat(CLOUD && me ? [["feedback","Feedback","var(--warn)"]] : []).concat(isAdmin() ? [["admin","Admin" + (RQ_NEW ? " (" + RQ_NEW + ")" : ""),"var(--warn)"]] : []);
   $("dock").innerHTML = DOCKITEMS.map(function(d){return '<button class="dk" data-go="'+d[0]+'" aria-current="'+(r.dock===d[0])+'" style="--k:'+d[2]+'"><i></i>'+d[1]+'</button>';}).join("") +
     '<button class="dk more" id="dkmore" aria-haspopup="true" aria-expanded="false" style="--k:var(--muted)"><b aria-hidden="true">⋯</b>More</button>';
   layoutDock(r.dock);
@@ -3113,7 +3142,7 @@ function layoutDock(cur){
   if (dk.scrollWidth <= dk.clientWidth + 1) { closeMore(); return; }
   dk.classList.remove("nomore");
   // what folds into More first: Admin, All, Network, Kit, RF, then To-do (System and Signals always stay)
-  var order = ["admin","all","network","kit","rf","todo","plan"];
+  var order = ["admin","feedback","all","network","kit","rf","todo","plan"];
   for (var i = 0; i < order.length && dk.scrollWidth > dk.clientWidth + 1; i++){ var b = dk.querySelector('.dk[data-go="'+order[i]+'"]'); if (b) b.classList.add("x"); }
   var hidden = items.filter(function(b){ return b.classList.contains("x"); });
   var mb = $("dkmore"); if (mb) mb.setAttribute("aria-current", String(hidden.some(function(b){ return b.getAttribute("aria-current")==="true"; })));
@@ -3125,13 +3154,14 @@ function toggleMore(){ var p = $("dmore"), mb = $("dkmore"); if (!p) return; p.h
 function sheetMode(){ var d = $("drawer"); return !!d && !d.hidden && d.offsetWidth > window.innerWidth * 0.8; }
 var COARSE = !!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
 function smallScreen(){ return window.innerWidth <= 1024; }
+function fbFootOK(){ var rp = routeParts(); return !/^(feedback|admin|account)$/.test(rp.base) && !(rp.base === "plan" && rp.q.e); }
 function renderDrawer(r){
   var d = $("drawer");
   if (!r.view){ d.hidden = true; d.classList.remove("tall"); d.style.transform = ""; return; }
   var wasHidden = d.hidden;
   d.hidden = false; $("dlabel").textContent = r.label || "";
   var y = wasHidden ? 0 : $("dbody").scrollTop;
-  $("dbody").innerHTML = r.view();
+  $("dbody").innerHTML = r.view() + (fbFootOK() ? fbFoot() : "");
   $("dbody").scrollTop = y;
 }
 var lastRoute = null, skipFly = false;
@@ -3235,6 +3265,8 @@ app.addEventListener("click", function(e){
   if (t.matches("[data-go]")) { var g = t.getAttribute("data-go"); if (baseRoute()===g) { lastRoute = null; onRoute(); } else location.hash = g; return; }
   if (t.id==="hsearch"){ openFinder(); return; }
   if (t.id==="dkmore"){ toggleMore(); return; }
+  if (fbClick(t)) return;
+  if (t.hasAttribute("data-atabgo")){ adminTab = t.getAttribute("data-atabgo"); location.hash = "admin"; return; }
   if (planClick(t)) return;
   if (CLOUD){
     if (t.id==="g-retry"){ if (!sb.session) { gate("signin"); return; } gate("loading"); loadAll().then(enterApp).catch(bootErr); return; }
@@ -3278,6 +3310,7 @@ app.addEventListener("input", function(e){
   var t = e.target;
   if (t.id==="q"){ sigFilter.q = t.value; $("sigres").innerHTML = signalResults(); afterResults(); return; }
   var ef = t.getAttribute && t.getAttribute("data-evf"); if (ef){ evSetField(ef, t.value); return; }
+  var fbf = t.getAttribute && t.getAttribute("data-fbf"); if (fbf){ FB[fbf] = t.value; if (FB.err){ FB.err = ""; var fm = $("fbmsg"); if (fm) fm.textContent = ""; } return; }
   var ex = t.getAttribute && t.getAttribute("data-evx"); if (ex){ evSetExtra(ex, t.value); return; }
   var pf = t.getAttribute && t.getAttribute("data-plf");
   if (pf){ planSet(pf, t.value); plNormalise(PLAN); planSync(); if (planMode() === "edit") evTouch(); clearTimeout(plT); plT = setTimeout(function(){ var o = $("planout"); if (o) o.innerHTML = planOutput(); }, 250); return; }
@@ -3472,6 +3505,7 @@ function enterApp(res){
   gate(null);
   if (!started) startApp(); else { refreshAll(); lastViewLogged = ""; logView(); }
   popLoad(true);
+  if (isAdmin()) rqLoad().then(renderHud);
 }
 function bootErr(e){
   if (e && e.status === 401){ sb.clear(); return gate("signin", "Please sign in again."); }
@@ -3644,16 +3678,179 @@ function viewAccount(){
 }
 function rolePill(r){ var t = {viewer:"Viewer", editor:"Editor", admin:"Admin", none:"No access"}[r] || r; return '<span class="pill '+(r==="admin"?"warn":(r==="none"?"mut":"ok"))+'">'+esc(t)+'</span>'; }
 
+
+/* ---------- fix requests and comments: anyone signed in can send one; admins get an email and a list ---------- */
+var FB = {kind:"fix", about:"", msg:"", sending:false, mine:null, loaded:0, err:"", sent:null};
+var FB_KINDS = [["fix","Fix request","What’s wrong, and where? e.g. QL5 Out 2 (Room 1 R) muted but it still metered, so the checks missed it."],
+                ["idea","Idea","What would make the site more useful?"],
+                ["comment","Comment","Anything else you want to tell the admins."]];
+var RQ_STATUS = [["new","New"],["doing","Doing"],["done","Done"]];
+function fbKindLabel(k){ var x = FB_KINDS.filter(function(r){ return r[0] === k; })[0]; return x ? x[1] : k; }
+function fbStatusPill(s){ var l = (RQ_STATUS.filter(function(r){ return r[0] === s; })[0] || RQ_STATUS[0])[1]; return '<span class="rqst rq-' + esc(s) + '">' + l + '</span>'; }
+function fbWhen(iso){ return evWhen(iso); }
+// what the person was looking at, so the request says where the problem is
+function fbAbout(extra){
+  var b = baseRoute(), lab = routeLabel(b);
+  if (b === "signals" && sigFilter.q.trim()){ var t = document.querySelector("#sigres .btitle"); lab = "Signal finder: “" + sigFilter.q.trim() + "”" + (t ? " → " + t.textContent : ""); }
+  else { var m = /^event-([a-z0-9]+)$/.exec(b), ev = m ? evGet(m[1]) : null; if (ev) lab = "Event: " + (ev.name || "Untitled"); }
+  return String(extra ? lab + " · " + extra : lab).slice(0, 300);
+}
+function fbFoot(){ return CLOUD && me ? '<p class="fbfoot"><button class="linkbtn" data-fb="">Spotted something wrong or missing here? Send a fix request</button></p>' : ''; }
+function viewFeedback(){
+  var h = '<h1>Fix requests</h1>';
+  if (!CLOUD || !me) return h + '<div class="card empty">Fix requests work on the signed-in site.</div>';
+  var k = FB_KINDS.filter(function(r){ return r[0] === FB.kind; })[0] || FB_KINDS[0];
+  h += '<p class="lede">Spotted something wrong, missing or confusing? Send it here and the admins get it straight away by email.</p>';
+  if (FB.sent) h += '<div class="tip done fbsent">Sent. Thanks! You can follow it under <b>Your requests</b> below.</div>';
+  h += '<div class="card fbform"><div class="pltext"><span class="pllab">What is it?</span><span class="plsegs">' + FB_KINDS.map(function(r){ return '<button class="fchip" data-fbk="' + r[0] + '" aria-pressed="' + (FB.kind === r[0]) + '">' + r[1] + '</button>'; }).join("") + '</span></div>';
+  h += '<label class="pltext"><span class="pllab">About</span><input class="fi" data-fbf="about" value="' + esc(FB.about) + '" placeholder="Page, signal or room, e.g. Room 1 R, QL5, Event planner" autocomplete="off" maxlength="300"></label>';
+  h += '<label class="pltext"><span class="pllab">Message</span><textarea class="fi" rows="6" data-fbf="msg" placeholder="' + esc(k[2]) + '" maxlength="4000">' + esc(FB.msg) + '</textarea></label>';
+  h += '<div class="fbact"><button class="btn primary" data-fbsend' + (FB.sending ? ' disabled' : '') + '>' + (FB.sending ? 'Sending…' : 'Send') + '</button><span class="fbmsg" id="fbmsg" role="status">' + esc(FB.err) + '</span></div></div>';
+  h += '<h2 class="sec">Your requests</h2><div id="fbmine">' + fbMineHTML() + '</div>';
+  if (isAdmin()) h += '<p class="note">You’re an admin: everyone’s requests are under <button class="linkbtn" data-atabgo="requests">Admin → Requests</button>.</p>';
+  // fetch again each time the page opens, so status changes and replies show up
+  if (FB.mine === null || Date.now() - FB.loaded > 3000) setTimeout(fbLoadMine, 0);
+  return h;
+}
+function fbRowHTML(r, admin){
+  var h = '<div class="rqrow' + (r.status === "done" ? ' isdone' : '') + '"><div class="rqhead">' + fbStatusPill(r.status) + '<span class="rqkind">' + esc(fbKindLabel(r.kind)) + '</span>' +
+    (admin ? '<b>' + esc(r.user_name || r.user_email || "Someone") + '</b>' : '') + '<span class="dim">' + esc(fbWhen(r.at)) + '</span></div>';
+  if (r.about) h += '<p class="rqabout">' + esc(r.about) + '</p>';
+  h += '<p class="rqmsg">' + esc(r.message) + '</p>';
+  if (admin){
+    h += '<div class="rqadmin"><span class="plsegs">' + RQ_STATUS.map(function(s){ return '<button class="fchip" data-rqs="' + r.id + '" data-v="' + s[0] + '" aria-pressed="' + (r.status === s[0]) + '">' + s[1] + '</button>'; }).join("") + '</span>' +
+      '<div class="rqreply"><input class="fi" data-rqr="' + r.id + '" value="' + esc(r.reply || "") + '" placeholder="Reply they’ll see, e.g. Fixed in today’s update" maxlength="2000" aria-label="Reply"><button class="btn" data-rqsave="' + r.id + '">Save reply</button></div>' +
+      (r.user_email ? '<a class="rqmail" href="mailto:' + esc(r.user_email) + '?subject=' + encodeURIComponent("Re: your " + fbKindLabel(r.kind).toLowerCase() + " on Ballroom Audio") + '">Email ' + esc(r.user_name || r.user_email) + '</a>' : '') + '</div>';
+  } else if (r.reply) h += '<p class="rqreplyv"><b>Reply:</b> ' + esc(r.reply) + '</p>';
+  return h + '</div>';
+}
+function fbMineHTML(){
+  if (FB.mine === null) return '<p class="dim">Loading…</p>';
+  if (FB.mine === "missing") return '<div class="card empty">Fix requests aren’t set up in the database yet. An admin needs to run the requests SQL once in Supabase.</div>';
+  if (!FB.mine.length) return '<div class="card empty">Nothing sent yet.</div>';
+  return '<div class="card rqlist">' + FB.mine.map(function(r){ return fbRowHTML(r, false); }).join("") + '</div>';
+}
+function fbMissing(e){ return e && (e.status === 404 || /could not find|does not exist|schema cache/i.test(e.message || "")); }
+function fbLoadMine(){
+  if (!CLOUD || !sb.session || !me) return;
+  sb.rest("requests?select=id,at,user_id,kind,about,message,status,reply&order=at.desc&limit=50").then(function(rows){
+    FB.mine = (rows || []).filter(function(r){ return r.user_id === me.id; }); FB.loaded = Date.now();
+    var b = $("fbmine"); if (b) b.innerHTML = fbMineHTML();
+  }).catch(function(e){ FB.mine = fbMissing(e) ? "missing" : []; var b = $("fbmine"); if (b) b.innerHTML = fbMineHTML(); });
+}
+// coming back to the tab: pick up any replies
+document.addEventListener("visibilitychange", function(){ if (!document.hidden && baseRoute() === "feedback") fbLoadMine(); });
+function fbSend(){
+  if (FB.sending) return;
+  var msg = FB.msg.trim();
+  if (!msg){ FB.err = "Write a message first."; var m0 = $("fbmsg"); if (m0) m0.textContent = FB.err; var ta = document.querySelector('[data-fbf="msg"]'); if (ta) ta.focus(); return; }
+  FB.sending = true; FB.err = ""; fbRedraw();
+  sb.rpc("submit_request", {p_kind: FB.kind, p_message: msg, p_about: FB.about.trim() || null}).then(function(){
+    FB.sending = false; FB.msg = ""; FB.sent = Date.now(); FB.mine = null; delete adminCache.requests; fbRedraw(); toast("Sent. Thanks!");
+  }).catch(function(e){
+    FB.sending = false; FB.err = fbMissing(e) ? "Fix requests aren’t set up in the database yet. Ask an admin to run the requests SQL." : (e.message || "Couldn’t send just now. Try again in a moment."); fbRedraw();
+  });
+}
+function fbRedraw(){ if (baseRoute() === "feedback"){ var db = $("dbody"), y = db.scrollTop; db.innerHTML = viewFeedback(); db.scrollTop = y; } }
+function fbOpen(extra){ FB.about = fbAbout(extra); FB.sent = null; FB.err = ""; location.hash = "feedback"; }
+function fbClick(t){
+  if (t.hasAttribute("data-fb")){ fbOpen(t.getAttribute("data-fb")); return true; }
+  if (t.hasAttribute("data-fbk")){ FB.kind = t.getAttribute("data-fbk"); t.parentNode.querySelectorAll("[data-fbk]").forEach(function(b){ b.setAttribute("aria-pressed", String(b === t)); }); var ta = document.querySelector('[data-fbf="msg"]'); var k = FB_KINDS.filter(function(r){ return r[0] === FB.kind; })[0]; if (ta && k) ta.placeholder = k[2]; return true; }
+  if (t.hasAttribute("data-fbsend")){ fbSend(); return true; }
+  return false;
+}
+
+/* Admin → Requests */
+function rqLoad(){
+  return Promise.all([
+    sb.rest("requests?select=id,at,user_id,user_name,user_email,kind,about,message,status,reply&order=at.desc&limit=300"),
+    sb.rpc("notify_settings").catch(function(){ return null; })
+  ]).then(function(r){ adminCache.requests = {t: Date.now(), rows: r[0] || [], settings: r[1] || {}}; RQ_NEW = (r[0] || []).filter(function(x){ return x.status === "new"; }).length; })
+    .catch(function(e){ adminCache.requests = {t: Date.now(), rows: [], err: e}; });
+}
+var RQ_NEW = 0, RQ_FILTER = "open", RQ_EDIT = false;
+function rqAdminHTML(c){
+  var h = "";
+  if (c.err){
+    return '<div class="card ainfo" style="margin-top:12px"><b>' + (fbMissing(c.err) ? 'Fix requests aren’t set up in Supabase yet' : 'Couldn’t load requests') + '</b><p class="dim" style="margin:4px 0 0">' +
+      (fbMissing(c.err) ? 'Run the requests SQL that came with this update once (Supabase → SQL Editor → New query → paste → Run), then reload this page.' : esc(c.err.message || "")) + '</p><p><button class="btn" data-areload="1">Try again</button></p></div>';
+  }
+  var s = c.settings || {}, ready = s.email && s.has_key;
+  h += '<div class="card ainfo rqmail-set" style="margin-top:12px"><b>Email me new requests</b>';
+  if (ready && !RQ_EDIT){
+    h += '<p class="dim" style="margin:4px 0 10px">New requests are emailed to <b>' + esc(s.email) + '</b>. Hit Reply in your email to answer the person directly.</p>' +
+      '<div class="fbact"><button class="btn" id="rq-test">Send a test email</button><button class="btn" id="rq-change">Change</button><span class="fbmsg" id="rq-msg" role="status"></span></div>';
+  } else {
+    h += '<ol class="rqsteps"><li>Sign up free at <a href="https://resend.com/signup" target="_blank" rel="noopener">resend.com</a> with the email address you want requests sent to.</li><li>In Resend, open <b>API Keys → Create API key</b>, and copy it (it starts with <code>re_</code>).</li><li>Put your email and the key here, then <b>Save</b> and <b>Send a test email</b>.</li></ol>' +
+      '<div class="rqform"><label class="pltext"><span class="pllab">Your email</span><input class="fi" id="rq-email" type="email" value="' + esc(s.email || (me && me.email) || "") + '" autocomplete="email"></label>' +
+      '<label class="pltext"><span class="pllab">Resend API key</span><input class="fi" id="rq-key" type="password" autocomplete="off" placeholder="' + (s.has_key ? 'Saved. Leave blank to keep it' : 're_…') + '"></label></div>' +
+      '<div class="fbact"><button class="btn primary" id="rq-save">Save</button>' + (s.has_key ? '<button class="btn" id="rq-test">Send a test email</button>' : '') + (ready ? '<button class="btn" id="rq-cancel">Cancel</button>' : '') + '<span class="fbmsg" id="rq-msg" role="status"></span></div>' +
+      '<p class="note">Use the same email you sign up to Resend with: until you add your own domain in Resend, it only sends to that address. The key is kept in the database where nobody can read it back, not even from this page.</p>';
+    if (s.mail_ok === false) h += '<p class="tip warn">The database’s mail add-on (pg_net) isn’t switched on. In Supabase, open Database → Extensions and turn on <b>pg_net</b>, then run the requests SQL again.</p>';
+  }
+  h += '</div>';
+  var rows = c.rows.filter(function(r){ return RQ_FILTER === "all" || (RQ_FILTER === "done" ? r.status === "done" : r.status !== "done"); });
+  var nOpen = c.rows.filter(function(r){ return r.status !== "done"; }).length;
+  h += '<div class="fchips" style="margin-top:14px">' + [["open","Open · " + nOpen],["done","Done"],["all","All · " + c.rows.length]].map(function(f){ return '<button class="fchip" data-rqf="' + f[0] + '" aria-pressed="' + (RQ_FILTER === f[0]) + '">' + f[1] + '</button>'; }).join("") + '<button class="btn" data-areload="1" style="margin-left:auto">Refresh</button></div>';
+  h += rows.length ? '<div class="card rqlist" style="margin-top:10px">' + rows.map(function(r){ return fbRowHTML(r, true); }).join("") + '</div>'
+                   : '<div class="card empty" style="margin-top:10px">' + (RQ_FILTER === "open" ? 'Nothing open. Nice.' : 'Nothing here yet.') + '</div>';
+  return h;
+}
+function rqPoll(id, tries){
+  var m = $("rq-msg");
+  sb.rpc("email_result", {p_id: id}).then(function(r){
+    var mm = $("rq-msg"); if (!mm) return;
+    if (!r){ if (tries > 0) setTimeout(function(){ rqPoll(id, tries - 1); }, 2500); else mm.textContent = "Still sending. Check your inbox (and spam) in a minute."; return; }
+    if (r.status >= 200 && r.status < 300){ mm.textContent = "Sent. Check your inbox (and the spam folder, the first time)."; mm.className = "fbmsg ok"; return; }
+    var why = ""; try{ why = JSON.parse(r.content || "{}").message || ""; }catch(e){ why = r.content || ""; }
+    mm.textContent = "Resend didn’t send it" + (r.status ? " (" + r.status + ")" : "") + ": " + (why || r.error || "unknown problem") + (/own email/i.test(why) ? " Use the email you signed up to Resend with." : (/api key/i.test(why) ? " Check the key and save it again." : ""));
+    mm.className = "fbmsg bad";
+  }).catch(function(e){ if (m) m.textContent = e.message || "Couldn’t check."; });
+}
+function rqClick(t){
+  var c = adminCache.requests;
+  if (t.hasAttribute("data-rqf")){ RQ_FILTER = t.getAttribute("data-rqf"); renderAdmin(); return true; }
+  if (t.hasAttribute("data-rqs")){
+    var id = Number(t.getAttribute("data-rqs")), st = t.getAttribute("data-v");
+    sb.rpc("set_request", {p_id: id, p_status: st}).then(function(){ var r = c && c.rows.filter(function(x){ return x.id === id; })[0]; if (r) r.status = st; RQ_NEW = c ? c.rows.filter(function(x){ return x.status === "new"; }).length : 0; renderAdmin(); renderHud(); })
+      .catch(function(e){ toast(e.message || "Couldn’t update it."); });
+    return true;
+  }
+  if (t.hasAttribute("data-rqsave")){
+    var rid = Number(t.getAttribute("data-rqsave")), inp = document.querySelector('[data-rqr="' + rid + '"]'), val = inp ? inp.value : "";
+    sb.rpc("set_request", {p_id: rid, p_reply: val}).then(function(){ var r = c && c.rows.filter(function(x){ return x.id === rid; })[0]; if (r) r.reply = val.trim() || null; toast("Reply saved. They’ll see it on their Fix requests page."); })
+      .catch(function(e){ toast(e.message || "Couldn’t save the reply."); });
+    return true;
+  }
+  if (t.id === "rq-change"){ RQ_EDIT = true; renderAdmin(); return true; }
+  if (t.id === "rq-cancel"){ RQ_EDIT = false; renderAdmin(); return true; }
+  if (t.id === "rq-save"){
+    var em = ($("rq-email") || {}).value || "", key = ($("rq-key") || {}).value || "", msg = $("rq-msg");
+    t.disabled = true; if (msg){ msg.textContent = "Saving…"; msg.className = "fbmsg"; }
+    sb.rpc("set_notify", {p_email: em.trim(), p_key: key.trim() || null, p_site: location.href.split("#")[0]}).then(function(s){
+      if (c) c.settings = s || {}; RQ_EDIT = false; renderAdmin(); var m2 = $("rq-msg"); if (m2){ m2.textContent = (s && s.email && s.has_key) ? "Saved. Send a test email to check it works." : "Saved. Add the Resend key to turn emails on."; m2.className = "fbmsg ok"; }
+    }).catch(function(e){ t.disabled = false; if (msg){ msg.textContent = e.message || "Couldn’t save."; msg.className = "fbmsg bad"; } });
+    return true;
+  }
+  if (t.id === "rq-test"){
+    var mt = $("rq-msg"); t.disabled = true; if (mt){ mt.textContent = "Sending a test email…"; mt.className = "fbmsg"; }
+    sb.rpc("send_test_email").then(function(id){ t.disabled = false; setTimeout(function(){ rqPoll(id, 4); }, 1500); })
+      .catch(function(e){ t.disabled = false; if (mt){ mt.textContent = e.message || "Couldn’t send."; mt.className = "fbmsg bad"; } });
+    return true;
+  }
+  return false;
+}
+
 /* admin page */
 var adminTab = "activity", adminCache = {}, adminOffset = 0, adminFilter = {who:"", what:""}, restoreArm = null;
-var ACTS = {sign_in:"signed in", sign_out:"signed out", view:"opened", search:"searched", saved:"saved", restored:"restored", role_changed:"changed access for", password_reset:"reset the password for", password_changed:"changed their password", account_created:"account created", edit_started:"started editing", edit_discarded:"discarded their edits", name_changed:"changed the name for"};
-var ACT_GROUPS = [["","Everything"],["sign","Sign-ins"],["view","Pages opened"],["search","Searches"],["edit","Edits and restores"],["people","People and passwords"]];
-function actGroup(a){ return /^sign_/.test(a) ? "sign" : a==="view" ? "view" : a==="search" ? "search" : /saved|restored|edit_/.test(a) ? "edit" : "people"; }
+var ACTS = {request:"sent a request", sign_in:"signed in", sign_out:"signed out", view:"opened", search:"searched", saved:"saved", restored:"restored", role_changed:"changed access for", password_reset:"reset the password for", password_changed:"changed their password", account_created:"account created", edit_started:"started editing", edit_discarded:"discarded their edits", name_changed:"changed the name for"};
+var ACT_GROUPS = [["","Everything"],["request","Requests"],["sign","Sign-ins"],["view","Pages opened"],["search","Searches"],["edit","Edits and restores"],["people","People and passwords"]];
+function actGroup(a){ return a==="request" ? "request" : /^sign_/.test(a) ? "sign" : a==="view" ? "view" : a==="search" ? "search" : /saved|restored|edit_/.test(a) ? "edit" : "people"; }
 function viewAdmin(){
   if (!isAdmin()) return '<h1>Admin</h1><p class="lede">Only admins can see this page.</p>';
   setTimeout(function(){ loadAdmin(false); }, 0);
   return '<h1>Admin</h1><p class="lede">Who did what, who can get in, and every saved version.</p>'+
-    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["usage","Usage"],["people","People"],["versions","Versions"],["data","Backup"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
+    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["requests","Requests" + (RQ_NEW ? " (" + RQ_NEW + ")" : "")],["usage","Usage"],["people","People"],["versions","Versions"],["data","Backup"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
     '<div id="adminbody" class="adminbody"><p class="dim">Loading…</p></div>';
 }
 function fmtWhen(iso){
@@ -3667,6 +3864,7 @@ function loadAdmin(force){
   var tab = adminTab, c = adminCache[tab];
   if (tab === "data"){ adminCache.data = {t: Date.now(), rows: []}; return renderAdmin(); }
   if (c && !force && Date.now() - c.t < 20000) return renderAdmin();
+  if (tab === "requests"){ rqLoad().then(function(){ if (adminTab === "requests") renderAdmin(); renderHud(); }); return; }
   if (tab === "usage"){
     sb.rpc("activity_summary", {p_days: POP_DAYS}).then(function(r){ adminCache.usage = {t: Date.now(), rows: [], u: r || {}}; popApply(r); if (adminTab === "usage") renderAdmin(); })
       .catch(function(e){ adminCache.usage = {t: Date.now(), rows: [], err: e}; if (adminTab === "usage") renderAdmin(); });
@@ -3687,6 +3885,7 @@ function loadMoreActivity(){
 function actDetail(r){
   var d = r.detail || {}, a = r.action;
   if (a==="search") return '“'+esc(r.target)+'”'+(d.match ? ' <span class="dim">→ '+esc(d.match)+'</span>' : '');
+  if (a==="request") return '<span class="dim">'+esc(fbKindLabel(d.kind || "fix"))+(d.about ? ' · '+esc(d.about) : '')+':</span> “'+esc(r.target)+'”';
   if (a==="saved" || a==="restored"){
     var s = d.summary ? String(d.summary) : "";
     return esc(r.target||"") + (s ? '<details class="sumd"><summary>'+esc(s.split("\n").length)+' change'+(s.split("\n").length===1?"":"s")+'</summary><pre>'+esc(s)+'</pre></details>' : '');
@@ -3707,6 +3906,8 @@ function renderAdmin(){
     h += '<div class="card panel k-dante" style="margin-top:12px"><div class="tblwrap"><table class="t alog"><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead><tbody>'+
       (rows.length ? rows.map(function(r){ var w = fmtWhen(r.at); return '<tr><td class="when" title="'+esc(r.at)+'">'+esc(w.abs)+'<small>'+esc(w.rel)+'</small></td><td class="who">'+esc(r.user_name||"")+'</td><td>'+esc(ACTS[r.action]||r.action)+'</td><td>'+actDetail(r)+'</td></tr>'; }).join("") : '<tr><td colspan="4" class="dim">Nothing yet.</td></tr>')+
       '</tbody></table></div></div>'+(c.more ? '<p><button class="btn" id="af-more">Load older activity</button></p>' : '');
+  } else if (adminTab === "requests"){
+    h += rqAdminHTML(c);
   } else if (adminTab === "usage"){
     if (c.err){
       var missing = c.err.status === 404 || /could not find|does not exist/i.test(c.err.message || "");
@@ -3823,6 +4024,7 @@ function activityCSV(){
   }catch(e){ toast("Couldn’t create the download here."); }
 }
 function adminClick(t){
+  if (rqClick(t)) return true;
   if (t.hasAttribute("data-atab")){ adminTab = t.getAttribute("data-atab"); restoreArm = null; document.querySelectorAll("[data-atab]").forEach(function(b){ b.setAttribute("aria-pressed", String(b===t)); }); $("adminbody").innerHTML = '<p class="dim">Loading…</p>'; loadAdmin(false); return true; }
   if (t.hasAttribute("data-areload")){ loadAdmin(true); return true; }
   if (t.id === "af-more"){ loadMoreActivity(); return true; }
