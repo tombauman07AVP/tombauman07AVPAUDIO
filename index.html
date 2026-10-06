@@ -194,6 +194,16 @@ a.fnode:hover{text-decoration:underline}
 .clist li.next label{background:rgba(134,182,255,.08);box-shadow:inset 3px 0 0 var(--accent)}
 .tip.done{border-color:var(--ok);color:var(--ink)}
 .chint{font-size:13px;color:var(--muted);margin:8px 0 0}
+.qlabel small{font:500 12px var(--f-body);letter-spacing:0;text-transform:none;margin-left:8px;color:var(--muted)}
+.popchip small{margin-left:7px;font:600 11px var(--f-display);color:var(--muted);background:var(--glass-3);border-radius:999px;padding:1px 7px}
+.usegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.usage{padding:12px 14px}
+.usage ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:2px}
+.usage li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.usage li:last-child{border-bottom:0}
+.usage li span{display:grid;min-width:0;overflow-wrap:anywhere}
+.usage li small{color:var(--muted);font-size:12px}
+.usage .un{font:700 15px var(--f-display);color:var(--ink);flex:none}
 .crow{display:flex;align-items:flex-start;gap:6px}
 .crow label{flex:1;min-width:0}
 .stk{flex:none;margin-top:5px;font:600 12px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line-strong);border-radius:999px;padding:3px 11px;cursor:pointer;white-space:nowrap}
@@ -1185,11 +1195,11 @@ function findSignals(q){
   var best = Math.max.apply(null, scored.map(function(x){return x.s;}));
   if (best < 4) return {none:true, P:P};
   var top = scored.filter(function(x){return x.s===best;}).map(function(x){return x.r;});
-  top.sort(function(a, b){ return (isBackupSrc(a) ? 1 : 0) - (isBackupSrc(b) ? 1 : 0); });   // on a tie, the stage box comes before the wall patch backup
+  top.sort(function(a, b){ return ((isBackupSrc(a) ? 1 : 0) - (isBackupSrc(b) ? 1 : 0)) || (popScore(b.sig) - popScore(a.sig)); });   // on a tie, the stage box comes before the wall patch backup, then what the team looks up most
   if (top.length > 4) return {many:top, P:P};
   var groups = [], idx = {};
   top.forEach(function(r){ var k = seqKey(r); if (!(k in idx)){ idx[k] = groups.length; groups.push([]); } groups[idx[k]].push(r); });
-  var near = scored.filter(function(x){return x.s < best && x.s >= Math.max(4, best-3);}).sort(function(a,b){return b.s-a.s;}).slice(0,4).map(function(x){return x.r;});
+  var near = scored.filter(function(x){return x.s < best && x.s >= Math.max(4, best-3);}).sort(function(a,b){return (b.s-a.s) || (popScore(b.r.sig)-popScore(a.r.sig));}).slice(0,4).map(function(x){return x.r;});
   return {groups:groups, near:near, P:P, top:top};
 }
 
@@ -1838,6 +1848,35 @@ function refineChips(rs, P, q){
   }
   return out.length ? '<div class="near"><span>Narrow it down:</span>'+out.join("")+'</div>' : "";
 }
+
+/* ---------- what the team looks up most (last 30 days), counted in Supabase from the activity log ---------- */
+var POP = {paths:[], sig:{}, t:0}, POP_KEY = "ballroomPopular", POP_DAYS = 30;
+function popApply(r){
+  POP.paths = (r && Array.isArray(r.paths) ? r.paths : []).filter(function(p){ return p && p.sig && p.q; });
+  POP.sig = {};
+  POP.paths.forEach(function(p){   // "Room 2 L + Room 2 R" counts for both signals
+    String(p.sig).split(/ · | \+ |, /).forEach(function(s){ s = s.trim().toLowerCase(); if (s) POP.sig[s] = (POP.sig[s] || 0) + (Number(p.score) || Number(p.n) || 0); });
+  });
+}
+function popScore(sig){ return POP.sig[String(sig || "").toLowerCase()] || 0; }
+function popLoad(force){
+  if (!CLOUD || !sb.session) return;
+  if (!force && Date.now() - POP.t < 10*60*1000) return;
+  POP.t = Date.now();
+  sb.rpc("activity_summary", {p_days: POP_DAYS}).then(function(r){
+    popApply(r);
+    try{ localStorage.setItem(POP_KEY, JSON.stringify({paths: POP.paths})); }catch(e){}
+    if (baseRoute() === "signals" && !sigFilter.q.trim() && $("sigres")){ $("sigres").innerHTML = signalResults(); }
+  }).catch(function(){});   // not set up in Supabase yet: the built-in examples stay
+}
+try{ var popc = JSON.parse(localStorage.getItem(POP_KEY) || "null"); if (popc) popApply(popc); }catch(e){}
+function popChips(){
+  var top = POP.paths.slice(0, 6);
+  if (top.length < 2) return "";
+  return '<p class="qlabel">Most looked up<small>last ' + POP_DAYS + ' days</small></p><div class="qchips">' + top.map(function(p){
+    return '<button class="fchip popchip" data-q="' + esc(p.q) + '" title="Looked up ' + esc(p.n) + ' time' + (Number(p.n) === 1 ? '' : 's') + ' in the last ' + POP_DAYS + ' days">' + esc(p.sig) + '<small>' + esc(p.n) + '</small></button>';
+  }).join("") + '</div>';
+}
 var lastFind = null;
 function viewSignals(){
   var h = '<h1>Signal finder</h1><p class="lede">Say what’s wrong in plain words, like “subs not working in Prince”. Spelling doesn’t need to be perfect.</p>';
@@ -1850,7 +1889,10 @@ function signalResults(){
   if (res.empty){
     var rec = getRecent();
     if (rec.length) h += '<p class="qlabel">Recent</p><div class="qchips">'+rec.map(function(x){return qChip(x, x);}).join("")+'</div>';
-    h += (rec.length ? '<p class="qlabel">Try</p>' : '')+'<div class="qchips">'+EXAMPLES.map(function(x){return qChip(x[0], x[1]);}).join("")+'</div>';
+    var popH = popChips(), popQ = POP.paths.slice(0, 6).map(function(p){ return String(p.q).toLowerCase(); });
+    h += popH;
+    var ex = EXAMPLES.filter(function(x){ return popQ.indexOf(x[1].toLowerCase()) < 0; });
+    h += (rec.length || popH ? '<p class="qlabel">Try</p>' : '')+'<div class="qchips">'+ex.map(function(x){return qChip(x[0], x[1]);}).join("")+'</div>';
     [["stage","Stage box","lectern, stage PC and spare into the DM7F"],["out","Room outputs","desk to speakers"],["src","Wall patch sources","backup, for specific setups"],["ext","External teams","into the QL5"],["feed","Other feeds","into the QL5"]].forEach(function(sc){
       var l = allRoutes().filter(function(r){ return sc[0]==="stage" ? r.group==="stage" : (r.type===sc[0] && r.group!=="stage"); });
       if (l.length) h += '<h2 class="sec">'+sc[1]+'<small>'+sc[2]+' · '+l.length+'</small></h2><div class="card routes">'+l.map(routeRow).join("")+'</div>';
@@ -2136,7 +2178,9 @@ function planMode(){ var q = routeParts().q; return q.e ? "edit" : (q.p != null 
 function viewPlan(){ var m = planMode(); return m === "edit" ? viewEventEdit() : (m === "quick" ? viewQuickPlan() : viewEvents()); }
 // the routing builder (templates, rooms and desks, per-desk settings, foyer and external)
 function planForm(p, withName){
-  var h = '<p class="qlabel">Start from</p><div class="qchips">' + PL_TEMPLATES.map(function(t){ return '<button class="fchip" data-pltpl="'+t[0]+'" aria-pressed="'+(p.t===t[0])+'">'+esc(t[1])+'</button>'; }).join("") + '</div>';
+  var used = {}, all = evAll(); Object.keys(all).forEach(function(k){ var tt = all[k] && all[k].plan && all[k].plan.t; if (tt) used[tt] = (used[tt] || 0) + 1; });
+  var tpls = PL_TEMPLATES.slice().sort(function(a, b){ return (used[b[0]] || 0) - (used[a[0]] || 0); }), anyUsed = Object.keys(used).length > 0;
+  var h = '<p class="qlabel">Start from'+(anyUsed ? '<small>most used first</small>' : '')+'</p><div class="qchips">' + tpls.map(function(t){ return '<button class="fchip" data-pltpl="'+t[0]+'" aria-pressed="'+(p.t===t[0])+'"'+(used[t[0]] ? ' title="Used for '+used[t[0]]+' saved event'+(used[t[0]]===1?'':'s')+'"' : '')+'>'+esc(t[1])+'</button>'; }).join("") + '</div>';
   h += '<div class="plform card">' + (withName ? '<div class="plrow">'+plText("name", p.name, "e.g. Smith Co. conference", "Event name")+'</div>' : '');
   h += '<h2 class="plh">Rooms and desks</h2>';
   PL_ROOMS.forEach(function(k){ h += '<div class="plrow"><span class="plroom">'+ROOMNAME[k]+'</span><span class="plsegs">'+plSeg("rooms."+k, "", p.rooms[k], "Off")+plSeg("rooms."+k, "opa", p.rooms[k], "OPA")+plSeg("rooms."+k, "opb", p.rooms[k], "OPB")+plSeg("rooms."+k, "opc", p.rooms[k], "OPC")+'</span></div>'; });
@@ -3095,6 +3139,7 @@ function onRoute(){
   if (!started) return;
   var v = route(), rp = routeParts(), r = resolve(v), changed = v !== lastRoute, baseChanged = rp.base !== String(lastRoute==null ? "\u0000" : lastRoute).split("?")[0];
   if (rp.base==="signals" && rp.q.q != null && rp.q.q !== sigFilter.q) sigFilter.q = rp.q.q;
+  if (rp.base==="signals") popLoad(false);
   renderHud(); renderDrawer(r); afterDrawer();
   if (changed) {
     var rect = r.rect, fromFinder = /^(signals|plan)$/.test(String(lastRoute||"").split("?")[0]);
@@ -3426,6 +3471,7 @@ function enterApp(res){
   if (!editing) applyRow(res.row);
   gate(null);
   if (!started) startApp(); else { refreshAll(); lastViewLogged = ""; logView(); }
+  popLoad(true);
 }
 function bootErr(e){
   if (e && e.status === 401){ sb.clear(); return gate("signin", "Please sign in again."); }
@@ -3607,7 +3653,7 @@ function viewAdmin(){
   if (!isAdmin()) return '<h1>Admin</h1><p class="lede">Only admins can see this page.</p>';
   setTimeout(function(){ loadAdmin(false); }, 0);
   return '<h1>Admin</h1><p class="lede">Who did what, who can get in, and every saved version.</p>'+
-    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["people","People"],["versions","Versions"],["data","Backup"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
+    '<div class="fchips" role="tablist" style="margin-top:14px">'+[["activity","Activity"],["usage","Usage"],["people","People"],["versions","Versions"],["data","Backup"]].map(function(t){return '<button class="fchip" role="tab" data-atab="'+t[0]+'" aria-pressed="'+(adminTab===t[0])+'">'+t[1]+'</button>';}).join("")+'</div>'+
     '<div id="adminbody" class="adminbody"><p class="dim">Loading…</p></div>';
 }
 function fmtWhen(iso){
@@ -3621,6 +3667,11 @@ function loadAdmin(force){
   var tab = adminTab, c = adminCache[tab];
   if (tab === "data"){ adminCache.data = {t: Date.now(), rows: []}; return renderAdmin(); }
   if (c && !force && Date.now() - c.t < 20000) return renderAdmin();
+  if (tab === "usage"){
+    sb.rpc("activity_summary", {p_days: POP_DAYS}).then(function(r){ adminCache.usage = {t: Date.now(), rows: [], u: r || {}}; popApply(r); if (adminTab === "usage") renderAdmin(); })
+      .catch(function(e){ adminCache.usage = {t: Date.now(), rows: [], err: e}; if (adminTab === "usage") renderAdmin(); });
+    return;
+  }
   var q = tab==="activity" ? sb.rest("activity_log?select=id,at,user_name,action,target,detail&order=at.desc&limit=200")
         : tab==="people" ? sb.rest("profiles?select=id,email,name,role,created_at&order=created_at.asc")
         : sb.rest("site_history?select=version,saved_at,saved_by_name,summary&order=version.desc&limit=60");
@@ -3656,6 +3707,24 @@ function renderAdmin(){
     h += '<div class="card panel k-dante" style="margin-top:12px"><div class="tblwrap"><table class="t alog"><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead><tbody>'+
       (rows.length ? rows.map(function(r){ var w = fmtWhen(r.at); return '<tr><td class="when" title="'+esc(r.at)+'">'+esc(w.abs)+'<small>'+esc(w.rel)+'</small></td><td class="who">'+esc(r.user_name||"")+'</td><td>'+esc(ACTS[r.action]||r.action)+'</td><td>'+actDetail(r)+'</td></tr>'; }).join("") : '<tr><td colspan="4" class="dim">Nothing yet.</td></tr>')+
       '</tbody></table></div></div>'+(c.more ? '<p><button class="btn" id="af-more">Load older activity</button></p>' : '');
+  } else if (adminTab === "usage"){
+    if (c.err){
+      var missing = c.err.status === 404 || /could not find|does not exist/i.test(c.err.message || "");
+      h += '<div class="card ainfo" style="margin-top:12px"><b>' + (missing ? 'Usage isn’t set up in Supabase yet' : 'Couldn’t load usage') + '</b><p class="dim" style="margin:4px 0 0">' +
+        (missing ? 'Run the usage SQL that came with this update once (Supabase → SQL Editor → New query → paste → Run), then reload this page.' : esc(c.err.message || "")) + '</p><p><button class="btn" data-areload="1">Try again</button></p></div>';
+    } else {
+      var u = c.u;
+      var list = function(title, rows, empty, label, sub){
+        return '<div class="card usage"><b>' + title + '</b>' + (rows && rows.length ? '<ol>' + rows.map(function(r){ return '<li><span>' + label(r) + (sub ? '<small>' + sub(r) + '</small>' : '') + '</span><b class="un">' + esc(r.n) + '</b></li>'; }).join("") + '</ol>' : '<p class="dim">' + empty + '</p>') + '</div>';
+      };
+      h += '<p class="note" style="margin-top:12px">The last ' + esc(u.days || POP_DAYS) + ' days, counting each person once a day per search. The signal paths at the top show as <b>Most looked up</b> in the signal finder for everyone.</p><div class="usegrid">';
+      h += list("Signal paths found most", u.paths, "Nothing yet. This fills up as people use the signal finder.", function(r){ return esc(r.sig); }, function(r){ return 'mostly as “' + esc(r.q) + '”'; });
+      h += list("Searches that found nothing", u.misses, "None. Every search found something.", function(r){ return '“' + esc(r.q) + '”'; }, function(){ return 'send these to Claude to teach the finder the words'; });
+      h += list("Searches that fit lots of signals", u.vague, "None.", function(r){ return '“' + esc(r.q) + '”'; });
+      h += list("Top searches", u.searches, "No searches yet.", function(r){ return '“' + esc(r.q) + '”'; });
+      h += list("Pages opened most", u.views, "No page views yet.", function(r){ return esc(r.page); });
+      h += '</div><p><button class="btn" data-areload="1">Refresh</button></p>';
+    }
   } else if (adminTab === "people"){
     h += '<div class="card ainfo"><b>Adding someone</b><ol><li>In Supabase, open <b>Authentication → Users → Add user → Create new user</b>.</li><li>Enter their email and a starting password, and tick <b>Auto Confirm User</b>.</li><li>They’ll appear below with no access. Pick a role for them, then tell them their password in person. They can change it under their account.</li></ol></div>';
     h += '<div class="card people" style="margin-top:12px">'+c.rows.map(function(p){
