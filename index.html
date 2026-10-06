@@ -1023,7 +1023,9 @@ vocab("crackle crackling crackly dropping dropout dropouts cutting cuts intermit
 vocab("loud louder blasting booming peaking","trouble","loud");
 vocab("echo echoey echoing delayed latency lipsync sync","trouble","delay");
 vocab("thin tinny muffled muddy boomy harsh","trouble","tone");
-vocab("not no working work works worked dead silent issue issues problem problems broken fault faulty missing nothing cant cannot down help fix isnt doesnt wont arent gone lost muted mute off bad wrong","trouble","");
+vocab("not no working work works worked dead silent issue issues problem problems broken fault faulty missing nothing cant cannot down help fix isnt doesnt wont arent gone lost off bad wrong","trouble","");
+vocab("muted mute muting unmute unmuted","trouble","mute");
+vocab("meter meters metering metered","trouble","meter");
 vocab("the a an on at for of to from my i it its we our and with say sound audio signal there any has have get getting coming is are was be can what why where how whats hear heard just all whole everything anything some me please this that only but though still side one wire wires cable cables lead leads xlr","stop","");
 
 function osa(a, b){
@@ -1380,25 +1382,29 @@ var SYMTIP = {
   crackle:"Crackling or dropping out usually means a loose or damaged lead or connector.",
   loud:"Too loud? Check the desk fader, then the QL5 output and the Galaxy output level, in that order.",
   delay:"Echo or late sound usually means the same signal is arriving twice (two desks sending, or a desk and the QL5), or a delay is set on a Galaxy output.",
-  tone:"Sounds wrong rather than missing? Check the Galaxy preset or EQ, and whether one part (UPQ, X20 or sub) has dropped out of the mix."
+  tone:"Sounds wrong rather than missing? Check the Galaxy preset or EQ, and whether one part (UPQ, X20 or sub) has dropped out of the mix.",
+  meter:"Metering but no sound? Check the ON key at every stop, inputs and outputs. On the Yamaha desks a muted output can still meter, so a moving meter doesn’t prove it’s on. The QL5 outputs in AV2 are the first place to look.",
+  mute:"Check the ON key at every stop, inputs and outputs, plus mute groups and DCAs. On the Yamaha desks a muted output can still meter, so look at the ON keys, not just the meters."
 };
 function checksFor(rs){
   var f = feat(rs[0]), multi = rs.length > 1, H = ckH(rs), V = H.V, part = H.part, names = H.names, N = H.N, MX = H.MX, rooms = H.rooms;
   var items = [], tip = "", first = rs[0].steps[0];
   if (f.kinds.indexOf("mains") >= 0 && !f.ext){
     items = [
-      {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
-      {b:"QL5", t:N("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"DM7F", k:"dm7f", t:MX() + ": ON key lit and level up, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk instead."},
+      {b:"QL5 input", k:"ql5", t:N("ql5",0)+" has signal and its ON key is lit."},
+      {b:"QL5 output", k:"ql5", sk:"ql5out", t:N("ql5",1)+": ON key lit and level up, going to the Rio over Dante. A muted output can still meter, so look at the ON key, not the meter."},
       {b:"AV2 Rio", t:N("rio",0)+" meters moving."},
       {b:"Galaxy 1", t:N("gal1",0)+" has signal, "+N("gal1",1,true)+" not muted."},
       {b:"Speakers", t:(multi ? "UPQs and X20s" : V("room",0))+" powered, front LED green, cables in."}
     ];
-    tip = multi ? "One side dead? The fault is in that side’s path. Both dead? Start at the desk and the QL5." : "If the other side works, the fault is in this path, not the desk mix.";
+    tip = multi ? "One side dead? The fault is in that side’s path, so start with its QL5 output ON key. Both dead? Start at the desk and the QL5." : "If the other side works, the fault is in this path, not the desk mix. Start with this side’s QL5 output ON key.";
   } else if (f.kinds.indexOf("sub") >= 0 && !f.ext){
     items = [
-      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk’s sub send instead."}
-                  : {b:"Desk", k:"desks", t:"Sub send up and unmuted. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
-      {b:"QL5", t:N("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."},
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:MX() + ": ON key lit and level up, sending on " + (part("dm7f",1) || "Dante") + ". If OPS B or OPS C is running this room, check that desk’s sub send instead."}
+                  : {b:"Desk", k:"desks", t:"Sub send ON and up. (Which desk output feeds QL5 "+V("ql5",0)+" isn’t documented yet.)"},
+      {b:"QL5 input", k:"ql5", t:N("ql5",0)+" has signal and its ON key is lit."},
+      {b:"QL5 output", k:"ql5", sk:"ql5out", t:N("ql5",1)+": ON key lit and level up, patched to "+V("ql5",2)+". A muted output can still meter, so look at the ON key, not the meter."},
       {b:"Galaxy 2", t:N("gal2",0)+" has signal, "+N("gal2",1,true)+" not muted."},
       {b:"Wall patch", t:(rooms ? rooms+" " : "")+N("room",0,true)+" patched through to the subs under the stage."},
       {b:"Subs", t:"Powered, LED green, cables in."}
@@ -1406,8 +1412,9 @@ function checksFor(rs){
     tip = multi ? "Every room out at once? Start at Galaxy 2 and the QL5 Omni outs, they’re shared." : "Check another room’s subs. If they’re out too, start at Galaxy 2, it runs every room’s subs.";
   } else if (f.kinds.indexOf("foyer") >= 0 && !f.ext){
     items = [
-      {b:"DM7F", k:"dm7f", t:(names("dm7f",0) ? names("dm7f",0)+" ("+(part("dm7f",0) || "matrix")+")" : (part("dm7f",0) || "Foyer mix"))+" up and unmuted, sending on "+(part("dm7f",1) || "Dante")+"."},
-      {b:"QL5", t:N("ql5",0)+" has signal, and "+lc(V("ql5",1))+" is up (to the Rio over Dante)."},
+      {b:"DM7F", k:"dm7f", t:(names("dm7f",0) ? names("dm7f",0)+" ("+(part("dm7f",0) || "matrix")+")" : (part("dm7f",0) || "Foyer mix"))+": ON key lit and level up, sending on "+(part("dm7f",1) || "Dante")+"."},
+      {b:"QL5 input", k:"ql5", t:N("ql5",0)+" has signal and its ON key is lit."},
+      {b:"QL5 output", k:"ql5", sk:"ql5out", t:N("ql5",1)+": ON key lit and level up, going to the Rio over Dante. A muted output can still meter, so look at the ON key, not the meter."},
       {b:"AV2 Rio", t:N("rio",0)+" meters moving."},
       {b:"Galaxy 1", t:N("gal1",0)+" has signal, "+N("gal1",1,true)+" not muted."},
       {b:"Foyer speakers", t:"Powered and cabled."}
@@ -1415,9 +1422,10 @@ function checksFor(rs){
   } else if (f.kinds.indexOf("fill") >= 0 && !f.ext){
     var fillDesk = V("dm7f",0);
     items = [
-      fillDesk ? {b:"DM7F", k:"dm7f", t:MX() + " up and unmuted, sending on " + (part("dm7f",1) || "Dante") + "."} : null,
-      V("ql5",2) ? {b:"QL5", t:N("ql5",0)+" has signal, "+lc(V("ql5",1))+" is up, and it leaves on "+V("ql5",2)+"."}
-                 : {b:"QL5", t:N("ql5",0)+" (the fill mix) is up and leaves on "+V("ql5",1)+"."},
+      fillDesk ? {b:"DM7F", k:"dm7f", t:MX() + ": ON key lit and level up, sending on " + (part("dm7f",1) || "Dante") + "."} : null,
+      V("ql5",2) ? {b:"QL5 input", k:"ql5", t:N("ql5",0)+" has signal and its ON key is lit."} : null,
+      V("ql5",2) ? {b:"QL5 output", k:"ql5", sk:"ql5out", t:N("ql5",1)+": ON key lit and level up, patched to "+V("ql5",2)+". A muted output can still meter, so look at the ON key, not the meter."}
+                 : {b:"QL5", t:N("ql5",0)+" (the fill mix): ON key lit and level up, leaving on "+V("ql5",1)+". A muted output can still meter, so look at the ON key, not the meter."},
       {b:"Galaxy 2", t:N("gal2",0)+" has signal, "+N("gal2",1,true)+" not muted."},
       {b:"Front fill", k:"fill", t:"Speakers powered and cabled."}
     ].filter(Boolean);
@@ -1428,7 +1436,7 @@ function checksFor(rs){
       lecS ? {b:"Lectern mic", sk:"source", t:"Switched on and plugged into the stage box, "+N("sr1",0)+"."} :
       pcS ? {b:"Stage PC", sk:"source", t:"Audio not muted, plugged into the stage box, "+N("sr1",0)+"."} : {b:"Source", sk:"source", t:"Plugged into the stage box, "+N("sr1",0)+"."},
       {b:"Stage box", k:"sr1", t:"Stage Rack 1 powered and on the Dante network (its channels show up on the DM7F)."},
-      {b:"DM7F", k:"dm7f", t:N("dm7f",0)+" metering, unmuted, fader up and in the room mix."},
+      {b:"DM7F", k:"dm7f", t:N("dm7f",0)+" metering, ON key lit, fader up and assigned to the room mix."},
       {b:"Room", sk:"roommains", t:"Meters fine on the desk but nothing in the room? Check that room’s mains next.", x:{
         why:"The stage box only gets the signal as far as the DM7F. If the DM7F meters but there’s nothing in the room, the problem is on the way out to the speakers, so follow that room’s mains.",
         look:["Pick the room the stage is in and run through its mains checks."],
@@ -1442,8 +1450,8 @@ function checksFor(rs){
       pc ? {b:"Stage PC", t:"Audio not muted, plugged into "+rooms+" "+wp+"."} : {b:"Source", t:"Plugged into "+rooms+" "+wp+"."},
       {b:"Loom", t:V("loom",0)+" connected."},
       {b:"AV2 Rio", t:N("rio",0)+" metering. Check the gain"+(lec ? ", and +48V if the mic needs it." : ".")},
-      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:N("dm7f",0)+", from Rio "+V("rio",0)+" over Dante: unmuted, fader up. If another desk is running the room, check its channel instead."}
-      : V("ql5",0) ? {b:"QL5", t:N("ql5",0)+", from Rio "+V("rio",0)+" over Dante, has signal and isn’t muted. If an OPS desk is mixing the room, check its channel too."}
+      V("dm7f",0) ? {b:"DM7F", k:"dm7f", t:N("dm7f",0)+", from Rio "+V("rio",0)+" over Dante: ON key lit, fader up. If another desk is running the room, check its channel instead."}
+      : V("ql5",0) ? {b:"QL5", t:N("ql5",0)+", from Rio "+V("rio",0)+" over Dante, has signal and its ON key is lit. If an OPS desk is mixing the room, check its channel too."}
       : {b:"Desk", k:"desks", t:"Spare inputs aren’t patched by default. Patch Rio "+V("rio",0)+" over Dante on the desk you’re using."}
     ];
     tip = lec ? "Swap the mic lead into another wall patch input. If the fault moves with it, it’s the lead or the mic." : (pc ? "Try another cable or device at the wall patch to rule out the PC." : "");
@@ -1453,14 +1461,14 @@ function checksFor(rs){
       {b:"External desk", t: viaRio ? "Sending to AV2 Rio "+viaRioN+"." : "Sending to QL5 "+N("ql5",0)+" (how it gets there isn’t documented yet)."},
       viaRio ? {b:"AV2 Rio", t:viaRioN+" metering. It reaches QL5 "+N("ql5",0)+" over Dante."} : null,
       {b:"iPad", sk:"ipad", t:"TD hasn’t muted it.", x:{why:"The TD can mute the external feeds on the QL5 from their iPad, so rule that out before chasing cables.", look:["Ask the TD whether the external feeds are muted.", "Unmuted and still nothing on the QL5? Go back to the AV2 Rio."]}},
-      {b:"QL5", t:N("ql5",0)+" has signal and is routed to the right outputs."}
+      {b:"QL5", t:N("ql5",0)+" has signal, its ON key is lit, and it’s routed to the right outputs (their ON keys lit too)."}
     ].filter(Boolean);
   } else if (rs[0].type==="feed"){
     items = [
-      {b:first[1], k:nk(first[0]), t:"Sending, and that output isn’t muted."},
-      {b:"QL5", t:N("ql5",0)+" has signal and isn’t muted."}
+      {b:first[1], k:nk(first[0]), t:"Sending, and that output’s ON key is lit. A muted output can still meter, so look at the ON key, not the meter."},
+      {b:"QL5", t:N("ql5",0)+" has signal and its ON key is lit."}
     ];
-    tip = "If the QL5 shows signal but nobody hears it, check the input is routed to the right outputs on the QL5.";
+    tip = "If the QL5 shows signal but nobody hears it, check the input is routed to the right outputs on the QL5, and that those outputs’ ON keys are lit.";
   } else {
     items = flowRows(rs).slice(0,5).map(function(row){ var n = NODES[row.ks[0]] || {label:row.ks[0]}; return {b:n.label, t:J(row.vals), k:nk(row.ks[0])}; });
   }
@@ -1522,7 +1530,7 @@ function laneJoin(list){   // "Prince wall patch / Monarch wall patch" -> "each 
   if (m.every(function(x){ return x && x[2] === m[0][2]; })) return "each room’s " + m[0][2];
   return u.join(" / ");
 }
-function herePhrase(b){ return /^(DM7F|QL5|AV2 Rio|Galaxy \d|DM3\b.*|Stage Rack \d|OPS? .*|BGM.*|iPad)$/.test(b) ? b : lc(b); }
+function herePhrase(b){ return /^(DM7F|QL5|AV2 Rio|Galaxy \d|DM3|Stage Rack \d|OPS?|BGM|iPad)\b/.test(b) ? b : lc(b); }
 function theName(b){ b = herePhrase(b); return /^(Galaxy \d|DM3\b|Stage Rack \d|each )/.test(b) ? b : "the " + b; }
 function shownVal(k, v){
   v = ROOMNUM[k] ? wpStrip(v) : v;
@@ -1588,6 +1596,8 @@ function stuckWhy(sk, kind, rs){
       return "The QL5 in AV2 is the output router. Every desk lands on it and its routing to the rooms doesn’t normally change, so whichever desk is mixing, the " + (kind === "foyer" ? "foyer" : "room") + " is fed from the same QL5 output." +
         (kind === "foyer" ? "" : " Room inputs line up with the outputs (In 33 → Out 1, In 34 → Out 2, and so on).") +
         (kind === "sub" || kind === "fill" ? " The " + (kind === "sub" ? "subs" : "front fill") + " leave" + (kind === "fill" ? "s" : "") + " on the QL5’s analogue Omni outs straight into Galaxy 2, not through the Rio." : " " + (kind === "foyer" ? "The foyer leaves" : "L and R leave") + " over Dante to the AV2 Rio, which feeds Galaxy 1.");
+    case "ql5out":
+      return "The QL5 output is the last stop on the desk side before AV2 and the Galaxys. Every desk feeds the room through it, so a mute here silences that " + (kind === "sub" ? "room’s subs" : (kind === "fill" ? "front fill" : (kind === "foyer" ? "foyer" : "side of the room"))) + " whichever desk is mixing, while every meter before it still looks fine. On the Yamaha desks a muted output can still meter, so the ON key is the thing to check.";
     case "rio":
       if (kind === "wall") return "Each room’s wall patch runs on its own loom to the AV2 Rio, which puts the inputs onto Dante.";
       if (kind === "ext") return "A visiting desk plugs into AV2 Rio In 13–16 (L, R, Sub, Fill), which puts it onto Dante for the QL5.";
@@ -1619,27 +1629,29 @@ function stuckLook(sk, kind, H, rs){
   var V = H.V, N = H.N, part = H.part, R = H.rooms, f = feat(rs[0]), a;
   switch (sk){
     case "dm7f":
-      if (kind === "stage") return ["Input patch: " + N("dm7f",0) + " comes from Stage Rack 1 " + V("sr1",0) + " over Dante.", "Gain set, channel on and not muted, fader up.", "The channel is in the mix that feeds the room matrices."];
-      a = [H.MX() + " is on, its level is up, and it isn’t muted.", "The mix is sent to it (check the matrix sends).", "Output patch: matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "?") + " goes to " + (part("dm7f",1) || "Dante") + "."];
+      if (kind === "stage") return ["Input patch: " + N("dm7f",0) + " comes from Stage Rack 1 " + V("sr1",0) + " over Dante.", "Gain set, channel ON key lit, fader up, and not in a muted mute group or DCA.", "The channel is in the mix that feeds the room matrices, and those matrices are ON."];
+      a = [H.MX() + ": ON key lit and level up. A muted matrix can still meter, so check the ON key itself.", "Not in a muted mute group or DCA.", "The mix is sent to it (check the matrix sends).", "Output patch: matrix " + ((part("dm7f",0) || "").replace(/\bMT /g, "") || "?") + " goes to " + (part("dm7f",1) || "Dante") + "."];
       if (kind === "mains" || kind === "sub") a.push("If OPB or OPC is running this room, its feed comes into the QL5 on In 49–55 instead, so check that desk.");
       return a;
     case "ql5":
       var qin = N("ql5",0), qout = V("ql5",1);
-      if (kind === "wall") return ["Input patch: " + qin + " comes from AV2 Rio " + V("rio",0) + " over Dante.", "The channel is on and not muted.", "If another desk is mixing the room, it needs the Rio input patched too."];
-      if (kind === "ext") return [V("rio",0) ? "Input patch: " + qin + " comes from AV2 Rio " + V("rio",0) + " over Dante." : "How " + qin + " reaches the QL5 isn’t in the notes yet.", "The TD hasn’t muted it on the iPad.", "It’s routed to the outputs for the rooms the team is feeding."];
-      if (kind === "ops") return ["Input patch: " + qin + " comes from the DM3’s Dante output.", "The channel is on, and routed to the outputs for the room that desk is running."];
-      if (kind === "bgm") return [qin + " has signal and the channel is on.", "It’s routed to the foyer output, or wherever the BGM is meant to play."];
-      a = ["Input patch: " + qin + " comes from the DM7F’s " + (part("dm7f",1) || "Dante output") + ".", "The channel is on and its fader is at its normal level."];
-      if (kind === "sub" || kind === "fill") a.push("It’s sent to " + qout + ", " + qout + " is up and not muted, and " + qout + " is patched to " + (V("ql5",2) || "its Omni out") + ".");
-      else a.push("It’s sent to " + qout + ", " + qout + " is up and not muted, and " + qout + " goes over Dante to AV2 Rio " + V("rio",0) + ".");
-      return a;
+      if (kind === "wall") return ["Input patch: " + qin + " comes from AV2 Rio " + V("rio",0) + " over Dante.", "Channel ON key lit, and not in a muted mute group or DCA.", "If another desk is mixing the room, it needs the Rio input patched too."];
+      if (kind === "ext") return [V("rio",0) ? "Input patch: " + qin + " comes from AV2 Rio " + V("rio",0) + " over Dante." : "How " + qin + " reaches the QL5 isn’t in the notes yet.", "Channel ON key lit, and the TD hasn’t muted it on the iPad.", "It’s routed to the outputs for the rooms the team is feeding, and those outputs’ ON keys are lit. A muted output can still meter."];
+      if (kind === "ops") return ["Input patch: " + qin + " comes from the DM3’s Dante output.", "Channel ON key lit, and routed to the outputs for the room that desk is running.", "Those room outputs’ ON keys are lit. A muted output can still meter."];
+      if (kind === "bgm") return [qin + " has signal and its ON key is lit.", "It’s routed to the foyer output, or wherever the BGM is meant to play, and that output’s ON key is lit."];
+      return ["Input patch: " + qin + " comes from the DM7F’s " + (part("dm7f",1) || "Dante output") + ".", "Channel ON key lit, fader at its normal level, and not in a muted mute group or DCA.", "It’s sent to " + N("ql5",1) + ". That output has its own ON key: it’s the next check."];
+    case "ql5out":
+      var qo = N("ql5",1);
+      return [qo + ": ON key lit. A muted output can still meter on the Yamaha desks, so check the ON key itself, not the meter.", "Output level up, and not in a muted mute group or DCA.",
+        (kind === "sub" || kind === "fill") ? "Output patch: " + V("ql5",1) + " goes to " + (V("ql5",2) || "its Omni out") + ", the analogue out to Galaxy 2." : "Output patch: " + V("ql5",1) + " goes over Dante to AV2 Rio " + V("rio",0) + ".",
+        "ON key lit and still nothing at the next stop? Then the problem is after the QL5."];
     case "rio":
       if (kind === "wall") return ["Gain set for " + N("rio",0) + ", and +48V on if the mic needs it.", "The loom is plugged in at the Rio end."];
       if (kind === "ext") return ["Their lead is in Rio " + V("rio",0) + " and the gain is set.", "L, R, Sub and Fill go into Rio In 13, 14, 15 and 16."];
       return ["AV2 Rio " + V("rio",0) + " is receiving QL5 " + V("ql5",1) + " over Dante (check it in Dante Controller).", "The Rio is powered and showing on the Dante network.", "The XLR from Rio " + V("rio",0) + " to Galaxy 1 " + V("gal1",0) + " is in at both ends."];
     case "gal1": case "gal2":
       var g = sk === "gal1" ? "Galaxy 1" : "Galaxy 2", go = V(sk,1);
-      a = [g + " " + N(sk,0) + " meter moves (front panel or Compass).", (/\+|\//.test(go) ? "Outputs " : "Output ") + go.replace(/^Out /, "") + " not muted, and the level isn’t pulled down.", "The right snapshot is loaded for how the rooms are set up."];
+      a = [g + " " + N(sk,0) + " meter moves (front panel or Compass).", (/\+|\//.test(go) ? "Outputs " : "Output ") + go.replace(/^Out /, "") + " not muted in Compass, and the level isn’t pulled down.", "The right snapshot is loaded for how the rooms are set up."];
       if (kind === "mains") a.push("UPQ working but not the X20, or the other way round? It’s that one output or its line.");
       return a;
     case "room":
@@ -1656,7 +1668,7 @@ function stuckLook(sk, kind, H, rs){
       if (f.kinds.indexOf("pc") >= 0) return ["PC audio playing, not muted, and going out the right output.", "Its lead is in Stage Rack 1 " + inN + ".", "Try another lead or device to rule out the PC."];
       return ["Source on, and its lead in Stage Rack 1 " + inN + "."];
     case "external": return ["Their output meters are moving.", "L, R, Sub and Fill go into AV2 Rio In 13, 14, 15 and 16, in that order."];
-    case "desks": return ["The DM3 is on the Dante network.", "Its L, R and Sub outputs are patched to Dante.", "The QL5 shows signal on " + N("ql5",0) + "."];
+    case "desks": return ["The DM3 is on the Dante network.", "Its L, R and Sub outputs are ON (not muted) and patched to Dante. A muted output can still meter, so check the ON keys.", "The QL5 shows signal on " + N("ql5",0) + "."];
     case "bgm": return ["The player is on, playing, and its volume is up.", "Its lead is into the QL5."];
     case "foyer": return ["Speakers powered and cabled.", "If the foyer should be on BGM rather than OPA, check the BGM player instead."];
     case "fill": return ["Speakers powered and cabled.", "The line from Galaxy 2 " + V("gal2",1) + " is connected."];
@@ -1668,15 +1680,21 @@ function itemSk(it){ return it.sk || it.k || kOf(it.b); }
 function stuckFor(rs, it, items, idx){
   if (it.x) return it.x;
   if (!rs) return null;
-  var sk = itemSk(it), kind = ckKind(rs), H = ckH(rs), lanes = laneNames(rs), L = [];
-  rs.forEach(function(r, i){ var s = laneStops(r, sk); if (s){ s.lane = lanes[i]; L.push(s); } });
+  var sk = itemSk(it), kind = ckKind(rs), H = ckH(rs), lanes = laneNames(rs), L = [], lk = sk === "ql5out" ? "ql5" : sk;
+  var hasOut = (items || []).some(function(o){ return itemSk(o) === "ql5out"; });
+  rs.forEach(function(r, i){ var s = laneStops(r, lk); if (s){ s.lane = lanes[i]; L.push(s); } });
   var x = {path:[], why:stuckWhy(sk, kind, rs), look:stuckLook(sk, kind, H, rs)}, hop = null, prevk = "", prevLabel = "";
   var srcName = feat(rs[0]).kinds.indexOf("lec") >= 0 ? "lectern mic" : (feat(rs[0]).kinds.indexOf("pc") >= 0 ? "stage PC" : "source");
   if (L.length){
     var p = L[0].prev, n = L[0].next;
-    if (p){ x.path.push(["Comes from", pathCell(L.map(function(l){ return l.prev; }), L, CONN[connKind(p.k, sk, p.dante)])]); hop = hopInfo(L, sk); prevk = nk(p.k); prevLabel = stopName(p.k, p.v); }
+    if (p){ x.path.push(["Comes from", pathCell(L.map(function(l){ return l.prev; }), L, CONN[connKind(p.k, lk, p.dante)])]); hop = hopInfo(L, lk); prevk = nk(p.k); prevLabel = stopName(p.k, p.v); }
+    if (prevk === "ql5" && sk !== "ql5out" && hasOut) prevk = "ql5out";   // the stop after the QL5 follows on from its output check
+    if (sk === "ql5out"){
+      hop = {what:"the QL5 itself", detail:"The input is metering, so look at what happens inside the QL5: the send from " + H.V("ql5", 0) + " to " + H.V("ql5", 1) + ", and that output’s ON key and level. A muted output can still meter."};
+      prevk = "ql5"; prevLabel = "QL5 input";
+    }
     x.path.push(["Here", hereCell(L)]);
-    if (n) x.path.push(["Goes to", pathCell(L.map(function(l){ return l.next; }), L, CONN[connKind(sk, n.k, n.dante)])]);
+    if (n) x.path.push(["Goes to", pathCell(L.map(function(l){ return l.next; }), L, CONN[connKind(lk, n.k, n.dante)])]);
     var keys = L.map(function(l){ return l.key; });
     if (keys.every(function(k){ return k === keys[0]; }) && /^(dm7f|ql5|rio|gal1|gal2|prince|monarch|marquis)$/.test(keys[0])){
       var vals = []; L.forEach(function(l){ vals = vals.concat(l.vals); });
@@ -1742,7 +1760,7 @@ function checksBlock(c, gk, open, P, first, rs){
   h += '<p class="chint">Tick each one as it checks out. Stuck on one? Tap <b>Stuck?</b> to see how it should be routed and where to look.</p>';
   h += '<ol class="clist">'+rows+'</ol>';
   if (c.tip) h += '<p class="tip">'+esc(c.tip)+'</p>';
-  h += '<p class="tip done alldone" hidden>All checked and still not working? Swap the lead at the last stop, then flag it with the TD.</p>';
+  h += '<p class="tip done alldone" hidden>All checked and still not working? Go back over the ON keys on both desks (inputs and outputs, mute groups and DCAs), as a muted output can still meter. Then swap the lead at the last stop and flag it with the TD.</p>';
   return h + '</details>';
 }
 function checksHTML(rs, open, P, first){ return checksBlock(checksFor(rs), rs.map(function(r){return r.sig;}).join("|"), open, P, first, rs); }
@@ -2048,6 +2066,21 @@ function plBuild(p){
   out.checks = plChecks(p, out);
   return out;
 }
+// what to check for mutes on one desk and on the QL5, with names: inputs and outputs in use
+function plMutes(p, ev){
+  var d = ev.d, e = ev.e, D = ev.D, sf = e.subsFrom || e.stage, qin = [], qout = [], mts = [], chs = [];
+  function take(r, sub){ if (!r) return; qin = qin.concat(dgNums(plStep(r, "ql5"))); qout = qout.concat(dgNums(plStep(r, "ql5", 1))); mts = mts.concat(dgNums(plMT(plStep(r, "dm7f")))); }
+  ev.rooms.forEach(function(k){ var R = plRoomRoutes(k); take(R.L); take(R.R); if (e.subs && k === sf) take(R.S); });
+  if (e.ff && d === "opa") take(plRoute("Front Fill"));
+  if (p.foyer === "opa" && d === "opa") take(plRoute("Foyer"));
+  if (d !== "opa"){ var op = d === "opb" ? "B" : "C"; qin = []; ["L", "R", "Sub"].forEach(function(s){ qin = qin.concat(dgNums(plStep(plRoute("OP " + op + " " + s), "ql5"))); }); }
+  var desk;
+  if (d === "opa"){
+    if (e.src !== "wall"){ var rk = plRackInputs(), ins = []; if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4); ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); }); }
+    desk = "DM7F mutes: " + (chs.length ? "inputs " + dgNamed("dm7f", "Ch", chs) + " ON, and " : "") + "matrices " + dgNamed("dm7f", "MT", mts) + " ON. Check mute groups and DCAs too, as a muted matrix can still meter.";
+  } else desk = D.desk + " (" + D.name + ") mutes: the inputs in use and the ST L/R and Sub outputs are ON. Check mute groups and DCAs too.";
+  return {desk:desk, qin:dgNamed("ql5", "In", qin), qout:dgNamed("ql5", "Out", qout)};
+}
 function roomSrcSig(k, kind, side){ return kind + " " + ROOMNUM[k] + " " + side; }
 
 /* the step-by-step list for the day */
@@ -2079,11 +2112,15 @@ function plChecks(p, out){
     if (e.lec) add("Line check", d+"-lec", tag + "Talk on the lectern" + (e.lec===2 ? " (both feeds)" : "") + (lch.length ? " — Ch " + lch.join("/") : "") + ".");
     if (e.pc) add("Line check", d+"-pc", tag + "Play audio from the stage PC" + (rk2[3] ? " — Ch " + rk2[3].ch : "") + ".");
     if (e.band) add("Line check", d+"-bandc", tag + "Band line check, then foldback and in-ears.");
-    add("Line check", d+"-ql5", tag + "QL5 in AV2: the room feeds from " + D.name + " are metering (routing is fixed).");
+    var mu = plMutes(p, ev);
+    add("Line check", d+"-mutes", tag + mu.desk);
+    add("Line check", d+"-ql5", tag + "QL5 in AV2: " + (mu.qin || "the room feeds from " + D.name) + " metering, with their ON keys lit (routing is fixed).");
+    add("Line check", d+"-ql5out", tag + "QL5 outputs ON (not muted): " + (mu.qout || "the room outputs") + ". A muted output can still meter, so check each ON key, not the meters.");
     ev.rooms.forEach(function(k){ add("Line check", d+"-room-"+k, tag + "Walk " + ROOMNAME[k] + ": UPQ L, UPQ R and the X20s all working."); });
     if (e.subs) add("Line check", d+"-subc", tag + "Subs under the stage in " + ROOMNAME[e.stage] + " working, end-fire sounding right from the room.");
     if (e.ff) add("Line check", d+"-ffc", tag + "Front fills working at the stage lip.");
   });
+  if (p.foyer==="bgm") add("Line check", "bgmq", "QL5: " + (dgNamed("ql5", "In", [8]) || "BGM (In 8)") + " and " + (dgNamed("ql5", "Out", dgNums(plStep(plRoute("Foyer"), "ql5", 1))) || "the foyer output") + " ON (not muted).");
   if (p.foyer) add("Line check", "foyer", "Foyer speakers working (" + (p.foyer==="opa" ? "from the DM7F" : "BGM player") + ").");
   if (p.ext) add("Line check", "extc", "External team’s feeds metering on the QL5, and the TD can mute them on the iPad.");
   add("Doors", "levels", "Final walk around every room in use and set levels.");
