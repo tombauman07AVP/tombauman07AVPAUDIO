@@ -1724,7 +1724,7 @@ function stuckWhy(sk, kind, rs){
       if (kind === "sub") return "Every room has hardline wall patches back to AV2, and each room’s wall patch carries that room’s sub feed. The subs go wherever the stage is, so they plug into the wall patch of the room the stage is in. It’s one of the few times the physical wall point matters.";
       if (kind === "wall") return "Only used in specific setups. Normally the lectern and stage PC go into the stage box.";
       return "";
-    case "subs": return "The subs sit under the stage in end-fire, normally four per stage. End-fire pushes the low end out towards the audience and cuts it behind the subs.";
+    case "subs": return "The subs sit under the stage in end-fire, usually two or four per stage. End-fire pushes the low end out towards the audience and cuts it behind the subs.";
     case "loom": return "Each room’s wall patch runs back to AV2 on its own loom (Room Loom 1 for Prince, 2 for Monarch, 3 for Marquis).";
     case "sr1": return "The stage box sits side stage and takes everything but the subs. It’s on Dante, so it reaches the DM7F wherever OPA is set up: the desk’s own wall point doesn’t matter, only that the stage box is on the network.";
     case "source": return "Normal setup: the lectern and stage PC plug into the stage box side stage, not the wall patch.";
@@ -2078,14 +2078,14 @@ function plSends(e, qk){
   return {srcs:srcs, qNums:qNums, rooms:rms, outs:outs, outsText:dgNamed("ql5", "Out", outs), inText:dgNamed("ql5", "In", qNums)};
 }
 var PL_SRC = {sr1:"Stage Rack A", sr2:"Stage Rack B", sr3:"Stage Rack C", wall:"Room wall patch (via AV2 Rio)"};
-function plEv(o){ return Object.assign({stage:"", src:"sr1", lec:2, pc:1, spare:1, band:0, play:0, subs:1, ff:0, pos:"", wpBox:"", deskIn:"", subsFrom:"", also:[]}, o || {}); }
+function plEv(o){ return Object.assign({stage:"", src:"sr1", lec:2, pc:1, spare:1, band:0, play:0, subs:1, subSets:1, ff:0, pos:"", wpBox:"", deskIn:"", subsFrom:"", also:[]}, o || {}); }
 var PL_TEMPLATES = [
   ["conf", "Conference · two-thirds", function(){ return {t:"conf", name:"", rooms:{prince:"opa", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"prince"})}, foyer:"opa", ext:0}; }],
   ["one", "One room", function(){ return {t:"one", name:"", rooms:{prince:"", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"monarch"})}, foyer:"opa", ext:0}; }],
   ["full", "Full ballroom", function(){ return {t:"full", name:"", rooms:{prince:"opa", monarch:"opa", marquis:"opa"}, ev:{opa:plEv({stage:"monarch", ff:1})}, foyer:"opa", ext:0}; }],
-  ["gala", "Gala / band", function(){ return {t:"gala", name:"", rooms:{prince:"opa", monarch:"opa", marquis:"opa"}, ev:{opa:plEv({stage:"monarch", band:1, play:1, ff:1})}, foyer:"opa", ext:0}; }],
+  ["gala", "Gala / band", function(){ return {t:"gala", name:"", rooms:{prince:"opa", monarch:"opa", marquis:"opa"}, ev:{opa:plEv({stage:"monarch", band:1, play:1, ff:1, subSets:2})}, foyer:"opa", ext:0}; }],
   ["wallroom", "Desk + a room on the QL5", function(){ return {t:"wallroom", name:"", rooms:{prince:"q1", monarch:"opa", marquis:""}, ev:{opa:plEv({stage:"monarch"}), q1:plEv({stage:"prince", src:"wall"})}, foyer:"opa", ext:0}; }],
-  ["break", "Breakouts", function(){ return {t:"break", name:"", rooms:{prince:"opb", monarch:"opa", marquis:"opc"}, ev:{opa:plEv({stage:"monarch"}), opb:plEv({stage:"prince", src:"wall", spare:0, subs:0}), opc:plEv({stage:"marquis", src:"wall", spare:0, subs:0})}, foyer:"opa", ext:0}; }]
+  ["break", "Breakouts", function(){ return {t:"break", name:"", rooms:{prince:"opb", monarch:"opa", marquis:"opc"}, ev:{opa:plEv({stage:"monarch"}), opb:plEv({stage:"prince", src:"wall", spare:0, subs:0, subSets:0}), opc:plEv({stage:"marquis", src:"wall", spare:0, subs:0, subSets:0})}, foyer:"opa", ext:0}; }]
 ];
 var PLAN = null, QPLAN = null, PLAN_TICKS_KEY = "ballroomPlanChecks";   // PLAN = the plan on screen: the quick plan, or the event being edited
 function plTemplate(id){ for (var i=0;i<PL_TEMPLATES.length;i++) if (PL_TEMPLATES[i][0]===id) return PL_TEMPLATES[i][2](); return PL_TEMPLATES[0][2](); }
@@ -2094,7 +2094,7 @@ function plFromObj(p){   // a clean, checked copy of a plan (from a link or a sa
   if (!p || typeof p !== "object" || !p.rooms) return null;
   var out = {t:String(p.t||""), name:String(p.name||"").slice(0,100), rooms:{}, ev:{}, foyer:/^(opa|bgm|)$/.test(p.foyer||"") ? (p.foyer||"") : "opa", ext:p.ext ? 1 : 0};
   PL_ROOMS.forEach(function(k){ var d = (p.rooms||{})[k]; out.rooms[k] = (PL_DESKS[d] && (!PL_DESKS[d].direct || PL_DESKS[d].room === k)) ? d : ""; });
-  Object.keys(PL_DESKS).forEach(function(d){ if (p.ev && p.ev[d]) out.ev[d] = plEv(p.ev[d]); });
+  Object.keys(PL_DESKS).forEach(function(d){ var o = p.ev && p.ev[d]; if (o){ if (o.subSets == null) o = Object.assign({}, o, {subSets:(o.subs === 0 || o.subs === false) ? 0 : 2}); out.ev[d] = plEv(o); } });   // plans saved before sub sets had 4 subs
   return plNormalise(out);
 }
 function plDecode(s){
@@ -2112,7 +2112,8 @@ function plNormalise(p){
     if (rooms.indexOf(e.subsFrom) < 0) e.subsFrom = e.stage;                         // which room's wall patch feeds the subs
     if (!PL_SRC[e.src]) e.src = "sr1";
     e.lec = Math.max(0, Math.min(2, Number(e.lec)||0));
-    ["pc","spare","band","play","subs","ff"].forEach(function(k){ e[k] = e[k] ? 1 : 0; });
+    ["pc","spare","band","play","ff"].forEach(function(k){ e[k] = e[k] ? 1 : 0; });
+    e.subSets = Math.max(0, Math.min(2, Math.round(Number(e.subSets)) || 0)); e.subs = e.subSets > 0 ? 1 : 0;     // sets of 2 subs (0-2); subs = any at all
     ["pos","wpBox"].forEach(function(k){ e[k] = String(e[k]||"").slice(0,60); }); delete e.wpDesk;
     e.also = (PL_DESKS[d].direct && Array.isArray(e.also) ? e.also : []).filter(function(k, i, a){ return PL_ROOMS.indexOf(k) >= 0 && k !== rooms[0] && p.rooms[k] && a.indexOf(k) === i; });   // other rooms this room's inputs are also sent to
     if (PL_DESKS[d].direct){ e.stage = rooms[0]; e.deskIn = e.stage; e.subsFrom = e.stage; e.src = "wall"; e.band = 0; e.play = 0; e.ff = 0; e.pos = ""; e.wpBox = ""; }   // no operator: the room's own wall patch, no band, no desk to place
@@ -2150,6 +2151,14 @@ function plMTs(mts){   // ["MT 1","MT 2","MT 3"] -> "MT 1–3"
 function plRange(list){ if (!list.length) return ""; var a = Number(list[0]), b = Number(list[list.length-1]); return list.length > 1 ? a + "–" + b : String(a); }
 
 /* build the plan: one block per desk, plus the shared bits */
+// the subs for one stage: sets of 2 (each Galaxy 2 output feeds one set through one wall patch output)
+function plSubs(e, sfk){
+  var sets = Math.max(0, Math.min(2, Number(e.subSets) || 0)), RS = plRoomRoutes(sfk).S, wpAll = dgNums(plStep(RS, sfk, 0)), gAll = dgNums(plStep(RS, "gal2", 1));
+  if (!wpAll.length) wpAll = [1, 2]; if (!gAll.length) gAll = [1, 2];
+  var wp = wpAll.slice(0, sets), g = gAll.slice(0, sets);
+  return {sets:sets, n:sets * 2, wp:wp, g:g, wpText:dgNamed(sfk, "Out", wp) || "Out " + dgRange(wp), gText:dgNamed("gal2", "Out", g) || "Out " + dgRange(g), label:sets * 2 + " × 750-LFC"};
+}
+function plWallPort(r, k){ return String(plStep(r, k)).replace(/^Wall patch\s*/i, ""); }   // "in 1"
 function plBuild(p){
   var out = {events:[], warn:[], patch:[], checks:[], hlSigs:[]};
   plDesks(p).forEach(function(d){
@@ -2159,28 +2168,33 @@ function plBuild(p){
     if (e.pc) sources.push("Stage PC"); if (e.spare) sources.push("Spare");
     if (e.band) sources.push("Band"); if (e.play && d==="opa") sources.push("OPA playback");
     ev.sources = sources;
-    var box = e.src==="wall" ? null : PL_SRC[e.src];
-    // inputs
+    var box = e.src==="wall" ? null : PL_SRC[e.src], where = e.deskIn === "out" ? "wall point " + (e.wpBox || "(pick one)") : "Dante";
+    // wall patch sources: one patch row per input, and a short flow line
+    function wallPatch(srcs, k, onward){
+      ev.flow.push([ROOMNAME[k] + " wall patch", "room", srcs.length ? srcs.map(function(r){ return r.sig + " (" + plWallPort(r, k) + ")"; }).join(" · ") : "In 1–4"]);
+      var rioN = [].concat.apply([], srcs.map(function(r){ return dgNums(plStep(r, "rio")); })), qlN = [].concat.apply([], srcs.map(function(r){ return dgNums(plStep(r, "ql5")); }));
+      ev.flow.push(["AV2 Rio", "rio", (rioN.length ? "In " + dgRange(rioN) : "Room loom") + " → Dante" + (onward === "QL5" ? " → QL5" + (qlN.length ? " In " + dgRange(qlN) : "") : (onward ? " → " + onward : ""))]);
+      srcs.forEach(function(r){ ev.patch.push([r.sig, ROOMNAME[k] + " wall patch " + plWallPort(r, k), plStep(r, "rio") ? "AV2 Rio " + plStep(r, "rio") + (plStep(r, "ql5") && onward === "QL5" ? " → QL5 " + plStep(r, "ql5") : "") : ""]); });
+    }
     if (d==="opa"){
       var rk = plRackInputs(), used = [];
       if (box){
         if (e.lec >= 1 && rk[1]) used.push([1, rk[1]]); if (e.lec >= 2 && rk[2]) used.push([2, rk[2]]);
         if (e.pc && rk[3]) used.push([3, rk[3]]); if (e.spare && rk[4]) used.push([4, rk[4]]);
-        var link = e.deskIn === "out" ? "wall point " + (e.wpBox || "(pick one)") + " (no desk in the room)" : "Dante to OPA";
         ev.flow.push(["Sources", "room", used.map(function(u){ return u[1].sig; }).join(" · ") || "None on the stage box"]);
-        ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", (used.length ? used.map(function(u){ return u[1].sig + " (In " + u[0] + ")"; }).join(", ") + " → " : "→ ") + link]);
-        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], used.map(function(u){ return u[1].sig + " into In " + u[0]; }).join(", ") + (used.length ? ". " : "") + (e.deskIn === "out" ? "Plug into wall point " + (e.wpBox || "(pick one)") + ", as there’s no desk in the room." : "Networked to OPA over Dante, no wall point needed.")]);
-        if (e.src!=="sr1") out.warn.push("The DM7F show file expects the lectern and PC on Stage Rack A inputs 1–4. Using " + box + " needs the DM7F input patch changed.");
-        ev.desk.push(["DM7F channels", (used.length ? used.map(function(u){ return u[1].sig + " (Ch " + u[1].ch + ")"; }).join(", ") : "No stage box inputs")]);
+        ev.flow.push([box + " · " + ROOMNAME[st], "rio", (used.map(function(u){ return u[1].sig + " (In " + u[0] + ")"; }).join(" · ") || "No inputs") + " → " + where]);
+        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], e.deskIn === "out" ? "Wall point " + (e.wpBox || "(pick one)") + " (no desk in the room)" : "Dante to OPA"]);
+        used.forEach(function(u){ ev.patch.push([u[1].sig, box, "In " + u[0]]); });
+        if (e.src!=="sr1") out.warn.push("The DM7F show file expects Stage Rack A. " + box + " needs the DM7F input patch changed.");
+        ev.desk.push(["DM7F inputs", used.length ? used.map(function(u){ return u[1].sig + " (Ch " + u[1].ch + ")"; }).join(" · ") : "None from the stage box"]);
       } else {
         var wsO = plDirectSrcs(e, st);
         ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
-        ev.flow.push([ROOMNAME[st] + " wall patch", "room", (wsO.length ? wsO.map(function(r){ return r.sig + " (wall in " + String(plStep(r, st)).replace(/^Wall patch in\s*/i, "") + " → Rio " + plStep(r, "rio") + ")"; }).join(", ") + " → " : "In 1–4 → ") + "loom → AV2 Rio → Dante"]);
-        if (wsO.length) ev.patch.push([ROOMNAME[st] + " wall patch", ROOMNAME[st], wsO.map(function(r){ return plWallLine(r, st); }).join(". ") + "."]);
-        out.warn.push("The DM7F show file doesn’t patch the AV2 Rio room inputs. Patch them on the DM7F if OPA takes sources from the wall patch" + (wsO.length ? " (" + wsO.map(function(r){ return r.sig + " is AV2 Rio " + plStep(r, "rio"); }).join(", ") + ")" : "") + ".");
+        wallPatch(wsO, st);
+        out.warn.push("The DM7F show file doesn’t have the AV2 Rio room inputs" + (wsO.length ? " (" + wsO.map(function(r){ return r.sig + " = " + plStep(r, "rio"); }).join(", ") + ")" : "") + ". Patch them on the DM7F.");
       }
-      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks A and B. Foldback FB 1–8 out of Stage Rack A, in-ears IEM 1–8 out of Stage Rack B."]); ev.patch.push(["Stage Racks A and B", "On stage", "Band inputs per the DM7F show file. Foldback from Stage Rack A outs 1–8, in-ears from Stage Rack B outs 1–8."]); }
-      if (e.play) ev.desk.push(["OPA playback", "PC 1–4, PVP 1–2 and Zoom on Ch 73–86 (Omni 1–14 as backup), audio Mac on Ch 88–96"]);
+      if (e.band){ ev.desk.push(["Band", "Ch 1–48 from Stage Racks A and B. Foldback FB 1–8 from Rack A outs, in-ears IEM 1–8 from Rack B outs."]); ev.patch.push(["Stage Racks A and B", "On stage", "Band inputs per the DM7F show file. Foldback: Rack A out 1–8. In-ears: Rack B out 1–8."]); }
+      if (e.play) ev.desk.push(["OPA playback", "PC 1–4, PVP 1–2, Zoom: Ch 73–86 (Omni 1–14 as backup). Audio Mac: Ch 88–96."]);
       // where the mix goes
       var feeds = [];
       rooms.forEach(function(k){
@@ -2190,93 +2204,87 @@ function plBuild(p){
         out.hlSigs.push(R.L && R.L.sig, R.R && R.R.sig); if (k===(e.subsFrom || st) && e.subs && R.S) out.hlSigs.push(R.S.sig);
       });
       var fMT = plMT(plStep(plRoute("Front Fill"),"dm7f")), yMT = plMT(plStep(plRoute("Foyer"),"dm7f"));
-      ev.desk.push(["DM7F matrices", "Send the mix " + (rooms.length > 1 ? "equally " : "") + "to " + feeds.join("; ") + (e.ff ? "; and " + (chName("dm7f", fMT) || "Fill") + " (" + fMT + ")" : "") + (p.foyer==="opa" ? "; and " + (chName("dm7f", yMT) || "Foyer") + " (" + yMT + ")" : "") + "."]);
-      ev.flow.push(["DM7F at OPA" + (e.deskIn === "out" ? " (not in the room)" : (e.pos ? " (" + e.pos + ")" : "")), "ql", feeds.join(" · ") + " → Dante"]);
+      ev.desk.push(["DM7F matrices", "Send the mix " + (rooms.length > 1 ? "equally " : "") + "to " + feeds.join("; ") + (e.ff ? "; " + (chName("dm7f", fMT) || "Fill") + " (" + fMT + ")" : "") + (p.foyer==="opa" ? "; " + (chName("dm7f", yMT) || "Foyer") + " (" + yMT + ")" : "") + "."]);
+      ev.flow.push(["DM7F · OPA" + (e.deskIn === "out" ? " (not in the room)" : (e.pos ? " · " + e.pos : "")), "ql", feeds.join(" · ") + " → Dante"]);
     } else if (D.direct){
       var qk = rooms[0], SD = plSends(e, qk), srcs = SD.srcs, qNums = SD.qNums;
       ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
-      ev.flow.push([ROOMNAME[qk] + " wall patch", "room", (srcs.length ? srcs.map(function(r){ return r.sig + " (wall in " + String(plStep(r, qk)).replace(/^Wall patch in\s*/i, "") + " → Rio " + plStep(r, "rio") + (plStep(r, "ql5") ? " → QL5 " + plStep(r, "ql5") : "") + ")"; }).join(", ") + " → " : "") + "loom → AV2 Rio → Dante"]);
-      ev.flow.push(["QL5 sends (set by hand)", "ql", srcs.length ? "On each of " + SD.inText + ": send ON and up to " + SD.outsText + "." : "No inputs on."]);
-      ev.patch.push([ROOMNAME[qk] + " wall patch", ROOMNAME[qk], (srcs.length ? srcs.map(function(r){ return plWallLine(r, qk); }).join(". ") + ". " : "") + "They go over the room loom to the AV2 Rio and Dante, straight to the QL5."]);
-      ev.desk.push(["QL5 (no desk)", ROOMNAME[qk] + " has no operator, so it’s mixed on the QL5. The QL5 doesn’t send an input anywhere until you tell it to: go into each input below and choose the outputs it should go to."]);
-      srcs.forEach(function(r){ ev.desk.push([r.sig + " · QL5 " + plStep(r, "ql5"), "Send ON and up to " + SD.outsText + ". Check the send is on, turned up, and the output’s ON key is lit."]); });
-      if (SD.rooms.length > 1) ev.desk.push(["More than one room", "These inputs play in " + plRoomList(SD.rooms) + ". Each input needs its send switched on to every room’s outputs, not just " + ROOMNAME[qk] + "’s."]);
-      out.warn.push(ROOMNAME[qk] + " is mixed on the QL5 with no desk. Every input has to be sent to the room outputs by hand on the QL5, and the notes don’t say how the QL5 is set up for this by default, so check each send.");
+      wallPatch(srcs, qk, "QL5");
+      ev.flow.push(["QL5 sends (by hand)", "ql", srcs.length ? SD.inText + ": send ON and up to " + SD.outsText : "No inputs on"]);
+      ev.desk.push(["QL5 · no desk", ROOMNAME[qk] + " is mixed on the QL5. An input only plays where you switch its send on."]);
+      if (srcs.length) ev.desk.push(["QL5 sends", SD.inText + ": send ON and up to " + SD.outsText + "."]);
+      if (SD.rooms.length > 1) ev.desk.push(["Also plays in", plRoomList(SD.rooms.slice(1)) + ": switch each send on to that room’s outputs too."]);
+      out.warn.push(ROOMNAME[qk] + " has no desk: set every QL5 send by hand, then check each one. The default sends aren’t in the notes.");
       ev.qNums = qNums; ev.sends = SD;
       srcs.forEach(function(r){ out.hlSigs.push(r.sig); }); SD.rooms.forEach(function(k){ var RQ = plRoomRoutes(k); out.hlSigs.push(RQ.L && RQ.L.sig, RQ.R && RQ.R.sig); if (k === qk && e.subs && RQ.S) out.hlSigs.push(RQ.S.sig); });
     } else {
       var op = d==="opb" ? "B" : "C", rL = plRoute("OP " + op + " L"), rR = plRoute("OP " + op + " R"), rS = plRoute("OP " + op + " Sub");
-      if (e.src==="wall"){
-        ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
-        var wsB = plDirectSrcs(e, st);
-        ev.flow.push([ROOMNAME[st] + " wall patch", "room", (wsB.length ? wsB.map(function(r){ return r.sig + " (wall in " + String(plStep(r, st)).replace(/^Wall patch in\s*/i, "") + " → Rio " + plStep(r, "rio") + ")"; }).join(", ") + " → " : "In 1–4 → ") + "loom → AV2 Rio → Dante → the DM3"]);
-        ev.patch.push([ROOMNAME[st] + " wall patch", ROOMNAME[st], wsB.length ? wsB.map(function(r){ return plWallLine(r, st); }).join(". ") + "." : "Lectern into In 1–2, stage PC into In 3 (AV2 Rio " + (plStep(plRoute(roomSrcSig(st, "LEC", "L")),"rio") || "inputs") + " onward)."]);
-      } else {
-        ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
-        ev.flow.push([box + " (side-stage, " + ROOMNAME[st] + ")", "rio", "→ " + (e.deskIn === "out" ? "wall point " + (e.wpBox || "(pick one)") : "Dante") + " → the DM3"]);
-        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], (e.deskIn === "out" ? "Plug into wall point " + (e.wpBox || "(pick one)") + ", as there’s no desk in the room. " : "Networked to " + D.name + " over Dante. ") + "The DM3 channel patch for this rack isn’t in the notes."]);
+      ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
+      if (e.src==="wall"){ wallPatch(plDirectSrcs(e, st), st, "the DM3"); }
+      else {
+        ev.flow.push([box + " · " + ROOMNAME[st], "rio", "→ " + where]);
+        ev.patch.push([box, "Side-stage, " + ROOMNAME[st], (e.deskIn === "out" ? "Wall point " + (e.wpBox || "(pick one)") + " (no desk in the room)" : "Dante to " + D.name) + ". DM3 patch isn’t in the notes."]);
       }
       var qi = [plStep(rL,"ql5"), plStep(rR,"ql5"), plStep(rS,"ql5")].filter(Boolean).map(function(v){ return v.replace(/^In\s*/i,""); });
-      ev.desk.push(["DM3 at " + D.name, "Send ST L/R and the sub matrix to the QL5 (In " + qi.join(", ") + ")."]);
-      ev.desk.push(["QL5", "Check In " + qi.join(", ") + " (OP " + op + ") reaches " + plRoomList(rooms) + "’s outputs. How the QL5 routes OP " + op + " to a room isn’t in the notes yet."]);
-      ev.flow.push(["DM3 at " + D.name + (e.deskIn === "out" ? " (not in the room)" : (e.pos ? " (" + e.pos + ")" : "")), "ql", "ST L/R + Sub → Dante → QL5 In " + qi.join(", ")]);
+      ev.desk.push(["DM3 · " + D.name, "Send ST L/R and the sub matrix to the QL5 (In " + qi.join(", ") + ")."]);
+      ev.desk.push(["QL5", "In " + qi.join(", ") + " (OP " + op + ") must reach " + plRoomList(rooms) + "’s outputs. How is not in the notes yet, so check it."]);
+      ev.flow.push(["DM3 · " + D.name + (e.deskIn === "out" ? " (not in the room)" : (e.pos ? " · " + e.pos : "")), "ql", "ST L/R + Sub → Dante → QL5 In " + qi.join(", ")]);
       rooms.forEach(function(k){ var R = plRoomRoutes(k); out.hlSigs.push(R.L && R.L.sig, R.R && R.R.sig); if (k===(e.subsFrom || st) && e.subs && R.S) out.hlSigs.push(R.S.sig); });
       out.hlSigs.push(rL && rL.sig, rR && rR.sig);
     }
     // QL5 → Galaxy → speakers, room by room (fixed QL5 routing)
-    var qlBits = [], galBits = [], spk = [];
+    var qlBits = [], galBits = [], sfq = e.subsFrom || st;
     rooms.forEach(function(k){
       var R = plRoomRoutes(k);
-      var oL = plStep(R.L,"ql5",1), oR = plStep(R.R,"ql5",1), oS = plStep(R.S,"ql5",2), sf = e.subsFrom || st;
-      qlBits.push([chName("ql5", oL), chName("ql5", oR)].filter(Boolean).join(" / ") + " (" + oL + "/" + oR.replace(/^Out\s*/,"") + ")" + (k===sf && e.subs ? ", " + (chName("ql5", oS) || "sub") + " (" + oS + ")" : ""));
+      var oL = plStep(R.L,"ql5",1), oR = plStep(R.R,"ql5",1);
+      qlBits.push([chName("ql5", oL), chName("ql5", oR)].filter(Boolean).join(" / ") + " (" + oL + "/" + oR.replace(/^Out\s*/,"") + ")");
       var gL = plStep(R.L,"gal1"), gR = plStep(R.R,"gal1");
-      galBits.push([chName("gal1", gL), chName("gal1", gR)].filter(Boolean).join(" / ") + " (Galaxy 1 " + gL + "/" + gR.replace(/^In\s*/,"") + ") → " + ROOMNAME[k] + " UPQs and X20s");
-      spk.push(ROOMNAME[k]);
+      galBits.push([chName("gal1", gL), chName("gal1", gR)].filter(Boolean).join(" / ") + " (" + gL + "/" + gR.replace(/^In\s*/,"") + ") → " + ROOMNAME[k]);
     });
-    ev.flow.push(D.direct ? ["QL5 in AV2 (mixes this room, no desk)", "ql", (ev.qNums && ev.qNums.length ? dgNamed("ql5", "In", ev.qNums) + " → " : "") + (ev.sends ? ev.sends.outsText + (ev.sends.rooms.length > 1 ? " (" + plRoomList(ev.sends.rooms) + ")" : "") : "") + (ev.sends && ev.sends.outs.length ? " · " : "") + qlBits.join(" · ")] : ["QL5 in AV2 (fixed routing)", "ql", qlBits.join(" · ")]);
-    ev.flow.push(["AV2 Rio → Galaxy 1", "gal", galBits.join(" · ")]);
+    ev.flow.push(D.direct ? ["QL5 · AV2 (no desk)", "ql", "Out: " + qlBits.join(" · ")] : ["QL5 · AV2", "ql", "Fixed routing. Out: " + qlBits.join(" · ")]);
+    ev.flow.push(["AV2 Rio → Galaxy 1", "gal", "Galaxy 1 In: " + galBits.join(" · ")]);
     ev.flow.push([plRoomList(rooms) + " speakers", "spk", "UPQ L/R and X20 downfills"]);
     if (e.subs){
-      var sfk = e.subsFrom || st, RS = plRoomRoutes(sfk).S, gOut = plStep(RS, "gal2", 1), wp = lc(plStep(RS, sfk, 0)), gN = chName("gal2", gOut), wN = chName(sfk, wp);
-      ev.flow.push(["Subs (4 × 750-LFC, end-fire under the stage)", "spk", (gN ? gN + " (Galaxy 2 " + gOut + ")" : "Galaxy 2 " + gOut) + " → " + ROOMNAME[sfk] + " wall patch " + (wN ? wN + " (" + wp.replace(/^wall patch\s*/,"") + ")" : (wp || "out 1 + 2")) + ", hardline"]);
-      ev.patch.push(["Subs: 4 × 750-LFC", "Under the stage, " + ROOMNAME[st] + ", end-fire", "From the " + ROOMNAME[sfk] + " wall patch " + (wN ? wN + " (" + wp.replace(/^wall patch\s*/,"") + ")" : (wp || "sub outputs")) + ", fed by " + (gN || "Galaxy 2") + " (Galaxy 2 " + gOut + ")."]);
+      var SB = plSubs(e, sfq), RS = plRoomRoutes(sfq).S, qOS = plStep(RS, "ql5", 2);
+      ev.flow.push(["Subs · " + SB.n + " × 750-LFC", "spk", "Galaxy 2 " + SB.gText + " → " + ROOMNAME[sfq] + " wall patch " + SB.wpText]);
+      ev.patch.push(["Subs: " + SB.label, "Under the stage, " + ROOMNAME[st] + ", end-fire", "From " + ROOMNAME[sfq] + " wall patch " + SB.wpText]);
     }
     if (e.ff){
       var F = plRoute("Front Fill");
       ev.flow.push(["Front fill", "spk", "DM7F " + plMT(plStep(F,"dm7f")) + " → QL5 " + plStep(F,"ql5") + " → " + plStep(F,"ql5",2) + " → Galaxy 2 " + plStep(F,"gal2",1)]);
-      ev.patch.push(["Front fills", "Stage lip, " + ROOMNAME[st], "Galaxy 2 " + plStep(F,"gal2",1) + ". Where the fill speakers patch in isn’t in the notes yet."]);
-      if (d !== "opa") out.warn.push("Front fill comes from the DM7F matrix in the notes; " + D.name + " would need its own fill send.");
+      ev.patch.push(["Front fills", "Stage lip, " + ROOMNAME[st], "Galaxy 2 " + plStep(F,"gal2",1) + ". The fill patch point isn’t in the notes."]);
+      if (d !== "opa") out.warn.push("Front fill comes from the DM7F matrix. " + D.name + " needs its own fill send.");
       if (F) out.hlSigs.push(F.sig);
     }
-    if (!D.direct) ev.patch.push([D.name + " (" + D.desk + ")", e.deskIn === "out" ? "Not in the room" : (e.pos || "A pillar in " + ROOMNAME[e.deskIn] + ", opposite end to the speakers"), "On the Dante network. No wall point needed."]);
+    if (!D.direct) ev.patch.push([D.name + " (" + D.desk + ")", e.deskIn === "out" ? "Not in the room" : (e.pos || "Pillar in " + ROOMNAME[e.deskIn] + ", far end from the speakers"), "On Dante, no wall point needed"]);
     out.events.push(ev);
   });
   // shared: foyer, external team
   var Fy = plRoute("Foyer"), B = plRoute("BGM");
-  if (p.foyer==="opa" && Fy){ out.foyer = "From the DM7F " + plMT(plStep(Fy,"dm7f")) + " → QL5 " + plStep(Fy,"ql5") + " → " + plStep(Fy,"ql5",1) + " → AV2 Rio " + plStep(Fy,"rio") + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.hlSigs.push(Fy.sig); }
-  else if (p.foyer==="bgm"){ out.foyer = "BGM player into the QL5 " + (plStep(B,"ql5") || "In 8") + " (local Omni in 1), routed to the foyer output " + plStep(Fy,"ql5",1) + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.patch.push(["BGM player", "AV2", "Into the QL5 Omni in 1 (QL5 " + (plStep(B,"ql5") || "In 8") + ")."]); if (Fy) out.hlSigs.push(Fy.sig); }
-  if (p.ext){ out.ext = "External team into AV2 Rio In 13–16 → QL5 In 1–4 (EXT L, R, Sub, Fill), EXT Foyer on QL5 In 5. The TD mutes them from the iPad."; out.patch.push(["External team", "AV2", "Their L, R, Sub, Fill into AV2 Rio In 13–16."]); ["EXT L","EXT R","EXT Sub","EXT Fill"].forEach(function(s){ out.hlSigs.push(s); }); }
+  if (p.foyer==="opa" && Fy){ out.foyer = "DM7F " + plMT(plStep(Fy,"dm7f")) + " → QL5 " + plStep(Fy,"ql5") + " → " + plStep(Fy,"ql5",1) + " → AV2 Rio " + plStep(Fy,"rio") + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.hlSigs.push(Fy.sig); }
+  else if (p.foyer==="bgm"){ out.foyer = "BGM player → QL5 " + (plStep(B,"ql5") || "In 8") + " (Omni in 1) → " + plStep(Fy,"ql5",1) + " → AV2 Rio " + plStep(Fy,"rio") + " → Galaxy 1 " + plStep(Fy,"gal1",1) + " → foyer speakers"; out.patch.push(["BGM player", "AV2", "QL5 Omni in 1 (" + (plStep(B,"ql5") || "In 8") + ")"]); if (Fy) out.hlSigs.push(Fy.sig); }
+  if (p.ext){ out.ext = "Their L, R, Sub, Fill into AV2 Rio In 13–16 → QL5 In 1–4. Foyer on QL5 In 5. The TD mutes them from the iPad."; out.patch.push(["External team", "AV2", "L, R, Sub, Fill into AV2 Rio In 13–16"]); ["EXT L","EXT R","EXT Sub","EXT Fill"].forEach(function(s){ out.hlSigs.push(s); }); }
   out.hlSigs = out.hlSigs.filter(function(s, i, a){ return s && a.indexOf(s)===i; });
-  if (p.foyer==="opa" && Fy && /check/i.test(plCh("ql5", 48) ? plCh("ql5",48).from : "")) out.warn.push("Foyer: still to confirm which QL5 input it lands on (46 or 48). It’s on the to-do list.");
+  if (p.foyer==="opa" && Fy && /check/i.test(plCh("ql5", 48) ? plCh("ql5",48).from : "")) out.warn.push("Foyer: confirm which QL5 input it lands on (46 or 48).");
   out.checks = plChecks(p, out);
   return out;
 }
 // what to check for mutes on one desk and on the QL5, with names: inputs and outputs in use
 function plMutes(p, ev){
   var d = ev.d, e = ev.e, D = ev.D, sf = e.subsFrom || e.stage, qin = [], qout = [], mts = [], chs = [];
-  function take(r, sub){ if (!r) return; qin = qin.concat(dgNums(plStep(r, "ql5"))); qout = qout.concat(dgNums(plStep(r, "ql5", 1))); mts = mts.concat(dgNums(plMT(plStep(r, "dm7f")))); }
+  function take(r){ if (!r) return; qin = qin.concat(dgNums(plStep(r, "ql5"))); qout = qout.concat(dgNums(plStep(r, "ql5", 1))); mts = mts.concat(dgNums(plMT(plStep(r, "dm7f")))); }
   ev.rooms.forEach(function(k){ var R = plRoomRoutes(k); take(R.L); take(R.R); if (e.subs && k === sf) take(R.S); });
   (e.also || []).forEach(function(k){ var R = plRoomRoutes(k); take(R.L); take(R.R); });
   if (e.ff && d === "opa") take(plRoute("Front Fill"));
   if (p.foyer === "opa" && d === "opa") take(plRoute("Foyer"));
   if (D.direct){ qin = []; plDirectSrcs(e, ev.rooms[0]).forEach(function(r){ qin = qin.concat(dgNums(plStep(r, "ql5"))); }); }
   else if (d !== "opa"){ var op = d === "opb" ? "B" : "C"; qin = []; ["L", "R", "Sub"].forEach(function(s){ qin = qin.concat(dgNums(plStep(plRoute("OP " + op + " " + s), "ql5"))); }); }
-  var desk;
-  if (D.direct) desk = "QL5 (no desk) mutes: the inputs in use are ON, and each one’s send to the room outputs is ON and up. Check mute groups and DCAs too, as a muted channel can still meter.";
+  var desk, mg = " Check mute groups and DCAs too.";
+  if (D.direct) desk = "QL5: In " + (dgRange(qin) || "inputs") + " ON, each send to the room outputs ON." + mg;
   else if (d === "opa"){
     if (e.src !== "wall"){ var rk = plRackInputs(), ins = []; if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4); ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); }); }
-    desk = "DM7F mutes: " + (chs.length ? "inputs " + dgNamed("dm7f", "Ch", chs) + " ON, and " : "") + "matrices " + dgNamed("dm7f", "MT", mts) + " ON. Check mute groups and DCAs too, as a muted matrix can still meter.";
-  } else desk = D.desk + " (" + D.name + ") mutes: the inputs in use and the ST L/R and Sub outputs are ON. Check mute groups and DCAs too.";
+    desk = "DM7F: " + (chs.length ? dgNamed("dm7f", "Ch", chs) + " and " : "") + dgNamed("dm7f", "MT", mts) + " ON." + mg;
+  } else desk = D.name + " (" + D.desk + "): inputs in use and ST L/R + Sub ON." + mg;
   return {desk:desk, qin:dgNamed("ql5", "In", qin), qout:dgNamed("ql5", "Out", qout)};
 }
 function roomSrcSig(k, kind, side){ return kind + " " + ROOMNUM[k] + " " + side; }
@@ -2286,45 +2294,51 @@ function plChecks(p, out){
   var C = [];
   function add(group, id, text){ C.push({g:group, id:id, t:text}); }
   out.events.forEach(function(ev){
-    var e = ev.e, d = ev.d, D = ev.D, st = ROOMNAME[e.stage], box = e.src==="wall" ? null : PL_SRC[e.src], tag = out.events.length > 1 ? D.name + ": " : "";
-    add("Set up", d+"-stage", tag + "Build the stage in " + st + (box ? ", and put " + box + " side-stage and power it on." : "."));
-    if (box && d==="opa"){
+    var e = ev.e, d = ev.d, D = ev.D, st = ROOMNAME[e.stage], box = e.src==="wall" ? null : PL_SRC[e.src], tag = out.events.length > 1 ? (D.direct ? ROOMNAME[e.stage] : D.name) + ": " : "";
+    var sfk = e.subsFrom || e.stage;
+    add("Set up", d+"-stage", tag + "Build the stage in " + st + ".");
+    if (box){
       var rk = plRackInputs(), ins = [];
-      if (e.lec >= 1 && rk[1]) ins.push("In 1 " + rk[1].sig); if (e.lec >= 2 && rk[2]) ins.push("In 2 " + rk[2].sig);
-      if (e.pc && rk[3]) ins.push("In 3 " + rk[3].sig); if (e.spare && rk[4]) ins.push("In 4 " + rk[4].sig);
-      if (ins.length) add("Set up", d+"-boxpatch", tag + "Patch the stage box: " + ins.join(", ") + ".");
+      if (d==="opa"){
+        if (e.lec >= 1 && rk[1]) ins.push(rk[1].sig + " In 1"); if (e.lec >= 2 && rk[2]) ins.push(rk[2].sig + " In 2");
+        if (e.pc && rk[3]) ins.push(rk[3].sig + " In 3"); if (e.spare && rk[4]) ins.push(rk[4].sig + " In 4");
+      }
+      add("Set up", d+"-boxwp", tag + box + " side-stage, power on. " + (e.deskIn === "out" ? "Plug it into wall point " + (e.wpBox || "(pick one)") + ", no desk in the room." : "Network it to " + D.name + " (Dante)."));
+      if (ins.length) add("Set up", d+"-boxpatch", tag + "Patch " + box + ": " + ins.join(", ") + ".");
     }
-    if (box) add("Set up", d+"-boxwp", tag + (e.deskIn === "out" ? "No desk in the room: plug the stage box into wall point " + (e.wpBox || "(pick one)") + "." : "Network the stage box to " + D.name + " (Dante)."));
-    if (!box && D.direct){ var wps = plDirectSrcs(e, e.stage).map(function(r){ return r.sig + " into " + String(plStep(r, e.stage)).replace(/^Wall patch\s*/i, "wall patch "); }); add("Set up", d+"-wall", tag + (wps.length ? "Plug in at the " + st + " wall patch: " + wps.join(", ") + "." : "No sources on the " + st + " wall patch.") + " They go straight to the QL5, so no desk is needed."); }
-    else if (!box) add("Set up", d+"-wall", tag + "Plug the lectern and stage PC into the " + st + " wall patch (In 1–3).");
-    if (e.subs) add("Set up", d+"-subs", tag + "Put 4 subs under the stage in end-fire and patch them to the " + ROOMNAME[e.subsFrom || e.stage] + " wall patch sub outputs. Power on.");
-    if (e.ff) add("Set up", d+"-ff", tag + "Place the front fills on the stage lip and patch them (Galaxy 2 Out 7).");
-    if (D.direct){ var SDc = plSends(e, e.stage); add("Set up", d+"-desk", tag + "No desk or operator in " + st + ": it’s mixed on the QL5 in AV2."); if (SDc.srcs.length) add("Set up", d+"-sends", tag + "On the QL5, go into each input (" + SDc.inText + ") and send it ON and up to " + SDc.outsText + ". Do it input by input: an input only plays in a room whose output you’ve selected."); }
-    else add("Set up", d+"-desk", tag + (e.deskIn === "out" ? "Bring up the " + D.desk + " (" + D.name + ") on the Dante network" : "Set up " + D.name + (e.pos ? " at " + e.pos : " at a pillar in " + ROOMNAME[e.deskIn] + ", opposite end to the speakers") + " and power on the " + D.desk) + (d==="opa" ? ". Recall the base show file." : "."));
-    if (e.band) add("Set up", d+"-band", tag + "Stage Racks A and B on stage for the band; foldback and in-ear lines run.");
+    if (!box && D.direct){ var wps = plDirectSrcs(e, e.stage).map(function(r){ return r.sig + " in " + plWallPort(r, e.stage).replace(/^in\s*/i, ""); }); add("Set up", d+"-wall", tag + (wps.length ? st + " wall patch: " + wps.join(", ") + "." : "No sources on the " + st + " wall patch.")); }
+    else if (!box){
+      var wps2 = plDirectSrcs(e, e.stage).map(function(r){ return r.sig + " in " + plWallPort(r, e.stage).replace(/^in\s*/i, ""); });
+      add("Set up", d+"-wall", tag + st + " wall patch: " + (wps2.length ? wps2.join(", ") : "lectern In 1–2, stage PC In 3") + ".");
+    }
+    if (e.subs){ var SB = plSubs(e, sfk); add("Set up", d+"-subs", tag + SB.n + " subs end-fire under the stage, on the " + ROOMNAME[sfk] + " wall patch " + SB.wpText + ". Power on."); }
+    if (e.ff) add("Set up", d+"-ff", tag + "Front fills on the stage lip, Galaxy 2 Out 7.");
+    if (D.direct){ var SDc = plSends(e, e.stage); add("Set up", d+"-desk", tag + "No desk. It’s mixed on the QL5 in AV2."); if (SDc.srcs.length) add("Set up", d+"-sends", tag + "On the QL5, one input at a time: In " + dgRange(SDc.qNums) + " send ON and up to " + SDc.outsText + "."); }
+    else add("Set up", d+"-desk", tag + (e.deskIn === "out" ? "The " + D.desk + " is on Dante, not in the room" : "Set up the " + D.desk + " " + (e.pos ? "at " + e.pos : "at a pillar in " + ROOMNAME[e.deskIn]) + ", power on") + (d==="opa" ? ". Recall the base show file." : "."));
+    if (e.band) add("Set up", d+"-band", tag + "Stage Racks A and B on stage for the band. Foldback and in-ears running.");
   });
-  if (p.foyer==="bgm") add("Set up", "bgm", "BGM player plugged into the QL5 in AV2 (Omni in 1).");
-  if (p.ext) add("Set up", "ext", "External team patched into AV2 Rio In 13–16.");
+  if (p.foyer==="bgm") add("Set up", "bgm", "BGM player into the QL5 in AV2 (Omni in 1).");
+  if (p.ext) add("Set up", "ext", "External team into AV2 Rio In 13–16.");
   out.events.forEach(function(ev){
-    var e = ev.e, d = ev.d, D = ev.D, tag = out.events.length > 1 ? D.name + ": " : "", box = e.src==="wall" ? null : PL_SRC[e.src];
+    var e = ev.e, d = ev.d, D = ev.D, tag = out.events.length > 1 ? (D.direct ? ROOMNAME[e.stage] : D.name) + ": " : "", box = e.src==="wall" ? null : PL_SRC[e.src];
     var rk2 = (d==="opa" && box) ? plRackInputs() : {}, lch = [rk2[1], e.lec===2 ? rk2[2] : null].filter(Boolean).map(function(r){ return r.ch; });
-    if (d==="opa" && box) add("Line check", d+"-dante", tag + "The stage box shows up on the DM7F and its channels meter" + (Object.keys(rk2).length ? " (Ch " + plRange(Object.keys(rk2).map(function(k){ return rk2[k].ch; })) + ")" : "") + ".");
-    if (e.lec) add("Line check", d+"-lec", tag + "Talk on the lectern" + (e.lec===2 ? " (both feeds)" : "") + (lch.length ? " — Ch " + lch.join("/") : "") + ".");
-    if (e.pc) add("Line check", d+"-pc", tag + "Play audio from the stage PC" + (rk2[3] ? " — Ch " + rk2[3].ch : "") + ".");
+    if (d==="opa" && box) add("Line check", d+"-dante", tag + "Stage box shows on the DM7F and meters" + (Object.keys(rk2).length ? " (Ch " + plRange(Object.keys(rk2).map(function(k){ return rk2[k].ch; })) + ")" : "") + ".");
+    if (e.lec) add("Line check", d+"-lec", tag + "Talk on the lectern" + (e.lec===2 ? " (both feeds)" : "") + (lch.length ? ": Ch " + lch.join("/") : "") + ".");
+    if (e.pc) add("Line check", d+"-pc", tag + "Play audio from the stage PC" + (rk2[3] ? ": Ch " + rk2[3].ch : "") + ".");
     if (e.band) add("Line check", d+"-bandc", tag + "Band line check, then foldback and in-ears.");
     var mu = plMutes(p, ev);
     add("Line check", d+"-mutes", tag + mu.desk);
-    add("Line check", d+"-ql5", tag + "QL5 in AV2: " + (mu.qin || "the room feeds from " + D.name) + " metering, with their ON keys lit" + (D.direct ? " and sent to the room mixes." : " (routing is fixed)."));
-    add("Line check", d+"-ql5out", tag + "QL5 outputs ON (not muted): " + (mu.qout || "the room outputs") + ". A muted output can still meter, so check each ON key, not the meters.");
-    if (D.direct && ev.sends && ev.sends.srcs.length) add("Line check", d+"-sendchk", tag + "Every room these inputs go to (" + plRoomList(ev.sends.rooms) + ") hears the lectern and stage PC. If a room is silent, check that input’s send to that room’s outputs: on, and turned up.");
-    ev.rooms.forEach(function(k){ add("Line check", d+"-room-"+k, tag + "Walk " + ROOMNAME[k] + ": UPQ L, UPQ R and the X20s all working."); });
-    if (e.subs) add("Line check", d+"-subc", tag + "Subs under the stage in " + ROOMNAME[e.stage] + " working, end-fire sounding right from the room.");
+    add("Line check", d+"-ql5", tag + (D.direct ? "QL5: " : "QL5 in AV2: ") + (mu.qin || "the room feeds") + " metering, ON keys lit.");
+    add("Line check", d+"-ql5out", tag + "QL5 outputs ON: " + (mu.qout || "the room outputs") + ". Check the ON keys, not the meters.");
+    if (D.direct && ev.sends && ev.sends.srcs.length) add("Line check", d+"-sendchk", tag + "Lectern and PC heard in " + plRoomList(ev.sends.rooms) + ". A silent room: check that input’s send to its outputs (on, up).");
+    ev.rooms.forEach(function(k){ add("Line check", d+"-room-"+k, tag + "Walk " + ROOMNAME[k] + ": UPQ L, UPQ R and X20s all working."); });
+    if (e.subs) add("Line check", d+"-subc", tag + plSubs(e, e.subsFrom || e.stage).n + " subs working in " + ROOMNAME[e.stage] + ", end-fire sounding right.");
     if (e.ff) add("Line check", d+"-ffc", tag + "Front fills working at the stage lip.");
   });
-  if (p.foyer==="bgm") add("Line check", "bgmq", "QL5: " + (dgNamed("ql5", "In", [8]) || "BGM (In 8)") + " and " + (dgNamed("ql5", "Out", dgNums(plStep(plRoute("Foyer"), "ql5", 1))) || "the foyer output") + " ON (not muted).");
+  if (p.foyer==="bgm") add("Line check", "bgmq", "QL5: " + (dgNamed("ql5", "In", [8]) || "BGM (In 8)") + " and " + (dgNamed("ql5", "Out", dgNums(plStep(plRoute("Foyer"), "ql5", 1))) || "the foyer output") + " ON.");
   if (p.foyer) add("Line check", "foyer", "Foyer speakers working (" + (p.foyer==="opa" ? "from the DM7F" : "BGM player") + ").");
-  if (p.ext) add("Line check", "extc", "External team’s feeds metering on the QL5, and the TD can mute them on the iPad.");
-  add("Doors", "levels", "Final walk around every room in use and set levels.");
+  if (p.ext) add("Line check", "extc", "External feeds meter on the QL5. The TD can mute them on the iPad.");
+  add("Doors", "levels", "Final walk of every room in use, set levels.");
   return C;
 }
 
@@ -2332,6 +2346,7 @@ function plChecks(p, out){
 function plSeg(path, val, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+esc(val)+'" aria-pressed="'+(String(cur)===String(val))+'">'+esc(label)+'</button>'; }
 function plToggle(path, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+(cur?0:1)+'" aria-pressed="'+(!!cur)+'">'+esc(label)+'</button>'; }
 function plStepper(path, val, min, max, label){ return '<span class="plstep"><span class="pllab">'+esc(label)+'</span><button class="btn" data-pl="'+path+'" data-v="'+Math.max(min,val-1)+'" aria-label="Fewer '+esc(label)+'"'+(val<=min?' disabled':'')+'>−</button><b>'+val+'</b><button class="btn" data-pl="'+path+'" data-v="'+Math.min(max,val+1)+'" aria-label="More '+esc(label)+'"'+(val>=max?' disabled':'')+'>+</button></span>'; }
+function plSubStep(b, e){ return plStepper(b+"subSets", e.subSets, 0, 2, "Sets of 2 subs") + '<span class="note plsubn" style="margin:0">' + (e.subSets ? e.subSets * 2 + ' subs' : 'No subs') + '</span>'; }
 function plText(path, val, ph, label, list){ return '<label class="pltext"><span class="pllab">'+esc(label)+'</span><input class="fi" data-plf="'+path+'" value="'+esc(val)+'" placeholder="'+esc(ph)+'"'+(list ? ' list="dl-'+list+'"' : '')+' autocomplete="off"></label>'; }
 function planMode(){ var q = routeParts().q; return q.e ? "edit" : (q.p != null ? "quick" : "list"); }
 function viewPlan(){ var m = planMode(); return m === "edit" ? viewEventEdit() : (m === "quick" ? viewQuickPlan() : viewEvents()); }
@@ -2349,20 +2364,20 @@ function planForm(p, withName){
     var e = p.ev[d], rooms = plRoomsOf(p, d), D = PL_DESKS[d], b = "ev."+d+".";
     h += '<h2 class="plh">'+D.name+' · '+esc(plRoomList(rooms))+'<small>'+D.desk+'</small></h2>';
     if (D.direct){
-      h += '<p class="note" style="margin:0 0 8px">No operator in '+esc(ROOMNAME[rooms[0]])+'. The lectern, stage PC and spare plug into its wall patch and go straight to the QL5, which mixes the room. The subs run from the same wall patch.</p>';
-      h += '<div class="plrow plwrap">'+plStepper(b+"lec", e.lec, 0, 2, "Lectern feeds")+'</div>';
-      h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+plToggle(b+"subs", e.subs, "Subs under stage")+'</span></div>';
+      h += '<p class="note" style="margin:0 0 8px">No operator in '+esc(ROOMNAME[rooms[0]])+'. Sources plug into its wall patch and go straight to the QL5.</p>';
+      h += '<div class="plrow plwrap">'+plStepper(b+"lec", e.lec, 0, 2, "Lectern feeds")+plSubStep(b, e)+'</div>';
+      h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+'</span></div>';
       var oth = PL_ROOMS.filter(function(k){ return k !== rooms[0] && p.rooms[k]; });
       h += '<div class="plrow"><span class="pllab">Also play in</span><span class="plsegs">'+(oth.length ? oth.map(function(k){ return '<button class="fchip" data-plalso="'+d+'|'+k+'" aria-pressed="'+((e.also||[]).indexOf(k) >= 0)+'">'+esc(ROOMNAME[k])+'</button>'; }).join("") : '<span class="note" style="margin:0">Turn another room on to send to it as well.</span>')+'</span></div>';
-      h += '<p class="note" style="margin:0">Each input has to be sent to a room’s outputs on the QL5. The plan lists the outputs for you to check.</p>';
+      h += '<p class="note" style="margin:0">Set each input’s sends on the QL5. The plan lists the outputs.</p>';
       return;
     }
     if (rooms.length > 1) h += '<div class="plrow"><span class="pllab">Stage in</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"stage", k, e.stage, ROOMNAME[k]); }).join("")+'</span></div>';
     h += '<div class="plrow"><span class="pllab">Inputs from</span><span class="plsegs">'+["sr1","sr2","sr3","wall"].map(function(s){ return plSeg(b+"src", s, e.src, s==="wall" ? "Wall patch" : PL_SRC[s].replace("Stage Rack","Rack")); }).join("")+'</span></div>';
-    h += '<div class="plrow plwrap">'+plStepper(b+"lec", e.lec, 0, 2, "Lectern feeds")+'</div>';
-    h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+plToggle(b+"band", e.band, "Band")+(d==="opa"?plToggle(b+"play", e.play, "OPA playback"):"")+plToggle(b+"subs", e.subs, "Subs under stage")+plToggle(b+"ff", e.ff, "Front fill")+'</span></div>';
+    h += '<div class="plrow plwrap">'+plStepper(b+"lec", e.lec, 0, 2, "Lectern feeds")+plSubStep(b, e)+'</div>';
+    h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+plToggle(b+"band", e.band, "Band")+(d==="opa"?plToggle(b+"play", e.play, "OPA playback"):"")+plToggle(b+"ff", e.ff, "Front fill")+'</span></div>';
     h += '<div class="plrow"><span class="pllab">'+D.name+' in</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"deskIn", k, e.deskIn, ROOMNAME[k]); }).join("")+plSeg(b+"deskIn", "out", e.deskIn, "Not in the room")+'</span></div>';
-    if (e.subs && rooms.length > 1) h += '<div class="plrow"><span class="pllab">Subs from</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"subsFrom", k, e.subsFrom, ROOMNAME[k] + " wall patch"); }).join("")+'</span></div>';
+    if (e.subs && rooms.length > 1) h += '<div class="plrow"><span class="pllab">Subs on</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"subsFrom", k, e.subsFrom, ROOMNAME[k] + " wall patch"); }).join("")+'</span></div>';
     h += '<div class="plrow plwrap">'+(e.deskIn !== "out" ? plText(b+"pos", e.pos, "e.g. Pillar 2", D.name+" position (optional)", "pos") : "")+(e.deskIn === "out" && e.src!=="wall" ? plText(b+"wpBox", e.wpBox, "Wall point", "Stage box wall point", "wp") : "")+'</div>';
   });
   h += '<h2 class="plh">Foyer and external</h2><div class="plrow"><span class="pllab">Foyer</span><span class="plsegs">'+plSeg("foyer", "", p.foyer, "Off")+(desks.indexOf("opa")>=0?plSeg("foyer", "opa", p.foyer, "From OPA"):"")+plSeg("foyer", "bgm", p.foyer, "BGM player")+'</span></div>';
@@ -2381,7 +2396,7 @@ function plBody(p, tk, o){
   o = o || {}; if (!plDesks(p).length) return "";
   var P = plBuild(p), ticks = plLoadTicks()[tk] || {}, done = P.checks.filter(function(c){ return ticks[c.id]; }).length;
   var title = (p.name ? p.name + " · " : "") + P.events.map(function(ev){ return ev.D.name + " " + plRoomList(ev.rooms); }).join(" · ");
-  var h = '<section class="card best plsum"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">The plan</span><h2 class="btitle">'+esc(title)+'</h2><div class="bsub">'+esc(P.events.map(function(ev){ return (ev.sources.join(", ") || "No sources") + (ev.e.subs ? ", subs" : "") + (ev.e.ff ? ", front fill" : ""); }).join(" · "))+'</div></div>'+
+  var h = '<section class="card best plsum"><div class="bhead"><div><span class="tag" style="--k:var(--accent)">The plan</span><h2 class="btitle">'+esc(title)+'</h2><div class="bsub">'+esc(P.events.map(function(ev){ return (ev.sources.join(", ") || "No sources") + (ev.e.subs ? ", " + ev.e.subSets * 2 + " subs" : "") + (ev.e.ff ? ", front fill" : ""); }).join(" · "))+'</div></div>'+
     '<div class="bact">'+(o.share && canShare()?'<button class="btn" id="plshare">Share</button>':'')+'<button class="btn" id="plmap">Show on map</button></div></div>';
   P.warn.forEach(function(w){ h += '<p class="tip warn">'+esc(w)+'</p>'; });
   h += plDiagrams(p, {qty:o.qty}) + '<details class="plsteps"><summary>Step by step</summary>';
@@ -2431,7 +2446,7 @@ function planSet(path, v){
   var ks = path.split("."), o = PLAN;
   for (var i=0;i<ks.length-1;i++){ if (o[ks[i]] == null) o[ks[i]] = {}; o = o[ks[i]]; }
   var last = ks[ks.length-1];
-  o[last] = (/^(lec|pc|spare|band|play|subs|ff|ext)$/.test(last)) ? Number(v) : v;
+  o[last] = (/^(lec|pc|spare|band|play|subs|subSets|ff|ext)$/.test(last)) ? Number(v) : v;
   if (/^rooms\./.test(path)) PLAN.t = "";
   if (last === "stage") o.subsFrom = v;   // subs follow the stage unless changed afterwards
 }
@@ -2478,7 +2493,7 @@ function plGear(p){
     if (e.lec) add("lec", e.lec, e.lec === 2 ? "Lectern feeds (L + R)" : "Lectern feed", "XLR into " + into(e.lec === 2 ? [1, 2] : [1]));
     if (e.pc) add("pc", 1, "Stage PC feed", "Into " + into([3]));
     if (e.spare) add("spare", 1, "Spare line", "Into " + into([4]));
-    if (e.subs){ var sfk = e.subsFrom || e.stage, wpn = dgNums(plStep(plRoomRoutes(sfk).S, sfk, 0)); add("subs", 4, "750-LFC subs", "End-fire under the stage, " + st); add("loom", 1, "Stage loom", ROOMNAME[sfk] + " wall patch " + (dgNamed(sfk, "Out", wpn.length ? wpn : [1, 2]) || "out 1 + 2") + " to the subs"); }
+    if (e.subs){ var sfk = e.subsFrom || e.stage, SB = plSubs(e, sfk); add("subs", SB.n, "750-LFC subs", "End-fire under the stage, " + st); add("loom", 1, "Stage loom", ROOMNAME[sfk] + " wall patch " + SB.wpText + " to the subs"); }
     if (e.ff){ var ffo = dgNums(plStep(plRoute("Front Fill"), "gal2", 1)); add("ff", 2, "Front fill speakers", "Stage lip, " + st + " · Galaxy 2 " + (dgNamed("gal2", "Out", ffo.length ? ffo : [7]) || "Out 7")); }
   });
   if (p.foyer === "bgm") g.push({k:"bgm", qty:1, item:"BGM player", det:"Into the QL5 in AV2, for the foyer"});
@@ -2560,7 +2575,7 @@ function plDiagData(p, ev, o){
   if (D.direct){ qin = []; plDirectSrcs(e, rooms[0]).forEach(function(r){ qin = qin.concat(dgNums(plStep(r, "ql5"))); }); }
   else if (d !== "opa"){ var op = d === "opb" ? "B" : "C"; qin = []; ["L", "R", "Sub"].forEach(function(s){ qin = qin.concat(dgNums(plStep(plRoute("OP " + op + " " + s), "ql5"))); }); }
   var sf = e.subsFrom || st, RS = plRoomRoutes(sf).S, F = plRoute("Front Fill"), Y = plRoute("Foyer");
-  if (e.subs && RS){ if (d === "opa") qin = qin.concat(dgNums(plStep(RS, "ql5"))); omni = omni.concat(dgNums(plStep(RS, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(RS, "gal2"))); g2o = g2o.concat(dgNums(plStep(RS, "gal2", 1))); }
+  if (e.subs && RS){ if (d === "opa") qin = qin.concat(dgNums(plStep(RS, "ql5"))); omni = omni.concat(dgNums(plStep(RS, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(RS, "gal2"))); g2o = g2o.concat(plSubs(e, sf).g); }
   if (e.ff && F){ if (d === "opa") qin = qin.concat(dgNums(plStep(F, "ql5"))); omni = omni.concat(dgNums(plStep(F, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(F, "gal2"))); g2o = g2o.concat(dgNums(plStep(F, "gal2", 1))); }
   var foy = (p.foyer === "opa" && d === "opa") || (p.foyer === "bgm" && o.first);
   if (foy && Y){ if (p.foyer === "opa") qin = qin.concat(dgNums(plStep(Y, "ql5"))); rio = rio.concat(dgNums(plStep(Y, "rio"))); g1i = g1i.concat(dgNums(plStep(Y, "gal1"))); g1o = g1o.concat(dgNums(plStep(Y, "gal1", 1))); }
@@ -2585,9 +2600,9 @@ function plDiagData(p, ev, o){
     N("gal2", 4, "gal", "Galaxy 2", [dgNamed("gal2", "In", g2i), dgNamed("gal2", "Out", g2o)], g2);
     E(QA, "gal2", "Omni " + dgRange(omni) + " · XLR");
     if (e.subs){
-      var wp = plStep(RS, sf, 0) || "Wall patch out 1 + 2";
-      N("wp", 5, "room", ROOMNAME[sf] + " wall patch", [dgNamed(sf, "Out", dgNums(wp)) || cap(wp.replace(/^wall patch\s*/i, ""))], ["subs"]);
-      N("subs", 6, "spk", (q[d + ".subs"] != null ? q[d + ".subs"] : 4) + " × 750-LFC", ["End-fire under the stage"], ["subs"]);
+      var SBd = plSubs(e, sf);
+      N("wp", 5, "room", ROOMNAME[sf] + " wall patch", [SBd.wpText], ["subs"]);
+      N("subs", 6, "spk", (q[d + ".subs"] != null ? q[d + ".subs"] : SBd.n) + " × 750-LFC", ["End-fire under the stage"], ["subs"]);
       E("gal2", "wp", "Hardline"); E("wp", "subs", "Stage loom");
     }
     if (e.ff){ var nff = q[d + ".ff"] != null ? q[d + ".ff"] : 2; N("ff", 6, "spk", "Front fill" + (nff ? " × " + nff : ""), ["Stage lip", "From Galaxy 2 " + dgNamed("gal2", "Out", dgNums(plStep(F, "gal2", 1)))], ["ff"]); E("gal2", "ff", "Speaker line"); }
