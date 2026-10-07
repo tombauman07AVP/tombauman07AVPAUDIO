@@ -2274,7 +2274,7 @@ function plChecks(p, out){
 function plSeg(path, val, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+esc(val)+'" aria-pressed="'+(String(cur)===String(val))+'">'+esc(label)+'</button>'; }
 function plToggle(path, cur, label){ return '<button class="fchip" data-pl="'+path+'" data-v="'+(cur?0:1)+'" aria-pressed="'+(!!cur)+'">'+esc(label)+'</button>'; }
 function plStepper(path, val, min, max, label){ return '<span class="plstep"><span class="pllab">'+esc(label)+'</span><button class="btn" data-pl="'+path+'" data-v="'+Math.max(min,val-1)+'" aria-label="Fewer '+esc(label)+'"'+(val<=min?' disabled':'')+'>−</button><b>'+val+'</b><button class="btn" data-pl="'+path+'" data-v="'+Math.min(max,val+1)+'" aria-label="More '+esc(label)+'"'+(val>=max?' disabled':'')+'>+</button></span>'; }
-function plText(path, val, ph, label){ return '<label class="pltext"><span class="pllab">'+esc(label)+'</span><input class="fi" data-plf="'+path+'" value="'+esc(val)+'" placeholder="'+esc(ph)+'" autocomplete="off"></label>'; }
+function plText(path, val, ph, label, list){ return '<label class="pltext"><span class="pllab">'+esc(label)+'</span><input class="fi" data-plf="'+path+'" value="'+esc(val)+'" placeholder="'+esc(ph)+'"'+(list ? ' list="dl-'+list+'"' : '')+' autocomplete="off"></label>'; }
 function planMode(){ var q = routeParts().q; return q.e ? "edit" : (q.p != null ? "quick" : "list"); }
 function viewPlan(){ var m = planMode(); return m === "edit" ? viewEventEdit() : (m === "quick" ? viewQuickPlan() : viewEvents()); }
 // the routing builder (templates, rooms and desks, per-desk settings, foyer and external)
@@ -2282,7 +2282,7 @@ function planForm(p, withName){
   var used = {}, all = evAll(); Object.keys(all).forEach(function(k){ var tt = all[k] && all[k].plan && all[k].plan.t; if (tt) used[tt] = (used[tt] || 0) + 1; });
   var tpls = PL_TEMPLATES.slice().sort(function(a, b){ return (used[b[0]] || 0) - (used[a[0]] || 0); }), anyUsed = Object.keys(used).length > 0;
   var h = '<p class="qlabel">Start from'+(anyUsed ? '<small>most used first</small>' : '')+'</p><div class="qchips">' + tpls.map(function(t){ return '<button class="fchip" data-pltpl="'+t[0]+'" aria-pressed="'+(p.t===t[0])+'"'+(used[t[0]] ? ' title="Used for '+used[t[0]]+' saved event'+(used[t[0]]===1?'':'s')+'"' : '')+'>'+esc(t[1])+'</button>'; }).join("") + '</div>';
-  h += '<div class="plform card">' + (withName ? '<div class="plrow">'+plText("name", p.name, "e.g. Smith Co. conference", "Event name")+'</div>' : '');
+  h += '<div class="plform card">' + (withName ? evDataLists() : '') + (withName ? '<div class="plrow">'+plText("name", p.name, "e.g. Smith Co. conference", "Event name")+'</div>' : '');
   h += '<h2 class="plh">Rooms and desks</h2>';
   PL_ROOMS.forEach(function(k){ h += '<div class="plrow"><span class="plroom">'+ROOMNAME[k]+'</span><span class="plsegs">'+plSeg("rooms."+k, "", p.rooms[k], "Off")+plSeg("rooms."+k, "opa", p.rooms[k], "OPA")+plSeg("rooms."+k, "opb", p.rooms[k], "OPB")+plSeg("rooms."+k, "opc", p.rooms[k], "OPC")+'</span></div>'; });
   var desks = plDesks(p);
@@ -2296,7 +2296,7 @@ function planForm(p, withName){
     h += '<div class="plrow"><span class="plsegs">'+plToggle(b+"pc", e.pc, "Stage PC")+plToggle(b+"spare", e.spare, "Spare")+plToggle(b+"band", e.band, "Band")+(d==="opa"?plToggle(b+"play", e.play, "OPA playback"):"")+plToggle(b+"subs", e.subs, "Subs under stage")+plToggle(b+"ff", e.ff, "Front fill")+'</span></div>';
     h += '<div class="plrow"><span class="pllab">'+D.name+' in</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"deskIn", k, e.deskIn, ROOMNAME[k]); }).join("")+plSeg(b+"deskIn", "out", e.deskIn, "Not in the room")+'</span></div>';
     if (e.subs && rooms.length > 1) h += '<div class="plrow"><span class="pllab">Subs from</span><span class="plsegs">'+rooms.map(function(k){ return plSeg(b+"subsFrom", k, e.subsFrom, ROOMNAME[k] + " wall patch"); }).join("")+'</span></div>';
-    h += '<div class="plrow plwrap">'+(e.deskIn !== "out" ? plText(b+"pos", e.pos, "e.g. Pillar 2", D.name+" position (optional)") : "")+(e.deskIn === "out" && e.src!=="wall" ? plText(b+"wpBox", e.wpBox, "Wall point", "Stage box wall point") : "")+'</div>';
+    h += '<div class="plrow plwrap">'+(e.deskIn !== "out" ? plText(b+"pos", e.pos, "e.g. Pillar 2", D.name+" position (optional)", "pos") : "")+(e.deskIn === "out" && e.src!=="wall" ? plText(b+"wpBox", e.wpBox, "Wall point", "Stage box wall point", "wp") : "")+'</div>';
   });
   h += '<h2 class="plh">Foyer and external</h2><div class="plrow"><span class="pllab">Foyer</span><span class="plsegs">'+plSeg("foyer", "", p.foyer, "Off")+(desks.indexOf("opa")>=0?plSeg("foyer", "opa", p.foyer, "From OPA"):"")+plSeg("foyer", "bgm", p.foyer, "BGM player")+'</span></div>';
   h += '<div class="plrow"><span class="plsegs">'+plToggle("ext", p.ext, "External AV team")+'</span></div></div>';
@@ -2602,7 +2602,7 @@ function evStr(v, n){ return String(v == null ? "" : v).slice(0, n); }
 function evNorm(o){
   o = o && typeof o === "object" ? o : {};
   var t = o.times && typeof o.times === "object" ? o.times : {}, times = {};
-  EV_TIMES.forEach(function(x){ var v = evStr(t[x[0]], 5); times[x[0]] = /^\d{2}:\d{2}$/.test(v) ? v : ""; });
+  EV_TIMES.forEach(function(x){ var v = evStr(t[x[0]], 5); times[x[0]] = /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : ""; });
   var plan = plFromObj(o.plan) || plNormalise(plTemplate("conf"));
   var e = {
     id: /^[a-z0-9]{4,24}$/.test(o.id || "") ? o.id : evId(),
@@ -2643,7 +2643,7 @@ function evGearEdit(){
       '<span class="gi"><b>' + esc(r.item) + '</b><small>' + esc(r.det) + (q !== r.qty ? ' · usually ' + r.qty : '') + '</small></span></div>';
   }).join("");
   h += '<p class="pllab" style="margin:14px 0 6px">Extra gear</p>';
-  h += e.gear.extra.map(function(x, i){ return '<div class="gq gx"><input class="fi gxq" type="number" min="0" max="999" inputmode="numeric" data-evx="' + i + '.qty" value="' + x.qty + '" aria-label="How many"><input class="fi" data-evx="' + i + '.item" value="' + esc(x.item) + '" placeholder="e.g. Lectern, mic stands" aria-label="Item" autocomplete="off"><button class="btn" data-evxdel="' + i + '" aria-label="Remove this item">✕</button></div>'; }).join("");
+  h += e.gear.extra.map(function(x, i){ return '<div class="gq gx"><input class="fi gxq" type="number" min="0" max="999" inputmode="numeric" data-evx="' + i + '.qty" value="' + x.qty + '" aria-label="How many"><input class="fi" data-evx="' + i + '.item" value="' + esc(x.item) + '" placeholder="e.g. Lectern, mic stands" aria-label="Item" list="dl-gear" autocomplete="off"><button class="btn" data-evxdel="' + i + '" aria-label="Remove this item">✕</button></div>'; }).join("");
   return h + '<p style="margin:8px 0 0"><button class="btn" data-evxadd>Add an item</button></p>';
 }
 function evSetExtra(path, v){
@@ -2711,12 +2711,45 @@ function viewEvents(){
   return h;
 }
 
+/* dropdown choices: times every 15 minutes, and suggestions drawn from past events */
+function evTimeOpts(){   // 5:00am through to 4:45am the next morning, so the usual hours come first
+  var o = [];
+  for (var i = 0; i < 96; i++){ var m = (5 * 60 + i * 15) % 1440, hh = ("0" + Math.floor(m / 60)).slice(-2), mm = ("0" + (m % 60)).slice(-2); o.push(hh + ":" + mm); }
+  return o;
+}
+function evTimeSelect(attrs, val){
+  var o = evTimeOpts(), odd = val && o.indexOf(val) < 0;   // an old or imported time that isn't on the 15-minute list is kept, not lost
+  return '<select class="fi"' + attrs + '><option value="">Not set</option>' + (odd ? '<option value="' + esc(val) + '" selected>' + evTime(val) + '</option>' : '') +
+    o.map(function(t){ return '<option value="' + t + '"' + (t === val ? ' selected' : '') + '>' + evTime(t) + '</option>'; }).join("") + '</select>';
+}
+var EV_GEAR_IDEAS = ["Lectern", "Lectern mic (gooseneck)", "Handheld mic", "Radio handheld mic", "Radio lapel mic", "Radio headset mic", "Mic stand (boom)", "Mic stand (round base)", "Table mic stand", "DI box", "XLR lead (10 m)", "XLR lead (5 m)", "Laptop playback lead", "Speaker stand", "Foldback wedge", "Power board", "Gaffer tape"];
+function evSuggest(fn, extra){   // distinct values already used in saved events, most used first, then any built-in ideas
+  var n = {}, all = evAll();
+  Object.keys(all).forEach(function(k){ var e = all[k]; if (e && typeof e === "object") fn(e).forEach(function(v){ v = String(v == null ? "" : v).trim(); if (v) n[v] = (n[v] || 0) + 1; }); });
+  var out = Object.keys(n).sort(function(a, b){ return n[b] - n[a] || (a < b ? -1 : 1); });
+  (extra || []).forEach(function(v){ if (out.indexOf(v) < 0) out.push(v); });
+  return out.slice(0, 40);
+}
+function evDataLists(){
+  var names = function(e){ var v = []; String(e.techs || "").split(",").forEach(function(x){ x = x.trim(); if (x) v.push(x); }); return v; };
+  var lists = {
+    client: evSuggest(function(e){ return [e.client]; }),
+    techs: evSuggest(function(e){ return [e.techs].concat(names(e)); }),
+    contact: evSuggest(function(e){ return [e.contact]; }),
+    pos: evSuggest(function(e){ var o = []; Object.keys((e.plan && e.plan.ev) || {}).forEach(function(d){ o.push(e.plan.ev[d] && e.plan.ev[d].pos); }); return o; }, ["Pillar 1", "Pillar 2", "Pillar 3", "Pillar 4", "Back of room", "Side wall"]),
+    wp: evSuggest(function(e){ var o = []; Object.keys((e.plan && e.plan.ev) || {}).forEach(function(d){ o.push(e.plan.ev[d] && e.plan.ev[d].wpBox); }); return o; }),
+    gear: evSuggest(function(e){ return ((e.gear && e.gear.extra) || []).map(function(x){ return x && x.item; }); }, EV_GEAR_IDEAS)
+  };
+  return Object.keys(lists).map(function(k){ return '<datalist id="dl-' + k + '">' + lists[k].map(function(v){ return '<option value="' + esc(v) + '">'; }).join("") + '</datalist>'; }).join("");
+}
+
 /* the editor: details + the routing builder */
 function evField(path, label, val, o){
   o = o || {};
   var a = ' data-evf="'+path+'" aria-label="'+esc(label)+'"';
   var input = o.area ? '<textarea class="fi" rows="6"'+a+' placeholder="'+esc(o.ph||"")+'">'+esc(val)+'</textarea>'
-    : '<input class="fi" type="'+(o.type||"text")+'"'+a+' value="'+esc(val)+'"'+(o.ph ? ' placeholder="'+esc(o.ph)+'"' : '')+(o.type==="tel" ? ' inputmode="tel"' : '')+' autocomplete="off">';
+    : o.type === "time" ? evTimeSelect(a, val)
+    : '<input class="fi" type="'+(o.type||"text")+'"'+a+' value="'+esc(val)+'"'+(o.ph ? ' placeholder="'+esc(o.ph)+'"' : '')+(o.type==="tel" ? ' inputmode="tel"' : '')+(o.list ? ' list="dl-'+o.list+'"' : '')+' autocomplete="off">';
   return '<label class="pltext'+(o.wide ? ' evwide' : '')+'"><span class="pllab">'+esc(label)+'</span>'+input+'</label>';
 }
 function viewEventEdit(){
@@ -2725,13 +2758,13 @@ function viewEventEdit(){
   if (!canEdit()) return '<p class="crumb"><a href="#plan">← Events</a></p><h1>Event</h1><div class="card empty">Only editors can create or change events.'+(isNew ? '' : ' <a href="#event-'+e.id+'">Open the event</a>.')+'</div>';
   var h = '<p class="crumb"><a href="'+(isNew ? '#plan">← Events' : '#event-'+e.id+'">← Back to the event')+'</a></p><h1>'+(isNew ? 'New event' : 'Edit event')+'</h1>';
   h += '<p class="lede">Fill in what the techs need to know, set up the routing, then save. Everyone signed in can open it.</p>';
-  h += '<div class="card evform">';
+  h += '<div class="card evform">' + evDataLists();
   h += evField("name", "Event name", e.name, {wide:1, ph:"e.g. Smith Co. conference"});
   h += evField("date", "Date", e.date, {type:"date"});
   h += '<div class="pltext"><span class="pllab">Status</span><span class="plsegs">'+EV_STATUS.map(function(s){ return '<button class="fchip" data-evset="status" data-v="'+s[0]+'" aria-pressed="'+(e.status===s[0])+'">'+s[1]+'</button>'; }).join("")+'</span></div>';
-  h += evField("client", "Client or organiser", e.client, {ph:"e.g. Smith Co."});
-  h += evField("techs", "Techs on the day", e.techs, {ph:"e.g. Sam (lead), Jess"});
-  h += evField("contact", "On-site contact", e.contact, {ph:"Name"});
+  h += evField("client", "Client or organiser", e.client, {ph:"e.g. Smith Co.", list:"client"});
+  h += evField("techs", "Techs on the day", e.techs, {ph:"e.g. Sam (lead), Jess", list:"techs"});
+  h += evField("contact", "On-site contact", e.contact, {ph:"Name", list:"contact"});
   h += evField("phone", "Their phone", e.phone, {type:"tel", ph:"e.g. 0400 000 000"});
   h += '<div class="evtimesin evwide">'+EV_TIMES.map(function(x){ return evField("times."+x[0], x[1], e.times[x[0]], {type:"time"}); }).join("")+'</div>';
   h += evField("notes", "Run sheet and notes", e.notes, {wide:1, area:1, ph:"Session times, presenters, playback, anything the techs need to know"});
