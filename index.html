@@ -636,13 +636,13 @@ body.kb .evbar{position:static;box-shadow:none}
 .dg .src .bx{fill:rgba(255,255,255,.07)}
 .dg .ac{fill:none;stroke-width:3;stroke-linecap:round;stroke:var(--room)}
 .dg .send .bx{stroke:var(--ql);stroke-width:1.4;stroke-dasharray:6 3}.dg .k-ql .ac{stroke:var(--ql)}.dg .k-rio .ac{stroke:var(--rio)}.dg .k-gal .ac{stroke:var(--gal)}.dg .k-spk .ac{stroke:var(--spk)}
-.dg .tt{fill:var(--ink);font:600 13px var(--f-body)}
-.dg .st{fill:var(--muted);font:500 11px var(--f-body)}
-.dg .ct{fill:var(--ink);font:500 11px var(--f-body)}
+.dg .tt{fill:var(--ink);font:600 15px var(--f-body)}
+.dg .st{fill:var(--muted);font:500 13px var(--f-body)}
+.dg .ct{fill:var(--ink);font:500 13px var(--f-body)}
 .dg .ed{fill:none;stroke:var(--wire);stroke-width:1.4}
 .dg .ed.dante{stroke:var(--dante);stroke-dasharray:5 3}
 .dg .ah{fill:var(--wire)}.dg .ah.dante{fill:var(--dante)}
-.dg .lb{fill:var(--muted);font:700 9px var(--f-display);letter-spacing:.08em;paint-order:stroke;stroke:#0E1526;stroke-width:3px;stroke-linejoin:round}
+.dg .lb{fill:var(--muted);font:700 10.5px var(--f-display);letter-spacing:.08em;paint-order:stroke;stroke:#0E1526;stroke-width:3px;stroke-linejoin:round}
 .dgkey{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 0 0}
 .dgkey span{display:inline-block;width:22px;height:0;border-top:2px solid var(--wire);margin-right:-8px;vertical-align:middle}
 .dgkey .k1{border-top:2px dashed var(--dante)}
@@ -686,11 +686,11 @@ body.kb .evbar{position:static;box-shadow:none}
 #printsheet .dg .bx{fill:#fff;stroke:#777;stroke-width:.9}
 #printsheet .dg .k-ql .bx{fill:#FFF5EC}#printsheet .dg .k-rio .bx{fill:#EEF4FF}#printsheet .dg .k-gal .bx{fill:#EEF8EE}#printsheet .dg .k-spk .bx{fill:#F5EFFC}#printsheet .dg .src .bx{fill:#F2F2F2}
 #printsheet .dg .send .bx{stroke:#D9772B;stroke-width:1.2;stroke-dasharray:6 3}#printsheet .dg .ac{stroke:#888}#printsheet .dg .k-ql .ac{stroke:#D9772B}#printsheet .dg .k-rio .ac{stroke:#2F6FD6}#printsheet .dg .k-gal .ac{stroke:#3A9A45}#printsheet .dg .k-spk .ac{stroke:#8C55D6}
-#printsheet .dg .tt{fill:#000;font:bold 13px Arial,Helvetica,sans-serif}
-#printsheet .dg .st,#printsheet .dg .ct{fill:#333;font:11px Arial,Helvetica,sans-serif}
+#printsheet .dg .tt{fill:#000;font:bold 15px Arial,Helvetica,sans-serif}
+#printsheet .dg .st,#printsheet .dg .ct{fill:#333;font:13px Arial,Helvetica,sans-serif}
 #printsheet .dg .ed{stroke:#333}#printsheet .dg .ed.dante{stroke:#1677A8}
 #printsheet .dg .ah{fill:#333}#printsheet .dg .ah.dante{fill:#1677A8}
-#printsheet .dg .lb{fill:#555;font:bold 8.5px Arial,Helvetica,sans-serif;stroke:#fff}
+#printsheet .dg .lb{fill:#555;font:bold 10px Arial,Helvetica,sans-serif;stroke:#fff}
 #printsheet .dgkey{color:#444;font-size:8pt;margin-top:6pt}
 #printsheet .dgkey span{border-top-color:#333}#printsheet .dgkey .k1{border-top-color:#1677A8}
 #printsheet footer{margin-top:8pt;padding-top:3pt;border-top:.75pt solid #bbb;font-size:7.5pt;color:#666}
@@ -1490,7 +1490,7 @@ var SYMTIP = {
 // the QL5 outputs for a wall patch source's room, e.g. "Room 1 L/R (Out 1–2)"
 function srcRoomOuts(r){
   var k = r && r.group; if (!ROOMNUM[k]) return "";
-  var R = plRoomRoutes(k), nums = [R.L, R.R].filter(Boolean).map(function(x){ return dgNums(plStep(x, "ql5", 1))[0]; }).filter(function(n){ return n != null; });
+  var R = plRoomRoutes(k), nums = [R.L, R.R, R.S].filter(Boolean).map(function(x){ return dgNums(plStep(x, "ql5", 1))[0]; }).filter(function(n){ return n != null; });
   return dgNamed("ql5", "Out", nums);
 }
 function checksFor(rs){
@@ -2074,8 +2074,12 @@ function plWallLine(r, k){
 // a room run from the QL5: its inputs, and the QL5 outputs each input has to be sent to (its own room, plus any room it also plays in)
 function plSends(e, qk){
   var srcs = plDirectSrcs(e, qk), qNums = [].concat.apply([], srcs.map(function(r){ return dgNums(plStep(r, "ql5")); }));
-  var rms = [qk].concat(e.also || []), outs = [].concat.apply([], rms.map(function(k){ var R = plRoomRoutes(k); return [R.L, R.R].filter(Boolean).map(function(r){ return dgNums(plStep(r, "ql5", 1))[0]; }).filter(function(n){ return n != null; }); }));
-  return {srcs:srcs, qNums:qNums, rooms:rms, outs:outs, outsText:dgNamed("ql5", "Out", outs), inText:dgNamed("ql5", "In", qNums)};
+  var rms = [qk].concat(e.also || []), outs = [], labels = [];
+  rms.forEach(function(k, i){
+    var R = plRoomRoutes(k), n = ROOMNUM[k];
+    [[R.L, "L"], [R.R, "R"], [i === 0 && e.subs ? R.S : null, "subs"]].forEach(function(x){ var o = x[0] ? dgNums(plStep(x[0], "ql5", 1))[0] : null; if (o != null){ outs.push(o); labels.push("Room " + n + " " + x[1]); } });   // L, R and (this room only) the subs
+  });
+  return {srcs:srcs, qNums:qNums, rooms:rms, outs:outs, labels:labels, outsText:dgNamed("ql5", "Out", outs), inText:dgNamed("ql5", "In", qNums)};
 }
 var PL_SRC = {sr1:"Stage Rack A", sr2:"Stage Rack B", sr3:"Stage Rack C", wall:"Room wall patch (via AV2 Rio)"};
 function plEv(o){ return Object.assign({stage:"", src:"sr1", lec:2, pc:1, spare:1, band:0, play:0, subs:1, subSets:1, ff:0, pos:"", wpBox:"", deskIn:"", subsFrom:"", also:[]}, o || {}); }
@@ -2171,7 +2175,7 @@ function plBuild(p){
     var box = e.src==="wall" ? null : PL_SRC[e.src], where = e.deskIn === "out" ? "wall point " + (e.wpBox || "(pick one)") : "Dante";
     // wall patch sources: one patch row per input, and a short flow line
     function wallPatch(srcs, k, onward){
-      ev.flow.push([ROOMNAME[k] + " wall patch", "room", srcs.length ? srcs.map(function(r){ return r.sig + " (" + plWallPort(r, k) + ")"; }).join(" · ") : "In 1–4"]);
+      ev.flow.push([ROOMNAME[k] + " wall patch", "room", srcs.length ? srcs.map(function(r){ return r.sig + " (" + plWallPort(r, k) + ")"; }).join(" · ") : "In 2–5"]);
       var rioN = [].concat.apply([], srcs.map(function(r){ return dgNums(plStep(r, "rio")); })), qlN = [].concat.apply([], srcs.map(function(r){ return dgNums(plStep(r, "ql5")); }));
       ev.flow.push(["AV2 Rio", "rio", (rioN.length ? "In " + dgRange(rioN) : "Room loom") + " → Dante" + (onward === "QL5" ? " → QL5" + (qlN.length ? " In " + dgRange(qlN) : "") : (onward ? " → " + onward : ""))]);
       srcs.forEach(function(r){ ev.patch.push([r.sig, ROOMNAME[k] + " wall patch " + plWallPort(r, k), plStep(r, "rio") ? "AV2 Rio " + plStep(r, "rio") + (plStep(r, "ql5") && onward === "QL5" ? " → QL5 " + plStep(r, "ql5") : "") : ""]); });
@@ -2210,9 +2214,10 @@ function plBuild(p){
       var qk = rooms[0], SD = plSends(e, qk), srcs = SD.srcs, qNums = SD.qNums;
       ev.flow.push(["Sources", "room", sources.join(" · ") || "None"]);
       wallPatch(srcs, qk, "QL5");
-      ev.flow.push(["QL5 sends (by hand)", "ql", srcs.length ? SD.inText + ": send ON and up to " + SD.outsText : "No inputs on"]);
+      ev.flow.push(["QL5 · Inputs", "ql", srcs.length ? srcs.map(function(r){ return "Input " + dgNums(plStep(r, "ql5"))[0] + " (" + r.sig + ")"; }).join(" · ") : "No inputs on"]);
+      if (srcs.length) ev.flow.push(["QL5: Sends", "ql", "Every input on for sends (" + SD.labels.join(", ") + ")"]);
       ev.desk.push(["QL5 · no desk", ROOMNAME[qk] + " is mixed on the QL5. An input only plays where you switch its send on."]);
-      if (srcs.length) ev.desk.push(["QL5 sends", SD.inText + ": send ON and up to " + SD.outsText + "."]);
+      srcs.forEach(function(r){ ev.desk.push(["Input " + dgNums(plStep(r, "ql5"))[0] + " (" + r.sig + ")", "On for sends (" + SD.labels.join(", ") + ")"]); });
       if (SD.rooms.length > 1) ev.desk.push(["Also plays in", plRoomList(SD.rooms.slice(1)) + ": switch each send on to that room’s outputs too."]);
       out.warn.push(ROOMNAME[qk] + " has no desk: set every QL5 send by hand, then check each one. The default sends aren’t in the notes.");
       ev.qNums = qNums; ev.sends = SD;
@@ -2516,7 +2521,7 @@ function dgWrap(s, font, w){
   if (cur0) lines.push(cur0);
   return lines;
 }
-var DG_TF = "600 13px Arial, Helvetica, sans-serif", DG_SF = "500 11px Arial, Helvetica, sans-serif";
+var DG_TF = "600 15px Arial, Helvetica, sans-serif", DG_SF = "500 13px Arial, Helvetica, sans-serif", DG_TL = 18, DG_SL = 16;
 // what goes in each box, from the plan and the site data
 function plDiagData(p, ev, o){
   var d = ev.d, e = ev.e, D = ev.D, rooms = ev.rooms, st = e.stage, box = e.src === "wall" ? null : PL_SRC[e.src], q = o.qty || {};
@@ -2530,7 +2535,7 @@ function plDiagData(p, ev, o){
   if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4);
   ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); });
   if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks A + B" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st], ins.length ? dgNamed(e.src, "In", ins) : ""]);
-  else { var wsD = plDirectSrcs(e, st); N("in", 1, "room", ROOMNAME[st] + " wall patch", wsD.length ? wsD.map(function(r){ return r.sig + " · wall " + String(plStep(r, st)).replace(/^Wall patch\s*/i, "") + " → Rio " + plStep(r, "rio") + (plStep(r, "ql5") ? " → QL5 " + plStep(r, "ql5") : ""); }).concat(["Room loom → AV2 Rio → Dante"]) : [ins.length ? dgNamed(st, "In", ins) : "", "Room loom → AV2 Rio"]); }
+  else { var wsD = plDirectSrcs(e, st); G.srcLabel = "Wall loom"; N("in", 1, "room", ROOMNAME[st] + " wall patch", wsD.length ? wsD.map(function(r){ return r.sig + " · wall " + plWallPort(r, st); }) : [ins.length ? dgNamed(st, "In", ins) : ""]); }
   // the desk (none for a room run from the QL5)
   var dsub = [];
   if (D.direct){ /* no desk box */ }
@@ -2561,12 +2566,13 @@ function plDiagData(p, ev, o){
   if (e.ff && F){ if (d === "opa") qin = qin.concat(dgNums(plStep(F, "ql5"))); omni = omni.concat(dgNums(plStep(F, "ql5", 2))); g2i = g2i.concat(dgNums(plStep(F, "gal2"))); g2o = g2o.concat(dgNums(plStep(F, "gal2", 1))); }
   var foy = (p.foyer === "opa" && d === "opa") || (p.foyer === "bgm" && o.first);
   if (foy && Y){ if (p.foyer === "opa") qin = qin.concat(dgNums(plStep(Y, "ql5"))); rio = rio.concat(dgNums(plStep(Y, "rio"))); g1i = g1i.concat(dgNums(plStep(Y, "gal1"))); g1o = g1o.concat(dgNums(plStep(Y, "gal1", 1))); }
-  N("ql5", 3, "ql", "QL5 · AV2", [dgNamed("ql5", "In", qin), D.direct ? "Mixes this room, no desk" : "Fixed routing"]);
+  if (D.direct) N("ql5", 3, "ql", "QL5 · Inputs", plDirectSrcs(e, rooms[0]).map(function(r){ return "Input " + dgNums(plStep(r, "ql5"))[0] + " (" + r.sig + ")"; }).concat(plDirectSrcs(e, rooms[0]).length ? [] : ["No inputs on"]));
+  else N("ql5", 3, "ql", "QL5 · AV2", [dgNamed("ql5", "In", qin), "Fixed routing"]);
   var QA = "ql5";
   if (D.direct){
     E("in", "ql5", "AV2 Rio · Dante", "dante");
     var SDd = plSends(e, rooms[0]);
-    if (SDd.srcs.length){ N("qsend", 3.5, "ql send", "QL5: set the sends by hand", ["Every input (In " + dgRange(SDd.qNums) + "): send ON and up to", SDd.outsText + (SDd.rooms.length > 1 ? " · " + plRoomList(SDd.rooms) : ""), "Input by input: it only plays where its send is on"]); E("ql5", "qsend", "", "an"); QA = "qsend"; }
+    if (SDd.srcs.length){ N("qsend", 3.5, "ql send", "QL5: Sends", SDd.srcs.map(function(r){ return "Input " + dgNums(plStep(r, "ql5"))[0] + " (" + r.sig + ") - on for sends (" + SDd.labels.join(", ") + ")"; })); E("ql5", "qsend", "", "an"); QA = "qsend"; }
   } else E("desk", "ql5", "Dante", "dante");
   if (p.foyer === "bgm" && o.first) N("bgm", 3, "room", "BGM player", ["Into QL5 " + (dgNamed("ql5", "In", [8]) || "In 8")], "left");
   if (p.ext && o.first) N("ext", 3, "room", "External team", ["AV2 Rio In 13–16 → QL5", dgNamed("ql5", "In", [1, 2, 3, 4])], "right");
@@ -2604,18 +2610,18 @@ function plDiagram(p, ev, o){
     if (nd.span === "left"){ w = SW; x = PAD; }
     else if (nd.span === "right"){ w = SW; x = W - PAD - SW; }
     else if (nd.span){ x = colX(nd.span[0]); w = colX(nd.span[nd.span.length - 1]) + cw - x; }
-    else { w = sideRow[nd.row] ? 334 : 420; x = (W - w) / 2; }
+    else { w = sideRow[nd.row] ? 334 : 500; x = (W - w) / 2; }
     nd.x = x; nd.w = w;
     nd.tl = dgWrap(nd.t, DG_TF, w - 24); nd.sl = [];
     nd.s.forEach(function(s){ nd.sl = nd.sl.concat(dgWrap(s, DG_SF, w - 24)); });
-    nd.h = 9 + nd.tl.length * 16 + nd.sl.length * 13 + 6;
+    nd.h = 10 + nd.tl.length * DG_TL + nd.sl.length * DG_SL + 6;
     (rows[nd.row] = rows[nd.row] || []).push(nd);
   });
   var y = PAD, chips = [], rowY = {}, rowH = {};
   if (G.src.length){
-    var cwds = G.src.map(function(s){ return dgWidth(s, DG_SF) + 22; }), tot = cwds.reduce(function(a, b){ return a + b; }, 0) + (G.src.length - 1) * 10, cx = (W - tot) / 2;
+    var cwds = G.src.map(function(s){ return dgWidth(s, DG_SF) + 24; }), tot = cwds.reduce(function(a, b){ return a + b; }, 0) + (G.src.length - 1) * 10, cx = (W - tot) / 2;
     G.src.forEach(function(s, i){ chips.push({t:s, x:cx, w:cwds[i], y:y, h:24}); cx += cwds[i] + 10; });
-    y += 24 + VG - 6;
+    y += 24 + VG + 2;
   }
   Object.keys(rows).map(Number).sort(function(a, b){ return a - b; }).forEach(function(r){
     var h = Math.max.apply(null, rows[r].map(function(nd){ return nd.h; }));
@@ -2640,7 +2646,7 @@ function plDiagram(p, ev, o){
   }
   // sources converge on the stage box
   var inN = nodes["in"];
-  chips.forEach(function(c, i){ edge(c.x + c.w / 2, c.y + c.h, inN.x + inN.w / 2, inN.y, "an", i === chips.length - 1 ? (inN.kind === "rio" ? "XLR" : "") : ""); });
+  chips.forEach(function(c, i){ edge(c.x + c.w / 2, c.y + c.h, inN.x + inN.w / 2, inN.y, "an", i === chips.length - 1 ? (G.srcLabel != null ? G.srcLabel : (inN.kind === "rio" ? "XLR" : "")) : ""); });
   G.edges.forEach(function(ed){
     var a = nodes[ed.a], b = nodes[ed.b]; if (!a || !b) return;
     edge(a.x + a.w / 2, a.y + a.h, b.x + b.w / 2, b.y, ed.k, ed.l);
@@ -2652,8 +2658,8 @@ function plDiagram(p, ev, o){
   Object.keys(nodes).forEach(function(k){
     var nd = nodes[k], ty = nd.y + 9 + 12;
     s += '<g class="nd k-' + nd.kind + '"><rect class="bx" x="' + nd.x + '" y="' + nd.y + '" width="' + nd.w + '" height="' + nd.h + '" rx="9"/><path class="ac" d="M' + (nd.x + 1.5) + ' ' + (nd.y + 8) + ' V' + (nd.y + nd.h - 8) + '"/>';
-    nd.tl.forEach(function(l, i){ s += '<text class="tt" x="' + (nd.x + 14) + '" y="' + (ty + i * 16) + '">' + esc(l) + '</text>'; });
-    nd.sl.forEach(function(l, i){ s += '<text class="st" x="' + (nd.x + 14) + '" y="' + (ty + nd.tl.length * 16 + 1 + i * 13) + '">' + esc(l) + '</text>'; });
+    nd.tl.forEach(function(l, i){ s += '<text class="tt" x="' + (nd.x + 14) + '" y="' + (ty + i * DG_TL) + '">' + esc(l) + '</text>'; });
+    nd.sl.forEach(function(l, i){ s += '<text class="st" x="' + (nd.x + 14) + '" y="' + (ty + nd.tl.length * DG_TL + 1 + i * DG_SL) + '">' + esc(l) + '</text>'; });
     s += '</g>';
   });
   lbls.forEach(function(l){ s += '<text class="lb" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.a + '">' + esc(String(l.t).toUpperCase()) + '</text>'; });
