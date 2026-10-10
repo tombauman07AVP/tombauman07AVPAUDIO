@@ -152,9 +152,9 @@ svg.routing .halo.ron{opacity:1}
 @keyframes drip{0%{top:10px;opacity:0}8%{opacity:1}90%{opacity:1}100%{top:calc(100% - 18px);opacity:0}}
 .fstep{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;padding:7px 0}
 .fdot{width:14px;height:14px;border-radius:50%;border:2px solid var(--k);background:#0B1121;margin-top:2px;position:relative;z-index:1;box-shadow:0 0 0 3px var(--kb)}
-.fnode{font:700 11px var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:var(--k);text-decoration:none}
+.fnode{display:block;text-align:center;font:700 11px var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:var(--k);text-decoration:none}
 a.fnode:hover{text-decoration:underline}
-.fvals{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.fvals{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}
 .lv{display:inline-flex;align-items:baseline;gap:7px;padding:3px 10px;border-radius:7px;background:var(--kb);border:1px solid var(--line);border-color:color-mix(in srgb,var(--k) 35%,transparent);font:600 14px var(--f-body)}
 .lv i{font:700 10px var(--f-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .lv{max-width:100%;box-sizing:border-box}
@@ -642,6 +642,7 @@ body.kb .evbar{position:static;box-shadow:none}
 .dg .ed{fill:none;stroke:var(--wire);stroke-width:1.4}
 .dg .ed.dante{stroke:var(--dante);stroke-dasharray:5 3}
 .dg .ah{fill:var(--wire)}.dg .ah.dante{fill:var(--dante)}
+.dg .lbg{fill:#0E1526}
 .dg .lb{fill:var(--muted);font:700 10.5px var(--f-display);letter-spacing:.08em;paint-order:stroke;stroke:#0E1526;stroke-width:3px;stroke-linejoin:round}
 .dgkey{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 0 0}
 .dgkey span{display:inline-block;width:22px;height:0;border-top:2px solid var(--wire);margin-right:-8px;vertical-align:middle}
@@ -690,6 +691,7 @@ body.kb .evbar{position:static;box-shadow:none}
 #printsheet .dg .st,#printsheet .dg .ct{fill:#333;font:13px Arial,Helvetica,sans-serif}
 #printsheet .dg .ed{stroke:#333}#printsheet .dg .ed.dante{stroke:#1677A8}
 #printsheet .dg .ah{fill:#333}#printsheet .dg .ah.dante{fill:#1677A8}
+#printsheet .dg .lbg{fill:#fff}
 #printsheet .dg .lb{fill:#555;font:bold 10px Arial,Helvetica,sans-serif;stroke:#fff}
 #printsheet .dgkey{color:#444;font-size:8pt;margin-top:6pt}
 #printsheet .dgkey span{border-top-color:#333}#printsheet .dgkey .k1{border-top-color:#1677A8}
@@ -2513,7 +2515,13 @@ function dgNamed(key, kind, nums, mode){
   }).join(", ");
 }
 function dgWidth(s, font){
-  try{ if (!DGCTX) DGCTX = document.createElement("canvas").getContext("2d"); DGCTX.font = font; return DGCTX.measureText(s).width; }catch(e){ return String(s).length * 7; }
+  // measure in both the on-screen font and the print font (Arial) and keep the wider, so centred text never spills out of a box
+  try{
+    if (!DGCTX) DGCTX = document.createElement("canvas").getContext("2d");
+    DGCTX.font = font; var a = DGCTX.measureText(s).width;
+    DGCTX.font = font.replace(/Arial,.*$/, '"Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'); var b = DGCTX.measureText(s).width;
+    return Math.max(a, b);
+  }catch(e){ return String(s).length * 7; }
 }
 function dgWrap(s, font, w){
   var words = String(s).split(" "), lines = [], cur0 = "";
@@ -2599,7 +2607,7 @@ function plDiagData(p, ev, o){
 }
 function plDiagram(p, ev, o){
   o = o || {};
-  var G = plDiagData(p, ev, o), id = "dg" + (++DGN), W = 720, PAD = 6, GAP = 14, VG = 24, UW = 300, SW = 172;
+  var G = plDiagData(p, ev, o), id = "dg" + (++DGN), W = 720, PAD = 6, GAP = 14, VG = 27, UW = 300, SW = 172;
   var n = G.cols.length, cw = Math.min(n === 1 ? 420 : 340, (W - 2*PAD - (n - 1)*GAP) / n), gx = (W - (n*cw + (n - 1)*GAP)) / 2;
   var sideRow = {}; Object.keys(G.nodes).forEach(function(k){ var nd = G.nodes[k]; if (nd.span === "left" || nd.span === "right") sideRow[nd.row] = 1; });   // branch columns, centred, no wider than the boxes above
   function colX(c){ return gx + G.cols.indexOf(c) * (cw + GAP); }
@@ -2621,7 +2629,7 @@ function plDiagram(p, ev, o){
   if (G.src.length){
     var cwds = G.src.map(function(s){ return dgWidth(s, DG_SF) + 24; }), tot = cwds.reduce(function(a, b){ return a + b; }, 0) + (G.src.length - 1) * 10, cx = (W - tot) / 2;
     G.src.forEach(function(s, i){ chips.push({t:s, x:cx, w:cwds[i], y:y, h:24}); cx += cwds[i] + 10; });
-    y += 24 + VG + 2;
+    y += 24 + VG;
   }
   Object.keys(rows).map(Number).sort(function(a, b){ return a - b; }).forEach(function(r){
     var h = Math.max.apply(null, rows[r].map(function(nd){ return nd.h; }));
@@ -2637,11 +2645,11 @@ function plDiagram(p, ev, o){
     var dpath;
     if (horiz) dpath = "M" + fx + " " + fy + " H" + tx;
     else if (Math.abs(fx - tx) < 1) dpath = "M" + fx + " " + fy + " V" + (ty - 1);
-    else { var my = fy + Math.min(11, (ty - fy) / 2); dpath = "M" + fx + " " + fy + " V" + my + " H" + tx + " V" + (ty - 1); }
+    else { var my = fy + Math.min(7, (ty - fy) / 2); dpath = "M" + fx + " " + fy + " V" + my + " H" + tx + " V" + (ty - 1); }
     s += '<path class="ed ' + kind + '" d="' + dpath + '" marker-end="url(#' + id + (kind === "dante" ? "d" : "a") + ')"/>';
     if (lbl){
       if (horiz) lbls.push({x:(fx + tx) / 2, y:fy - 6, t:lbl, a:"middle"});
-      else { var top = Math.abs(fx - tx) < 1 ? fy : fy + Math.min(11, (ty - fy) / 2); lbls.push({x:tx + 7, y:(top + ty) / 2 + 3.5, t:lbl, a:"start"}); }
+      else { var top = Math.abs(fx - tx) < 1 ? fy : fy + Math.min(7, (ty - fy) / 2); lbls.push({x:tx, y:(top + ty) / 2 + 2, t:lbl, a:"middle", box:true}); }
     }
   }
   // sources converge on the stage box
@@ -2658,11 +2666,15 @@ function plDiagram(p, ev, o){
   Object.keys(nodes).forEach(function(k){
     var nd = nodes[k], ty = nd.y + 9 + 12;
     s += '<g class="nd k-' + nd.kind + '"><rect class="bx" x="' + nd.x + '" y="' + nd.y + '" width="' + nd.w + '" height="' + nd.h + '" rx="9"/><path class="ac" d="M' + (nd.x + 1.5) + ' ' + (nd.y + 8) + ' V' + (nd.y + nd.h - 8) + '"/>';
-    nd.tl.forEach(function(l, i){ s += '<text class="tt" x="' + (nd.x + 14) + '" y="' + (ty + i * DG_TL) + '">' + esc(l) + '</text>'; });
-    nd.sl.forEach(function(l, i){ s += '<text class="st" x="' + (nd.x + 14) + '" y="' + (ty + nd.tl.length * DG_TL + 1 + i * DG_SL) + '">' + esc(l) + '</text>'; });
+    nd.tl.forEach(function(l, i){ s += '<text class="tt" x="' + (nd.x + nd.w / 2) + '" y="' + (ty + i * DG_TL) + '" text-anchor="middle">' + esc(l) + '</text>'; });
+    nd.sl.forEach(function(l, i){ s += '<text class="st" x="' + (nd.x + nd.w / 2) + '" y="' + (ty + nd.tl.length * DG_TL + 1 + i * DG_SL) + '" text-anchor="middle">' + esc(l) + '</text>'; });
     s += '</g>';
   });
-  lbls.forEach(function(l){ s += '<text class="lb" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.a + '">' + esc(String(l.t).toUpperCase()) + '</text>'; });
+  lbls.forEach(function(l){
+    var T = String(l.t).toUpperCase();
+    if (l.box){ var lw = Math.ceil(dgWidth(T, "700 10.5px Arial, Helvetica, sans-serif") * 1.12 + T.length * 0.9 + 12); s += '<rect class="lbg" x="' + (l.x - lw / 2) + '" y="' + (l.y - 10) + '" width="' + lw + '" height="13" rx="3"/>'; }
+    s += '<text class="lb" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.a + '">' + esc(T) + '</text>';
+  });
   return s + '</svg>';
 }
 var DG_KEY = '<p class="dgkey"><span class="k1"></span>Dante <span class="k2"></span>Analogue (XLR, hardline, speaker lines)</p>';
