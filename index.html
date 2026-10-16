@@ -30,7 +30,8 @@ button{font-family:inherit}
 .viewport *{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 .viewport.dragging .world{pointer-events:none}
 .viewport.dragging{cursor:grabbing}
-.world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.world{position:absolute;left:0;top:0;transform-origin:0 0}
+.world.moving{will-change:transform}   /* only while panning or zooming: a layer kept on will-change stays drawn at its old size and looks blurry once zoomed in */
 .area{position:absolute}
 .atitle{font:700 13px var(--f-display);letter-spacing:.32em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .atitle b{color:var(--ink);font-weight:700}
@@ -3286,7 +3287,17 @@ function resolve(v){
 /* ---------- camera ---------- */
 var cam = {x:0,y:0,k:1}, anim = null;
 var camQueued = false;
-function applyCamNow(){ var w = $("world"); if (w) w.style.transform = "translate3d("+cam.x.toFixed(2)+"px,"+cam.y.toFixed(2)+"px,0) scale("+cam.k.toFixed(4)+")"; drawStars(); }
+var camSettle = 0;
+function applyCamNow(){
+  var w = $("world");
+  if (w){
+    w.classList.add("moving");   // smooth while moving...
+    w.style.transform = "translate("+cam.x.toFixed(2)+"px,"+cam.y.toFixed(2)+"px) scale("+cam.k.toFixed(4)+")";
+    clearTimeout(camSettle);
+    camSettle = setTimeout(function(){ w.classList.remove("moving"); }, 160);   // ...then redrawn sharp at the new zoom once it stops
+  }
+  drawStars();
+}
 function applyCam(){ if (camQueued) return; camQueued = true; requestAnimationFrame(function(){ camQueued = false; applyCamNow(); }); }
 function viewArea(){
   var W = window.innerWidth, H = window.innerHeight, top = 70, bottom = 76, d = $("drawer");
