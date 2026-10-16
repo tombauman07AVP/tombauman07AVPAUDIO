@@ -596,6 +596,17 @@ body.kb .dock,body.kb .dmore,body.kb .rchip{display:none}
 .crumb a:hover{color:var(--ink)}
 .evact{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
 .evact .btn,.evbar .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.evmail{margin-top:12px;padding:14px 16px 16px}
+.evmhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.evmhead b{font:700 13px var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.evmtools{display:flex;gap:8px;align-items:center}.evmtools .fi{flex:1;min-width:0}
+.evmlist{margin-top:8px;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:2px}
+.shp{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer}
+.shp[hidden]{display:none}
+.shp:hover{background:var(--glass-2)}
+.shp input{width:18px;height:18px;margin:0;flex:none;accent-color:var(--ok)}
+.shp .pwho{flex:1}
+@media (pointer:coarse){.shp{padding:11px 10px}.shp input{width:22px;height:22px}}
 .evdraft{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:14px;padding:10px 12px}
 .evdraft span{flex:1 1 220px}
 .evlist{padding:4px 0}
@@ -2907,8 +2918,9 @@ function viewEventSheet(id){
   if (e.contact || e.phone) info.push(["On-site contact", esc(e.contact) + (e.phone ? (e.contact ? ' · ' : '') + '<a href="tel:'+esc(e.phone.replace(/[^\d+]/g, ""))+'">'+esc(e.phone)+'</a>' : '')]);
   if (e.techs) info.push(["Techs", esc(e.techs)]);
   if (info.length) h += '<div class="card pllist evinfo">'+info.map(function(i){ return '<div class="plitem"><b>'+i[0]+'</b><span>'+i[1]+'</span></div>'; }).join("")+'</div>';
-  h += '<div class="evact">'+(canShare() ? '<button class="btn" data-evshare="'+e.id+'">Share</button>' : '')+'<button class="btn" data-evprint="'+e.id+'">Print / PDF</button>'+
+  h += '<div class="evact">'+(canShare() ? '<button class="btn" data-evshare="'+e.id+'">Share</button>' : '')+(canMail() ? '<button class="btn" data-evmail="'+e.id+'">Email</button>' : '')+'<button class="btn" data-evprint="'+e.id+'">Print / PDF</button>'+
     (canEdit() ? '<button class="btn" data-evedit="'+e.id+'">Edit</button><button class="btn" data-evdup="'+e.id+'">Duplicate</button>' : '')+'</div>';
+  if (canMail()) h += '<div id="evmailwrap">'+(SH.id === e.id ? shPanel(e) : '')+'</div>';
   if (e.notes) h += '<h2 class="sec">Run sheet and notes</h2><div class="card evnotes">'+esc(e.notes)+'</div>';
   h += '<h2 class="sec">Gear</h2>' + evGearList(e);
   h += '<h2 class="sec">Routing</h2><div id="evout" data-ev="'+e.id+'">'+evOut(e)+'</div>';
@@ -3014,6 +3026,159 @@ window.addEventListener("beforeprint", function(){   // the browser's own Print 
   var m = /^event-([a-z0-9]+)$/.exec(baseRoute()), e = m ? evGet(m[1]) : null; if (e) evPrintPrep(e);
 });
 window.addEventListener("afterprint", function(){ document.body.classList.remove("printing"); });
+/* email a plan sheet to people who have an account */
+var SH = {id:"", people:null, err:null, sel:{}, q:"", note:"", busy:false};
+function canMail(){ return CLOUD && canEdit(); }
+function shMissing(e){ return e && (e.status === 404 || /share_people|share_plan|could not find the function|PGRST202/i.test(e.message || "")); }
+function shPanel(e){
+  var h = '<div class="card evmail"><div class="evmhead"><b>Email this plan</b><button class="btn" data-shclose>Close</button></div>';
+  if (SH.err) return h + '<p class="tip warn">' + (shMissing(SH.err) ? 'Emailing plans isn’t set up in the database yet. An admin runs the plan sharing SQL once in Supabase, then reloads this page.' : esc(SH.err.message || "Couldn’t load the people list.")) + '</p><p><button class="btn" data-shretry>Try again</button></p></div>';
+  if (!SH.people) return h + '<p class="dim">Loading people…</p></div>';
+  var mine = ((me && me.email) || "").toLowerCase(), n = SH.people.filter(function(p){ return SH.sel[p.email]; }).length;
+  h += '<p class="dim" style="margin:2px 0 10px">Pick who gets a copy. Only people with an account on the site are listed.</p>' +
+    '<div class="evmtools"><input class="fi" data-shq type="search" placeholder="Filter by name or email" value="' + esc(SH.q) + '" aria-label="Filter people"><button class="btn" data-shall>' + (n === SH.people.length ? 'Clear all' : 'Select all') + '</button></div>' +
+    '<div class="evmlist" role="group" aria-label="People">' + SH.people.map(function(p){
+      var nm = p.name || p.email, txt = (nm + " " + p.email).toLowerCase(), hide = SH.q && txt.indexOf(SH.q.toLowerCase()) < 0;
+      return '<label class="shp"' + (hide ? ' hidden' : '') + ' data-shtxt="' + esc(txt) + '"><input type="checkbox" data-shp="' + esc(p.email) + '"' + (SH.sel[p.email] ? ' checked' : '') + '><span class="pwho"><b>' + esc(nm) + (p.email === mine ? ' <span class="dim">(you)</span>' : '') + '</b>' + (p.name ? '<span class="dim">' + esc(p.email) + '</span>' : '') + '</span>' + (p.role === "none" ? rolePill("none") : '') + '</label>';
+    }).join("") + '</div>' +
+    '<label class="pltext" style="margin-top:12px"><span class="pllab">Note (optional)</span><textarea class="fi" data-shnote rows="2" placeholder="Anything they should know">' + esc(SH.note) + '</textarea></label>' +
+    '<div class="fbact" style="margin-top:12px"><button class="btn primary" data-shsend' + (SH.busy ? ' disabled' : '') + '>' + shSendLabel(n) + '</button><span class="fbmsg" id="shmsg" role="status"></span></div>' +
+    '<p class="note">They get the event sheet (timings, gear and signal path) in the email, with a link back to this page. Replies come to you.</p>';
+  return h + '</div>';
+}
+function shSendLabel(n){ return n ? 'Send to ' + n + (n === 1 ? ' person' : ' people') : 'Send'; }
+function shRedraw(){ var w = $("evmailwrap"), e = SH.id && evGet(SH.id); if (w) w.innerHTML = e ? shPanel(e) : ""; }
+function shCount(){
+  var b = document.querySelector("[data-shsend]"), a = document.querySelector("[data-shall]"), n = SH.people ? SH.people.filter(function(p){ return SH.sel[p.email]; }).length : 0;
+  if (b) b.textContent = shSendLabel(n); if (a && SH.people) a.textContent = n === SH.people.length ? 'Clear all' : 'Select all';
+}
+function shMsg(t, k){ var m = $("shmsg"); if (m){ m.textContent = t; m.className = "fbmsg" + (k ? " " + k : ""); } }
+function shLoad(){
+  SH.err = null; SH.people = null; shRedraw();
+  sb.rpc("share_people").then(function(r){ SH.people = r || []; shRedraw(); }, function(e){ SH.err = e || {}; shRedraw(); });
+}
+function shOpen(id){
+  if (SH.id === id){ SH.id = ""; shRedraw(); return; }
+  SH.id = id; SH.sel = {}; SH.note = ""; SH.q = "";
+  if (SH.people && !SH.err) shRedraw(); else shLoad();
+  var w = $("evmailwrap"); if (w && w.scrollIntoView) setTimeout(function(){ w.scrollIntoView({block:"nearest", behavior:"smooth"}); }, 30);
+}
+function shSend(){
+  var e = evGet(SH.id); if (!e || SH.busy || !SH.people) return;
+  var to = SH.people.filter(function(p){ return SH.sel[p.email]; }).map(function(p){ return p.email; });
+  if (!to.length){ shMsg("Pick at least one person.", "bad"); return; }
+  var b = document.querySelector("[data-shsend]");
+  SH.busy = true; if (b) b.disabled = true; shMsg("Getting the plan ready…");
+  evMail(e, SH.note).then(function(m){
+    shMsg("Sending…");
+    return sb.rpc("share_plan", {p_event_id:e.id, p_event_name:e.name || "Untitled event", p_to:to, p_subject:m.subject, p_html:m.html, p_text:m.text, p_images:m.images});
+  }).then(function(r){
+    setTimeout(function(){ shPoll(r.id, 6, to.length, r.test_sender); }, 1500);
+  }).catch(function(err){
+    SH.busy = false; var bb = document.querySelector("[data-shsend]"); if (bb) bb.disabled = false;
+    shMsg(shMissing(err) ? "Emailing plans isn’t set up in the database yet. Ask an admin to run the plan sharing SQL." : ((err && err.message) || "Couldn’t send just now. Try again in a moment."), "bad");
+  });
+}
+function shPoll(id, tries, n, test){
+  var done = function(t, k){ SH.busy = false; var bb = document.querySelector("[data-shsend]"); if (bb) bb.disabled = false; shMsg(t, k); };
+  sb.rpc("share_result", {p_id: id}).then(function(r){
+    if (!r){ if (tries > 0) setTimeout(function(){ shPoll(id, tries - 1, n, test); }, 2500); else done("Still sending. It should arrive in a minute.", "ok"); return; }
+    if (r.status >= 200 && r.status < 300){ done("Sent to " + n + (n === 1 ? " person." : " people."), "ok"); toast("Plan emailed."); return; }
+    var why = ""; try{ why = JSON.parse(r.content || "{}").message || ""; }catch(x){ why = r.content || ""; }
+    if (/testing emails|own email|verify a domain/i.test(why)) why = test ? "Resend only sends to its own account’s address until a domain is set up. An admin sets the sender address in Admin → Requests." : why;
+    done("It didn’t send" + (r.status ? " (" + r.status + ")" : "") + ": " + (why || r.error || "unknown problem"), "bad");
+  }).catch(function(e){ done((e && e.message) || "Couldn’t check if it went.", "bad"); });
+}
+function shClick(t){
+  if (t.hasAttribute("data-evmail")){ shOpen(t.getAttribute("data-evmail")); return true; }
+  if (t.hasAttribute("data-shclose")){ SH.id = ""; shRedraw(); var eb = document.querySelector("[data-evmail]"); if (eb) eb.focus(); return true; }
+  if (t.hasAttribute("data-shretry")){ shLoad(); return true; }
+  if (t.hasAttribute("data-shall") && SH.people){
+    var vis = SH.people.filter(function(p){ return !SH.q || ((p.name || p.email) + " " + p.email).toLowerCase().indexOf(SH.q.toLowerCase()) >= 0; });
+    var all = vis.every(function(p){ return SH.sel[p.email]; });
+    vis.forEach(function(p){ SH.sel[p.email] = !all; });
+    document.querySelectorAll("[data-shp]").forEach(function(c){ c.checked = !!SH.sel[c.getAttribute("data-shp")]; });
+    shCount(); return true;
+  }
+  if (t.hasAttribute("data-shsend")){ shSend(); return true; }
+  return false;
+}
+function shInput(t){
+  if (t.hasAttribute("data-shq")){
+    SH.q = t.value.trim(); var q = SH.q.toLowerCase();
+    document.querySelectorAll(".evmlist .shp").forEach(function(l){ l.hidden = !!q && l.getAttribute("data-shtxt").indexOf(q) < 0; });
+    return true;
+  }
+  if (t.hasAttribute("data-shnote")){ SH.note = t.value; return true; }
+  if (t.hasAttribute("data-shp")){ SH.sel[t.getAttribute("data-shp")] = t.checked; shCount(); return true; }
+  return false;
+}
+
+// The email itself: the event sheet as plain HTML that mail apps show, with the signal path as pictures.
+var SVG_PROPS = ["fill","stroke","stroke-width","stroke-dasharray","stroke-linecap","stroke-linejoin","opacity","fill-opacity","stroke-opacity","font-family","font-size","font-weight","font-style","letter-spacing","paint-order","text-anchor","dominant-baseline","visibility"];
+function svgPng(svg, scale){
+  return new Promise(function(ok, bad){
+    var vb = (svg.getAttribute("viewBox") || "").split(/\s+/).map(Number), W = vb[2] || svg.clientWidth, H = vb[3] || svg.clientHeight;
+    var c = svg.cloneNode(true), src = [svg].concat([].slice.call(svg.querySelectorAll("*"))), dst = [c].concat([].slice.call(c.querySelectorAll("*")));
+    src.forEach(function(n, i){ var cs = getComputedStyle(n); dst[i].setAttribute("style", SVG_PROPS.map(function(p){ return p + ":" + cs.getPropertyValue(p); }).join(";")); dst[i].removeAttribute("class"); });
+    c.setAttribute("width", W); c.setAttribute("height", H); c.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    var img = new Image();
+    img.onload = function(){
+      try{
+        var cv = document.createElement("canvas"); cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+        var g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, 0, 0, cv.width, cv.height);
+        ok({b64: cv.toDataURL("image/png").split(",")[1], w: W, h: H});
+      }catch(x){ bad(x); }
+    };
+    img.onerror = function(){ bad(new Error("Couldn’t draw the signal path.")); };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(c));
+  });
+}
+function evMail(e, note){
+  var el = $("printsheet");
+  if (!el){ el = document.createElement("div"); el.id = "printsheet"; document.body.appendChild(el); }
+  el.innerHTML = evPrintHTML(e);
+  var prev = el.style.cssText; el.style.cssText = "display:block;position:absolute;left:-12000px;top:0;width:720px";
+  var parts = [].slice.call(el.querySelectorAll(".ps-path .dgwrap")).map(function(w){ var hd = w.querySelector(".dghead span"); return {head: hd ? hd.textContent : "", svg: w.querySelector("svg.dg")}; });
+  return Promise.all(parts.map(function(p){ return p.svg ? svgPng(p.svg, 2) : Promise.resolve(null); })).then(function(pics){
+    el.style.cssText = prev;
+    var images = [{id:"avp-logo", filename:"av-partners.png", content: LOGO_PRINT.split(",")[1]}];
+    pics.forEach(function(p, i){ if (p) images.push({id:"dg" + (i + 1), filename:"signal-path-" + (i + 1) + ".png", content:p.b64}); });
+    var url = location.href.split("#")[0] + "#event-" + e.id, who = (me && (me.name || me.email)) || "Someone";
+    var t = e.times, tm = EV_TIMES.filter(function(x){ return t[x[0]]; }), gear = evGear(e).filter(function(r){ return r.qty > 0; });
+    var name = e.name || "Untitled event", sub = [evDate(e.date, true) || "Date to be confirmed", plRoomList(PL_ROOMS.filter(function(k){ return e.plan.rooms[k]; }))].filter(Boolean).join("  ·  ");
+    var F = "font-family:Arial,Helvetica,sans-serif;", H2 = 'style="' + F + 'font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#555;margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid #bbb;font-weight:bold"';
+    var h = '<!doctype html><html><body style="margin:0;padding:0;background:#f2f2f2"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f2"><tr><td align="center" style="padding:20px 10px">' +
+      '<table role="presentation" width="680" cellpadding="0" cellspacing="0" style="width:100%;max-width:680px;background:#fff;border:1px solid #ddd"><tr><td style="padding:24px 20px;' + F + 'color:#111;font-size:14px;line-height:1.45">' +
+      '<img src="cid:avp-logo" alt="AV Partners" height="20" style="display:block;height:20px;width:auto;margin:0 0 8px;border:0">' +
+      '<div style="' + F + 'font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;border-top:3px solid #111;padding-top:6px">RACV Royal Pines · Ballroom audio · Event sheet</div>' +
+      '<h1 style="' + F + 'font-size:28px;line-height:1.15;margin:8px 0 2px;color:#111">' + esc(name) + '</h1><p style="margin:0;font-size:15px;color:#333">' + esc(sub) + '</p>';
+    if (note && note.trim()) h += '<div style="margin:16px 0 0;padding:10px 12px;background:#f5f5f5;border-left:3px solid #111;white-space:pre-wrap"><b>Note from ' + esc(who) + ':</b><br>' + esc(note.trim()) + '</div>';
+    h += '<p style="margin:16px 0 0"><a href="' + esc(url) + '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:9px 16px;border-radius:6px;font-weight:bold">Open in Ballroom Audio</a> <span style="color:#666;font-size:12px">&nbsp;Sign in to see the live version.</span></p>';
+    h += '<h2 ' + H2 + '>Timings</h2>' + (tm.length ? '<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr>' + tm.map(function(x){ return '<td style="padding:0 6px 6px 0" valign="top"><div style="border:1px solid #999;border-radius:5px;padding:5px 9px"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555">' + x[1] + '</div><div style="font-size:18px;font-weight:bold">' + evTime(t[x[0]]) + '</div></div></td>'; }).join("") + '</tr></table>' : '<p style="margin:0;color:#666">No times set.</p>');
+    h += '<h2 ' + H2 + '>Gear</h2>' + (gear.length ? '<table cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;font-size:14px"><tr><th align="center" style="font-size:10px;letter-spacing:1.5px;color:#555;padding:0 6px 4px;border-bottom:1px solid #999;width:40px">QTY</th><th align="left" style="font-size:10px;letter-spacing:1.5px;color:#555;padding:0 6px 4px;border-bottom:1px solid #999">ITEM</th><th align="left" style="font-size:10px;letter-spacing:1.5px;color:#555;padding:0 6px 4px;border-bottom:1px solid #999">WHERE / NOTES</th></tr>' +
+      gear.map(function(r){ return '<tr><td align="center" valign="top" style="padding:4px 6px;border-bottom:1px solid #ddd;font-weight:bold;font-size:15px">' + r.qty + '</td><td valign="top" style="padding:4px 6px;border-bottom:1px solid #ddd"><b>' + esc(r.item) + '</b></td><td valign="top" style="padding:4px 6px;border-bottom:1px solid #ddd;color:#444">' + esc(r.det) + '</td></tr>'; }).join("") + '</table>' : '<p style="margin:0;color:#666">No gear listed.</p>');
+    h += '<h2 ' + H2 + '>Signal path</h2>';
+    pics.forEach(function(p, i){
+      if (!p) return;
+      if (parts[i].head) h += '<p style="margin:12px 0 4px;font-size:12px;font-weight:bold;letter-spacing:1px;color:#222">' + esc(parts[i].head) + '</p>';
+      h += '<img src="cid:dg' + (i + 1) + '" alt="' + esc("Signal path: " + parts[i].head) + '" width="640" height="' + Math.round(640 * p.h / p.w) + '" style="display:block;width:100%;max-width:640px;height:auto;border:0">';
+    });
+    if (!pics.length) h += '<p style="margin:0;color:#666">No rooms set up yet.</p>';
+    else h += '<p style="margin:8px 0 0;font-size:11px;color:#444"><span style="color:#1677A8;font-weight:bold">━━</span> Dante &nbsp; <span style="font-weight:bold">━━</span> Analogue (XLR, hardline, speaker lines)</p>';
+    h += '<p style="margin:22px 0 0;padding-top:8px;border-top:1px solid #bbb;font-size:12px;color:#666">Sent by ' + esc(who) + ' from Ballroom Audio on ' + esc(evWhen(new Date().toISOString())) + '. Reply to this email to reach them.</p>';
+    h += '</td></tr></table></td></tr></table></body></html>';
+    var txt = [name, sub, ""];
+    if (note && note.trim()) txt.push("Note from " + who + ":", note.trim(), "");
+    txt.push("Open in Ballroom Audio: " + url, "", "TIMINGS");
+    txt = txt.concat(tm.length ? tm.map(function(x){ return x[1] + ": " + evTime(t[x[0]]); }) : ["No times set."]);
+    txt.push("", "GEAR");
+    txt = txt.concat(gear.length ? gear.map(function(r){ return r.qty + " × " + r.item + (r.det ? " (" + r.det + ")" : ""); }) : ["No gear listed."]);
+    txt.push("", "The signal path diagrams are in the HTML version of this email, and on the event page.", "", "Sent by " + who + " from Ballroom Audio.");
+    return {subject: "Plan: " + name + (e.date ? " · " + evDate(e.date, true) : ""), html: h, text: txt.join("\n"), images: images};
+  }, function(err){ el.style.cssText = prev; throw err; });
+}
+
 
 function evClick(t){
   var id;
@@ -3043,6 +3208,7 @@ function evClick(t){
   if (t.hasAttribute("data-evdiscard")){ evDrop(); var db = $("dbody"); if (db && planMode() === "list") db.innerHTML = viewEvents(); return true; }
   if (t.hasAttribute("data-evshare")){ evShare(t.getAttribute("data-evshare")); return true; }
   if (t.hasAttribute("data-evprint")){ evPrint(t.getAttribute("data-evprint")); return true; }
+  if (shClick(t)) return true;
   return false;
 }
 /* route highlight on the main map */
@@ -3571,6 +3737,7 @@ app.addEventListener("input", function(e){
   var t = e.target;
   if (t.id==="q"){ sigFilter.q = t.value; $("sigres").innerHTML = signalResults(); afterResults(); return; }
   var ef = t.getAttribute && t.getAttribute("data-evf"); if (ef){ evSetField(ef, t.value); return; }
+  if (t.closest && t.closest(".evmail") && shInput(t)) return;
   var fbf = t.getAttribute && t.getAttribute("data-fbf"); if (fbf){ FB[fbf] = t.value; if (FB.err){ FB.err = ""; var fm = $("fbmsg"); if (fm) fm.textContent = ""; } return; }
   var ex = t.getAttribute && t.getAttribute("data-evx"); if (ex){ evSetExtra(ex, t.value); return; }
   var pf = t.getAttribute && t.getAttribute("data-plf");
@@ -3586,6 +3753,7 @@ app.addEventListener("input", function(e){
 app.addEventListener("submit", function(e){ if (e.target && e.target.id==="signinform"){ e.preventDefault(); doSignIn(); } });
 app.addEventListener("change", function(e){
   if (CLOUD && started && adminChange(e.target)) return;
+  if (e.target.closest && e.target.closest(".evmail") && shInput(e.target)) return;
   var pk = e.target.getAttribute && e.target.getAttribute("data-plck"); if (pk){ plSaveTick(e.target.getAttribute("data-tk") || plKey(PLAN), pk, e.target.checked); planRefreshOut(); return; }
   var ef = e.target.getAttribute && e.target.getAttribute("data-evf"); if (ef && EVD){ var cur0 = /^times\./.test(ef) ? EVD.times[ef.slice(6)] : EVD[ef]; if (cur0 !== e.target.value) evSetField(ef, e.target.value); return; }
   var ck = e.target.getAttribute && e.target.getAttribute("data-ck"); if (ck){ CHECKED[ck] = e.target.checked; syncChecks(e.target.closest(".best")); return; }
@@ -4034,8 +4202,9 @@ function fbClick(t){
 function rqLoad(){
   return Promise.all([
     sb.rest("requests?select=id,at,user_id,user_name,user_email,kind,about,message,status,reply&order=at.desc&limit=300"),
-    sb.rpc("notify_settings").catch(function(){ return null; })
-  ]).then(function(r){ adminCache.requests = {t: Date.now(), rows: r[0] || [], settings: r[1] || {}}; RQ_NEW = (r[0] || []).filter(function(x){ return x.status === "new"; }).length; })
+    sb.rpc("notify_settings").catch(function(){ return null; }),
+    sb.rpc("share_settings").catch(function(){ return null; })
+  ]).then(function(r){ adminCache.requests = {t: Date.now(), rows: r[0] || [], settings: r[1] || {}, share: r[2]}; RQ_NEW = (r[0] || []).filter(function(x){ return x.status === "new"; }).length; })
     .catch(function(e){ adminCache.requests = {t: Date.now(), rows: [], err: e}; });
 }
 var RQ_NEW = 0, RQ_FILTER = "open", RQ_EDIT = false;
@@ -4057,6 +4226,15 @@ function rqAdminHTML(c){
       '<div class="fbact"><button class="btn primary" id="rq-save">Save</button>' + (s.has_key ? '<button class="btn" id="rq-test">Send a test email</button>' : '') + (ready ? '<button class="btn" id="rq-cancel">Cancel</button>' : '') + '<span class="fbmsg" id="rq-msg" role="status"></span></div>' +
       '<p class="note">Use the same email you sign up to Resend with: until you add your own domain in Resend, it only sends to that address. The key is kept in the database where nobody can read it back, not even from this page.</p>';
     if (s.mail_ok === false) h += '<p class="tip warn">The database’s mail add-on (pg_net) isn’t switched on. In Supabase, open Database → Extensions and turn on <b>pg_net</b>, then run the requests SQL again.</p>';
+  }
+  h += '</div>';
+  h += '<div class="card ainfo" style="margin-top:12px"><b>Emailing plans to the team</b>';
+  if (!c.share){
+    h += '<p class="dim" style="margin:4px 0 0">Not set up yet. Run the plan sharing SQL once in Supabase (SQL Editor → New query → paste → Run), then reload this page.</p>';
+  } else {
+    h += '<p class="dim" style="margin:4px 0 10px">Editors and admins can email an event’s plan from its page. Resend only sends to other people from an address on a domain you’ve verified in Resend (Resend → Domains). Until then, plans only reach the email you signed up to Resend with.</p>' +
+      '<div class="rqform"><label class="pltext"><span class="pllab">Send plans from</span><input class="fi" id="sh-from" type="email" value="' + esc((c.share.from || "").replace(/^.*<([^>]+)>$/, "$1")) + '" placeholder="plans@your-domain.com.au" autocomplete="off"></label></div>' +
+      '<div class="fbact"><button class="btn primary" id="sh-fromsave">Save</button><span class="fbmsg" id="sh-frommsg" role="status">' + (c.share.from ? '' : 'Using Resend’s test address for now.') + '</span></div>';
   }
   h += '</div>';
   var rows = c.rows.filter(function(r){ return RQ_FILTER === "all" || (RQ_FILTER === "done" ? r.status === "done" : r.status !== "done"); });
@@ -4092,6 +4270,12 @@ function rqClick(t){
       .catch(function(e){ toast(e.message || "Couldn’t save the reply."); });
     return true;
   }
+  if (t.id === "sh-fromsave"){
+    var fv = (($("sh-from") || {}).value || "").trim(), fm = $("sh-frommsg"); t.disabled = true;
+    sb.rpc("set_share_from", {p_from: fv}).then(function(r){ if (c) c.share = r || {}; t.disabled = false; var m3 = $("sh-frommsg"); if (m3){ m3.textContent = fv ? "Saved. Email a plan to yourself to check it works." : "Cleared. Using Resend’s test address."; m3.className = "fbmsg ok"; } })
+      .catch(function(e){ t.disabled = false; if (fm){ fm.textContent = e.message || "Couldn’t save."; fm.className = "fbmsg bad"; } });
+    return true;
+  }
   if (t.id === "rq-change"){ RQ_EDIT = true; renderAdmin(); return true; }
   if (t.id === "rq-cancel"){ RQ_EDIT = false; renderAdmin(); return true; }
   if (t.id === "rq-save"){
@@ -4113,9 +4297,9 @@ function rqClick(t){
 
 /* admin page */
 var adminTab = "activity", adminCache = {}, adminOffset = 0, adminFilter = {who:"", what:""}, restoreArm = null;
-var ACTS = {request:"sent a request", sign_in:"signed in", sign_out:"signed out", view:"opened", search:"searched", saved:"saved", restored:"restored", role_changed:"changed access for", password_reset:"reset the password for", password_changed:"changed their password", account_created:"account created", edit_started:"started editing", edit_discarded:"discarded their edits", name_changed:"changed the name for"};
-var ACT_GROUPS = [["","Everything"],["request","Requests"],["sign","Sign-ins"],["view","Pages opened"],["search","Searches"],["edit","Edits and restores"],["people","People and passwords"]];
-function actGroup(a){ return a==="request" ? "request" : /^sign_/.test(a) ? "sign" : a==="view" ? "view" : a==="search" ? "search" : /saved|restored|edit_/.test(a) ? "edit" : "people"; }
+var ACTS = {shared:"emailed a plan", request:"sent a request", sign_in:"signed in", sign_out:"signed out", view:"opened", search:"searched", saved:"saved", restored:"restored", role_changed:"changed access for", password_reset:"reset the password for", password_changed:"changed their password", account_created:"account created", edit_started:"started editing", edit_discarded:"discarded their edits", name_changed:"changed the name for"};
+var ACT_GROUPS = [["","Everything"],["request","Requests"],["sign","Sign-ins"],["view","Pages opened"],["search","Searches"],["edit","Edits and restores"],["share","Plans emailed"],["people","People and passwords"]];
+function actGroup(a){ return a==="request" ? "request" : a==="shared" ? "share" : /^sign_/.test(a) ? "sign" : a==="view" ? "view" : a==="search" ? "search" : /saved|restored|edit_/.test(a) ? "edit" : "people"; }
 function viewAdmin(){
   if (!isAdmin()) return '<h1>Admin</h1><p class="lede">Only admins can see this page.</p>';
   setTimeout(function(){ loadAdmin(false); }, 0);
@@ -4155,6 +4339,7 @@ function loadMoreActivity(){
 function actDetail(r){
   var d = r.detail || {}, a = r.action;
   if (a==="search") return '“'+esc(r.target)+'”'+(d.match ? ' <span class="dim">→ '+esc(d.match)+'</span>' : '');
+  if (a==="shared") return '“'+esc(r.target)+'” <span class="dim">to '+esc((d.to || []).join(", "))+'</span>';
   if (a==="request") return '<span class="dim">'+esc(fbKindLabel(d.kind || "fix"))+(d.about ? ' · '+esc(d.about) : '')+':</span> “'+esc(r.target)+'”';
   if (a==="saved" || a==="restored"){
     var s = d.summary ? String(d.summary) : "";
