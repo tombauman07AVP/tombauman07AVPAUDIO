@@ -158,7 +158,7 @@ a.fnode:hover{text-decoration:underline}
 .lv{display:inline-flex;align-items:baseline;gap:7px;padding:3px 10px;border-radius:7px;background:var(--kb);border:1px solid var(--line);border-color:color-mix(in srgb,var(--k) 35%,transparent);font:600 14px var(--f-body)}
 .lv i{font:700 10px var(--f-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .lv{max-width:100%;box-sizing:border-box}
-.cval{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:3px 6px;min-width:0}
+.cval{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:3px 6px;min-width:0;text-align:center}
 .cnum{font-weight:500;color:var(--muted);font-size:.93em}
 .carr{color:var(--muted);margin:0 1px}
 .chip .cnmc{font:700 12.5px var(--f-display);letter-spacing:.04em;white-space:nowrap}
@@ -2497,9 +2497,9 @@ function dgRange(list){   // [33,34,37,38,39] -> "33–34, 37–39"
   while (i < n.length){ var j = i; while (j + 1 < n.length && n[j+1] === n[j] + 1) j++; out.push(j > i ? n[i] + "–" + n[j] : String(n[i])); i = j + 1; }
   return out.join(", ");
 }
-function dgNamed(key, kind, nums, mode){
+function dgNamed(key, kind, nums, mode, asList){
   var n = (nums || []).filter(function(x, i){ return !isNaN(x) && nums.indexOf(x) === i; }).sort(function(a, b){ return a - b; });
-  if (!n.length) return "";
+  if (!n.length) return asList ? [] : "";
   var tbl = hasTable(key), groups = [];
   n.forEach(function(x){
     var nm = tbl ? String(chName(key, kind + " " + x) || "").trim() : "", w = nm ? nm.split(/\s+/) : [];
@@ -2509,10 +2509,15 @@ function dgNamed(key, kind, nums, mode){
   });
   return groups.map(function(g){
     var num = kind + " " + dgRange(g.nums);
-    if (!g.nm) return num;
+    if (!g.nm) return asList ? [num, ""] : num;
     var label = g.nums.length === 1 ? (mode === "room" ? g.pre : g.nm) : (mode === "room" ? g.pre : g.pre + " " + g.suf.join("/"));
-    return label + " (" + num + ")";
-  }).join(", ");
+    return asList ? [num, label] : label + " (" + num + ")";
+  })[asList ? "slice" : "join"](asList ? 0 : ", ");
+}
+// page 2 style: one line per group, number first, name after: ["Ch 97 (LEC L)", "MT 4–6 (ROOM 2 L/R/SUB)"]
+function dgLines(key, kind, nums, word){
+  var g = dgNamed(key, kind, nums, "", true);
+  return (g || []).map(function(x){ var n = word ? x[0].replace(kind, word) : x[0]; return x[1] ? n + " (" + x[1] + ")" : n; });
 }
 function dgWidth(s, font){
   // measure in both the on-screen font and the print font (Arial) and keep the wider, so centred text never spills out of a box
@@ -2542,7 +2547,7 @@ function plDiagData(p, ev, o){
   var rk = plRackInputs(), ins = [], chs = [];
   if (e.lec >= 1) ins.push(1); if (e.lec >= 2) ins.push(2); if (e.pc) ins.push(3); if (e.spare) ins.push(4);
   ins.forEach(function(i){ if (rk[i]) chs.push(Number(rk[i].ch)); });
-  if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks A + B" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st], ins.length ? dgNamed(e.src, "In", ins) : ""]);
+  if (box) N("in", 1, "rio", e.band ? (e.src === "sr1" ? "Stage Racks A + B" : box + " + band racks") : box, ["Side-stage, " + ROOMNAME[st]].concat(ins.map(function(i){ var nm = (hasTable(e.src) && chName(e.src, "In " + i)) || (rk[i] && rk[i].sig) || ""; return nm ? nm + " · In " + i : "In " + i; })));
   else { var wsD = plDirectSrcs(e, st); G.srcLabel = "Wall loom"; N("in", 1, "room", ROOMNAME[st] + " wall patch", wsD.length ? wsD.map(function(r){ return r.sig + " · wall " + plWallPort(r, st); }) : [ins.length ? dgNamed(st, "In", ins) : ""]); }
   // the desk (none for a room run from the QL5)
   var dsub = [];
@@ -2552,8 +2557,8 @@ function plDiagData(p, ev, o){
     rooms.forEach(function(k){ var R = plRoomRoutes(k); [R.L, R.R].forEach(function(r){ mts = mts.concat(dgNums(plMT(plStep(r, "dm7f")))); }); if (e.subs && k === (e.subsFrom || st)) mts = mts.concat(dgNums(plMT(plStep(R.S, "dm7f")))); });
     if (e.ff) mts = mts.concat(dgNums(plMT(plStep(plRoute("Front Fill"), "dm7f"))));
     if (p.foyer === "opa") mts = mts.concat(dgNums(plMT(plStep(plRoute("Foyer"), "dm7f"))));
-    if (box && chs.length) dsub.push("In: " + dgNamed("dm7f", "Ch", chs));
-    dsub.push("Out: " + dgNamed("dm7f", "MT", mts));
+    if (box) chs.slice().sort(function(a, b){ return a - b; }).forEach(function(c){ dsub = dsub.concat(dgLines("dm7f", "Ch", [c])); });   // one line per input
+    dsub = dsub.concat(dgLines("dm7f", "MT", mts));
   } else dsub.push("ST L/R + Sub out");
   if (!D.direct){
   dsub.push(e.deskIn === "out" ? "Not in the room" : (e.pos || "Pillar in " + ROOMNAME[e.deskIn]));
@@ -2575,7 +2580,7 @@ function plDiagData(p, ev, o){
   var foy = (p.foyer === "opa" && d === "opa") || (p.foyer === "bgm" && o.first);
   if (foy && Y){ if (p.foyer === "opa") qin = qin.concat(dgNums(plStep(Y, "ql5"))); rio = rio.concat(dgNums(plStep(Y, "rio"))); g1i = g1i.concat(dgNums(plStep(Y, "gal1"))); g1o = g1o.concat(dgNums(plStep(Y, "gal1", 1))); }
   if (D.direct) N("ql5", 3, "ql", "QL5 · Inputs", plDirectSrcs(e, rooms[0]).map(function(r){ return "Input " + dgNums(plStep(r, "ql5"))[0] + " (" + r.sig + ")"; }).concat(plDirectSrcs(e, rooms[0]).length ? [] : ["No inputs on"]));
-  else N("ql5", 3, "ql", "QL5 · AV2", [dgNamed("ql5", "In", qin), "Fixed routing"]);
+  else N("ql5", 3, "ql", "QL5 · AV2", dgLines("ql5", "In", qin, "Input").concat(["Fixed routing"]));
   var QA = "ql5";
   if (D.direct){
     E("in", "ql5", "AV2 Rio · Dante", "dante");
