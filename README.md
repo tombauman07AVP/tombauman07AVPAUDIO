@@ -11,6 +11,7 @@ The page you see on GitHub has **no venue information in it**. Everything lives 
 | `index.html` | The site. Replace this file whenever Claude sends you a new version. |
 | `config.js` | Connects the site to your Supabase project. Set it once, then leave it alone. |
 | `setup.sql` | The one-off database setup. You run it in Supabase, and it's kept here for reference. |
+| `sql/plan-share.sql` | Turns on emailing plans to the team. Run it once in Supabase after the requests SQL. |
 | `.github/workflows/keepalive.yml` | Optional. Stops the free database from going to sleep. |
 
 ## Roles
